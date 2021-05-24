@@ -78,7 +78,7 @@ class iFoodController extends Controller
     {
         $orders = OrderDetails::where('code', 'RTP')->orderBy('createdAt', 'DESC')
                             ->limit(10)->get();
-        return json_encode($orders);
+        return response()->json($orders);
     }
 
     public function confirmOrder(Request $request)

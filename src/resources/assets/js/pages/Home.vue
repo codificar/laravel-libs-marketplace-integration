@@ -81,7 +81,7 @@
                                         class="mr-5"
                                     >
                                         <v-img
-                                            :src="require('../images/ifood.jpg')"
+                                            :src="require('../assets/images/ifood.jpg')"
                                             alt="iFood"
                                         />
                                     </v-avatar>

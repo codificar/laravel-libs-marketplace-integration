@@ -12,7 +12,11 @@ class ShopsController extends Controller
 {
     public function index(Request $request)
     {
-        return Shops::all();
+        $shops = Shops::all();
+        foreach ($shops as $key => $value) {
+            $value->getConfig;
+        }
+        return $shops;
     }
 
     public function store(ShopsFormRequest $request)

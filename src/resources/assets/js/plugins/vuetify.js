@@ -36,7 +36,8 @@ import Vuetify, {
     VSkeletonLoader,
     VBottomSheet,
     VFabTransition,
-    VSpeedDial
+    VSpeedDial,
+    VListItemGroup
  } from "vuetify/lib";
 
  Vue.use(Vuetify, {
@@ -75,7 +76,8 @@ import Vuetify, {
       VSkeletonLoader,
       VBottomSheet,
       VFabTransition,
-      VSpeedDial
+      VSpeedDial,
+      VListItemGroup
     },
  })
 

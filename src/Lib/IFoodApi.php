@@ -1,10 +1,9 @@
 <?php
 
 use App\MarketConfig;
-use Codificar\Delivery\Lib\DeliveryInterface;
 use GuzzleHttp\Client;
 
-class IFoodApi implements DeliveryInterface
+class IFoodApi
 {
   protected $clientId;
   protected $clientSecret;
