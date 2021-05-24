@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\iFood;
+namespace Codificar\MarketplaceIntegration\Http\Controllers\iFood;
 
 use App\Events\OrderUpdate;
 use App\Http\Controllers\Controller;

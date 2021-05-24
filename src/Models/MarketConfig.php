@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Codificar\MarketplaceIntegration\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

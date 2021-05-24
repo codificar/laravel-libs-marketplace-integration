@@ -1,6 +1,6 @@
 <?php
 
-namespace Codificar\Delivery\Lib;
+namespace Codificar\MarketplaceIntegration\Lib;
 
     interface DeliveryInterface
     {

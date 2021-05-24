@@ -3,8 +3,6 @@
     "description": "A lib of integration with delivery's plataforms for laravel",
     "type": "package",
     "require": {
-        "guzzlehttp/guzzle": "7.0",
-        "php": "7.1"
     },
     "require-dev": {
         "phpunit/phpunit": "7.5"
@@ -37,12 +35,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
-        },
-        "classmap": [
-            "database/seeds",
-            "database/factories",
-            "app/Libs"
-        ]
+            "Codificar\\MarketplaceIntegration\\": "src/"
+        }
+        
     }
 }

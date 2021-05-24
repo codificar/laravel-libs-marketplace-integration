@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
 use App\Http\Requests\ShopsFormRequest;
 use App\Http\Resources\ShopResource;

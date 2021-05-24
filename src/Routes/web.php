@@ -12,8 +12,4 @@
 */
 
 
-Route::get('/{any}', 'SinglePageController@index')->where('any', '.*');
-// Route::get('/fire', function () {
-//   event(new \App\Events\OrderUpdate());
-//   return 'ok';
-// });
+Route::get('/marketplace/integration', 'SinglePageController@index');
