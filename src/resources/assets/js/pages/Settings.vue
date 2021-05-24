@@ -16,7 +16,7 @@
         </div>
         <v-card-text>
             <v-card 
-                    class="pa-md-4 mx-lg-auto mb-2 col-6"
+                    class="pa-md-4 mx-lg-auto mb-2"
                     elevation="2"
                     v-for="shop in $store.state.shops"
                     :key="shop.id"
@@ -29,100 +29,112 @@
                                     Nome: {{shop.name}}
                                 </div>
                             </div>
-                            <div class="font-weight-black">
-                                <v-list rounded>
-                                    <v-list-item-group
-                                        color="primary"
-                                    >
-                                        <v-list-item
-                                        v-for="(item, i) in shop.get_config"
+                            <div class="font-weight-black col-8">
+                                <v-expansion-panels>
+                                    <v-expansion-panel
+                                        v-for="(item,i) in shop.get_config"
                                         :key="i"
-                                        >
-                                            <v-avatar
-                                                size="32"
-                                                class="mr-5"
-                                            >
-                                                <v-img
-                                                    :src="require('../assets/images/ifood.jpg')"
-                                                    alt="iFood"
-                                                />
-                                            </v-avatar>
-                                            <v-list-item-content>
-                                                <v-list-item-title v-text="toUpperCase(item.market)"></v-list-item-title>
-                                            </v-list-item-content>
-                                            <v-list-item-icon>
+                                    >
+                                    <v-expansion-panel-header>
+                                        {{item.market.toUpperCase()}}
+                                    </v-expansion-panel-header>
+                                    <v-expansion-panel-content>
+                                        <div class="font-weight-black">
+                                            <div class="font-weight-medium">
+                                                CLIENT_ID: {{item.client_id}}
+                                            </div>
+                                        </div>
+                                        <div class="font-weight-black">
+                                            <div class="font-weight-medium">
+                                                CLIENT_SECRET: {{item.client_secret}}
+                                            </div>
+                                        </div>
+                                        <div class="font-weight-black">
+                                            <v-btn-toggle >
                                                 <v-btn
-                                                    class="ml-2"
                                                     fab
-                                                    dark
-                                                    small
+                                                    x-small
                                                     color="cyan"
+                                                    @click="addShop"
                                                 >
-                                                    <v-icon dark>
-                                                        mdi-pencil
-                                                    </v-icon>
+                                                    <v-icon>mdi-pencil</v-icon>
                                                 </v-btn>
-                                            </v-list-item-icon>
-                                            <v-list-item-icon>
+
                                                 <v-btn
-                                                    class="mr-2"
                                                     fab
-                                                    dark
-                                                    small
+                                                    x-small
                                                     color="red"
                                                 >
-                                                    <v-icon dark>
-                                                        mdi-delete-outline
-                                                    </v-icon>
+                                                    <v-icon>mdi-delete-outline</v-icon>
                                                 </v-btn>
-                                            </v-list-item-icon>
-                                        </v-list-item>
-                                    </v-list-item-group>
-                                </v-list>
+
+                                                <v-btn
+                                                    fab
+                                                    x-small
+                                                    color="success"
+                                                    @click="addShop"
+                                                >
+                                                    <v-icon dark>
+                                                        mdi-plus
+                                                    </v-icon>
+                                                </v-btn>  
+                                            </v-btn-toggle>
+                                        </div>
+                                    </v-expansion-panel-content>
+                                    </v-expansion-panel>
+                                </v-expansion-panels>
                             </div>
                             <div class="font-weight-black">
-                                <v-btn
-                                    class="ma-2"
-                                    color="cyan"
-                                >
-                                    Editar Loja
-                                </v-btn>
-                                <v-btn
-                                    class="ma-2"
-                                    color="cyan"
-                                >
-                                    Remover Loja
-                                </v-btn>
-                                <v-btn
-                                    class="ma-2"
-                                    fab
-                                    dark
-                                    x-small
-                                    color="success"
-                                >
-                                    <v-icon dark>
-                                        mdi-plus
-                                    </v-icon>
-                                </v-btn> 
+                                <v-btn-toggle >
+                                    <v-btn
+                                        fab
+                                        x-small
+                                        color="cyan"
+                                    >
+                                        <v-icon>mdi-pencil</v-icon>
+                                    </v-btn>
+
+                                    <v-btn
+                                        fab
+                                        x-small
+                                        color="red"
+                                    >
+                                        <v-icon>mdi-delete-outline</v-icon>
+                                    </v-btn>
+
+                                    <v-btn
+                                        fab
+                                        x-small
+                                        color="success"
+                                        @click="addShop"
+                                    >
+                                        <v-icon dark>
+                                            mdi-plus
+                                        </v-icon>
+                                    </v-btn>  
+                                </v-btn-toggle>
                             </div>
                         </div>
                     </div>
                 </v-card>
         </v-card-text>
-        
+        <modal-component v-if="$store.state.sheet"/>
     </v-card>
    
 </template>
 
 <script>
 import FormShop from '../components/FormShop';
+import ModalComponent from "../components/Modal.vue";
     export default {
         components:{
-            FormShop
+            FormShop,
+            ModalComponent
         },
-        data: () => {
-            selectedItem: ''
-        },
+        data: () => ({
+            sheet: false,
+            selectedItem: '',
+        }),
         mounted() {
             console.log('Component mounted.')
             if (this.$store.state.shops == 0) {
@@ -135,8 +147,8 @@ import FormShop from '../components/FormShop';
             listStores(){
                 this.$store.dispatch('getShops');
             },
-            toUpperCase(string){
-                return string.toUpperCase();
+            addShop(){
+                this.$store.dispatch('showDetail', {key: 'addShop', data: ''})
             }
         }
     }
