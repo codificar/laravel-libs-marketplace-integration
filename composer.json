@@ -16,6 +16,20 @@
             "email": "diogo.coutinho@codificar.com.br"
         }
     ],
+    "repositories": [
+        {
+          "type": "package",
+          "package": {
+            "name": "codificar/marketplace-integration",
+            "version": "master",
+            "source": {
+              "url": "https://libs:ofImhksJ@git.codificar.com.br/laravel-libs/marketplace-integration.git",
+              "type": "git",
+              "reference": "master"
+            }
+          }
+        }
+    ],    
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
