@@ -7,9 +7,8 @@ class MarketplaceServiceProvider extends ServiceProvider {
     public function boot()
     {
         // Load routes (carrega as rotas)
-        $this->loadRoutesFrom(__DIR__.'/routes/api.php');
-        $this->loadRoutesFrom(__DIR__.'/routes/langs.php');
-        $this->loadRoutesFrom(__DIR__.'/routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         // // Load laravel views (Carregas as views do Laravel, blade)
         $this->loadViewsFrom(__DIR__.'/resources/views', 'marketplace-integration');
