@@ -11,5 +11,6 @@
 |
 */
 
-
-Route::get('/marketplace/integration', 'src\Http\Controllers\SinglePageController@index');
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers'), function () {
+    Route::get('/marketplace/integration', 'src\Http\Controllers\SinglePageController@index');
+});
