@@ -1,5 +1,4 @@
-
-
+```
 repositories:{
     {
       "type":"package",
@@ -30,3 +29,4 @@ psr-4:{
 /config/app.php:[
         Codificar\MarketPlaceIntegration\MarketplaceServiceProvider::class,
 ],
+```
