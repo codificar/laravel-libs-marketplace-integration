@@ -20,13 +20,13 @@ require:{
 
 
 psr-4:{
-    "Codificar\\MarketPlaceIntegration\\": "vendor/codificar/marketplace-integration/src",
+    "Codificar\\MarketplaceIntegration\\": "vendor/codificar/marketplace-integration/src",
 
 }
 
 
 
 /config/app.php:[
-        Codificar\MarketPlaceIntegration\MarketplaceServiceProvider::class,
+        Codificar\MarketplaceIntegration\MarketplaceServiceProvider::class,
 ],
 ```
