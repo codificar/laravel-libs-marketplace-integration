@@ -20,7 +20,7 @@ require:{
 
 
 psr-4:{
-    "Codificar\\MarketPlaceIntegration\\": "vendor/codificar/marketplace-integrations/src",
+    "Codificar\\MarketPlaceIntegration\\": "vendor/codificar/marketplace-integration/src",
 
 }
 
