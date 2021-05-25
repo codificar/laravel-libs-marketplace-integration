@@ -1,8 +1,7 @@
 <?php
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
-
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class SinglePageController extends Controller
 {
