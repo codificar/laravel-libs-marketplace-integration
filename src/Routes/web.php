@@ -12,4 +12,4 @@
 */
 
 
-Route::get('/marketplace/integration', 'SinglePageController@index');
+Route::get('/marketplace/integration', 'src\Http\Controllers\SinglePageController@index')->where('any', '.*');
