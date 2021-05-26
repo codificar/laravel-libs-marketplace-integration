@@ -13,16 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
+    Route::resource('/shop', 'ShopsController');
+    Route::get('/auth/userCode', 'Libs\IFoodApi@userCode');
+    Route::get('/auth/ifood', 'iFoodController@auth');
+    Route::get('/ifood/merchants', 'iFoodController@getMerchants');
+    Route::get('/ifood/events', 'iFoodController@getOrders');
+    Route::get('/orders/{id}', 'iFoodController@getOrdersDataBase');
+    Route::post('/order/ifood/events', 'iFoodController@confirmOrder');
+    Route::post('/order/{id}/confirm', 'iFoodController@confirmOrder');
+    Route::post('/rtc/order', 'iFoodController@rtcOrder');
 });
-
-Route::resource('/shop', 'ShopsController');
-Route::get('/auth/userCode', 'Libs\IFoodApi@userCode');
-Route::get('/auth/ifood', 'iFood\iFoodController@auth');
-Route::get('/ifood/merchants', 'iFood\iFoodController@getMerchants');
-Route::get('/ifood/events', 'iFood\iFoodController@getOrders');
-Route::get('/orders/{id}', 'iFood\iFoodController@getOrdersDataBase');
-Route::post('/order/ifood/events', 'iFood\iFoodController@confirmOrder');
-Route::post('/order/{id}/confirm', 'iFood\iFoodController@confirmOrder');
-Route::post('/rtc/order', 'iFood\iFoodController@rtcOrder');

@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 class SinglePageController extends Controller
 {
     public function index() {
-        return view('app');
+        return view('marketplace-integration::app');
     }
 }

@@ -1,5 +1,4 @@
 import Vue from "vue";
-import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/dist/vuetify.min.css'
 import Vuetify, { 
     VApp,
@@ -85,9 +84,7 @@ const opts = {
   theme:{
     dark: false
   },
-  icons: {
-    iconfont: 'mdi',
-  },
+  
 }
 
  export default new Vuetify(opts)
