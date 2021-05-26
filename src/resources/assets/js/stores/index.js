@@ -64,7 +64,7 @@ const store = new Vuex.Store({
   actions: {
     makeRequest({commit}, data){
       console.log("MakeRequest");
-      axios.post(`api/v1/admin/request/create`, data)
+      axios.post(`/corp/api/v1/admin/request/create`, data)
         .then(res => {
           console.log("Res: ", res.data.data);
         })
@@ -78,7 +78,7 @@ const store = new Vuex.Store({
     },
     confirmOrder({commit}, id) {
       console.log("Entrou dispatch", id);
-      axios.post(`/api/order/${id}/confirm`)
+      axios.post(`/corp/api/order/${id}/confirm`)
       .then(res => {
         console.log('Save ',res.data.data);
         commit('UPDATE_ORDER', res.data.data)
@@ -109,7 +109,7 @@ const store = new Vuex.Store({
     },
     getOrders({commit}, id){
       console.log("Entrou getOrders");
-      axios.get('/api/orders/'+id, id)
+      axios.get('/corp/api/orders/'+id, id)
         .then(res => {
           console.log("Orders", res.data);
           res.data.forEach(element => {
@@ -143,19 +143,20 @@ const store = new Vuex.Store({
     },
     saveShopConfigs({commit}, data) {
       console.log("Entrou dispatch");
-      axios.post('/api/shop', data)
+      axios.post('/corp/api/shop', data)
       .then(res => {
-        console.log('Save ',res.data.data);
-        commit('CREATE_SHOP', res.data.data)
+        console.log('Save ',res.data);
+        commit('CREATE_SHOP', res.data)
         console.log(res);
-        if (res.status == 201) {
+        if (res.status == 200) {
           Vue.swal.fire({
             title: 'Sucesso!',
             text: "Salvo com sucesso!",
             icon: 'success',
             confirmButtonText: 'OK'
           })
-        } else {
+          commit('showDetails', data.key);
+        } else if (res.data.data) {
           Vue.swal.fire({
             title: 'Atenção!',
             text: res.data.errors,
@@ -174,7 +175,7 @@ const store = new Vuex.Store({
     },
     getShops({commit}){
       console.log("Entrou dispatch");
-      axios.get('/api/shop')
+      axios.get('/corp/api/shop')
       .then(res => {
         commit('FETCH_SHOPS', res.data);
         commit('FETCH_SELECTED_SHOP', res.data[0])
@@ -187,15 +188,17 @@ const store = new Vuex.Store({
             confirmButtonText: 'OK'
           });
           
-        } else {
-          // Vue.swal.fire({
-          //   title: 'Atenção!',
-          //   text: res.data.errors,
-          //   icon: 'warning',
-          //   confirmButtonText: 'OK'
-          // });
+        } else if (res.data == 0) {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          });
         }
-        this.dispatch('getOrders', res.data[0].id);
+        if (res.data > 0) {
+          this.dispatch('getOrders', res.data[0].id);
+        }
       }).catch(err => {
         Vue.swal.fire({
           title: 'Error!',

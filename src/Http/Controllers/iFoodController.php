@@ -2,10 +2,10 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers\iFood;
 
-use App\Events\OrderUpdate;
+use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
-use App\MarketConfig;
-use App\OrderDetails;
+use Codificar\MarketplaceIntegration\MarketConfig;
+use Codificar\MarketplaceIntegration\OrderDetails;
 use IFoodApi;
 use Illuminate\Http\Request;
 

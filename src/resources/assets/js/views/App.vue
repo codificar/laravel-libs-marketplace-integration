@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <!-- <header-component/> -->
     <v-main>
       <v-container fluid>
         <router-view></router-view>
@@ -17,7 +16,7 @@
                 dark
                 fab
                 link
-                :to="fab ? '/settings' : '/'"
+                :to="fab ? '/corp/settings' : '/corp/marketplace/integration'"
               >
                 <v-icon>
                   mdi-cart-variant
@@ -27,24 +26,17 @@
             </template>
         </v-speed-dial>
       </v-container>
-    </v-main>
-    
-    <!-- <sidebar-component/> -->
-    
-    <!-- <footer-component/> -->
-    
+    </v-main>   
   </v-app>
 </template>
 
 <script>
 import FooterComponent from '../components/Footer.vue';
-import HeaderComponent from '../components/Header.vue';
 import SidebarComponent from '../components/Sidebar.vue';
 import ModalComponent from '../components/Modal';
 export default {
   components: {
     FooterComponent,
-    HeaderComponent,
     SidebarComponent,
     ModalComponent
   },

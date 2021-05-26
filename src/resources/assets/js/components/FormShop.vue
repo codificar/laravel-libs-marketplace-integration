@@ -7,11 +7,16 @@
         class="title font-weight-regular justify-space-between"
       >
         <span> Adicionar Lojas </span>
-        <v-avatar
-          color="primary lighten-2"
-          class="subheading white--text"
-          size="24"
-        ></v-avatar>
+        <v-btn
+          class="mt-6"
+          text
+          color="error"
+          @click="closeModal()"
+        >
+            <v-icon dark>
+                mdi-close
+            </v-icon>
+        </v-btn>
       </v-card-title>
   </div>
     <v-card-text>
@@ -130,6 +135,9 @@ export default {
       checkAnswer(item) {
         console.log(item);
         console.log(this.form.select);
+      },
+      closeModal() {
+        this.$store.dispatch('showDetail', this.$store.state.sheet)
       }
     },
 }

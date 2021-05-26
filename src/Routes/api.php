@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
+
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
-    Route::get('/auth/userCode', 'Libs\IFoodApi@userCode');
     Route::get('/auth/ifood', 'iFoodController@auth');
     Route::get('/ifood/merchants', 'iFoodController@getMerchants');
     Route::get('/ifood/events', 'iFoodController@getOrders');

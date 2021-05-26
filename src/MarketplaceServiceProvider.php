@@ -14,7 +14,7 @@ class MarketplaceServiceProvider extends ServiceProvider {
         $this->loadViewsFrom(__DIR__.'/resources/views', 'marketplace-integration');
 
         // Load Migrations (Carrega todas as migrations)
-        $this->loadMigrationsFrom(__DIR__.'/Database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');

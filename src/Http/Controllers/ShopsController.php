@@ -2,10 +2,11 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use App\Http\Requests\ShopsFormRequest;
-use App\Http\Resources\ShopResource;
-use App\MarketConfig;
-use App\Shops;
+use Codificar\MarketplaceIntegration\Http\Requests\ShopsFormRequest;
+use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\Shops;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ShopsController extends Controller

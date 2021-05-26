@@ -12,6 +12,6 @@ class Shops extends Model
 
     public function getConfig()
     {
-        return $this->hasMany('App\MarketConfig', 'shop_id');
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\MarketConfig', 'shop_id');
     }
 }

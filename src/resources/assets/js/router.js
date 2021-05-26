@@ -11,7 +11,7 @@ const router = new VueRouter({
     mode: 'history',
     routes: [
         {
-            path: '/',
+            path: '/corp/marketplace/integration',
             name: 'home',
             component: Home
         },
@@ -21,7 +21,7 @@ const router = new VueRouter({
             component: About
         },
         {
-            path: 'corp/settings',
+            path: '/corp/settings',
             name: 'settings',
             component: Settings
         }
