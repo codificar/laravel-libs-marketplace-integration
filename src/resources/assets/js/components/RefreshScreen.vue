@@ -38,7 +38,7 @@ export default {
     },
     isEnable: {
       type: [Boolean, String],
-      default: true
+      default: false
     }
   },
   data() {

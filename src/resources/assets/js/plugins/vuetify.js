@@ -36,7 +36,12 @@ import Vuetify, {
     VBottomSheet,
     VFabTransition,
     VSpeedDial,
-    VListItemGroup
+    VListItemGroup,
+    VExpansionPanels,
+    VExpansionPanel,
+    VExpansionPanelHeader,
+    VExpansionPanelContent,
+    VBtnToggle
  } from "vuetify/lib";
 
  Vue.use(Vuetify, {
@@ -76,7 +81,12 @@ import Vuetify, {
       VBottomSheet,
       VFabTransition,
       VSpeedDial,
-      VListItemGroup
+      VListItemGroup,
+      VExpansionPanels,
+      VExpansionPanel,
+      VExpansionPanelHeader,
+      VExpansionPanelContent,
+      VBtnToggle
     },
  })
 

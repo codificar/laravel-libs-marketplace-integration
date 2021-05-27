@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use App\Http\Controllers\iFood\iFoodController;
-use App\MarketConfig;
-use App\Shops;
-use IFoodApi;
+use Codificar\MarketplaceIntegration\Http\Controllers\iFood\iFoodController;
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Console\Command;
 use Log;
 

@@ -4,7 +4,6 @@
       <v-container fluid>
         <router-view></router-view>
         <v-speed-dial
-            v-model="fab"
             bottom
             right
             fixed
@@ -16,6 +15,7 @@
                 dark
                 fab
                 link
+                @click="fab = !fab"
                 :to="fab ? '/corp/settings' : '/corp/marketplace/integration'"
               >
                 <v-icon>
@@ -31,13 +31,9 @@
 </template>
 
 <script>
-import FooterComponent from '../components/Footer.vue';
-import SidebarComponent from '../components/Sidebar.vue';
 import ModalComponent from '../components/Modal';
 export default {
   components: {
-    FooterComponent,
-    SidebarComponent,
     ModalComponent
   },
   data() {

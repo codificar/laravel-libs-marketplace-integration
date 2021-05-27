@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Events;
+namespace Codificar\MarketplaceIntegration\Events;
 
-use App\OrderDetails;
+use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;

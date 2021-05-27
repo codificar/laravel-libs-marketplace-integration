@@ -1,6 +1,6 @@
 <?php
 
-use App\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use GuzzleHttp\Client;
 
 class IFoodApi

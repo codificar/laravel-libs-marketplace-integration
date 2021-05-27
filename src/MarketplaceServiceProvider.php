@@ -1,6 +1,9 @@
 <?php
 namespace Codificar\MarketplaceIntegration;
+
+use Codificar\MarketplaceIntegration\Console\Commands\Polling;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Console\Scheduling\Schedule;
 
 class MarketplaceServiceProvider extends ServiceProvider {
 
@@ -16,6 +19,15 @@ class MarketplaceServiceProvider extends ServiceProvider {
         // Load Migrations (Carrega todas as migrations)
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
+        $this->commands([Polling::class]);
+
+        $this->app->booted(function () {
+            $schedule = app(Schedule::class);
+            $schedule->command('events:polling')->everyMinute();
+            sleep(30);
+            $schedule->command('events:polling')->everyMinute();
+        });
+
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
 
@@ -23,11 +35,24 @@ class MarketplaceServiceProvider extends ServiceProvider {
         $this->publishes([
             '/var/www/entregas/vendor/codificar/marketplace-integration/public/js' => public_path('vendor/codificar/marketplace-integration'),
         ], 'public_vuejs_libs');
+
     }
 
     public function register()
     {
 
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            'command.events.polling',
+        ];
     }
 }
 ?>
