@@ -1,24 +1,24 @@
 <template>
-<v-card
-    elevation="2"
->
-  <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4' + 'mr-8 '">
-      <v-card-title
-        class="title font-weight-regular justify-space-between"
-      >
-        <span> Adicionar Lojas </span>
-        <v-btn
-          class="mt-6"
-          text
-          color="error"
-          @click="closeModal()"
+  <v-card
+      elevation="2"
+  >
+    <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4' + 'mr-8 '">
+        <v-card-title
+          class="title font-weight-regular justify-space-between"
         >
-            <v-icon dark>
-                mdi-close
-            </v-icon>
-        </v-btn>
-      </v-card-title>
-  </div>
+          <span> Adicionar Lojas </span>
+          <v-btn
+            class="mt-6"
+            text
+            color="error"
+            @click="closeModal()"
+          >
+              <v-icon dark>
+                  mdi-close
+              </v-icon>
+          </v-btn>
+        </v-card-title>
+    </div>
     <v-card-text>
         <v-form
           ref="form"
@@ -26,6 +26,7 @@
           lazy-validation
         >
           <v-text-field
+            v-if="$store.state.modalContent != 'add_marketPlace'"
             v-model="form.name"
             :rules="nameRules"
             label="Nome da Loja"
@@ -82,8 +83,8 @@
           </v-btn> -->
         </v-form>
     </v-card-text>
-    
-</v-card>
+      
+  </v-card>
   
 </template>
 

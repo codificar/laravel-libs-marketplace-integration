@@ -1,5 +1,7 @@
 <?php
 
+namespace Codificar\MarketplaceIntegration\Lib;
+
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use GuzzleHttp\Client;
 

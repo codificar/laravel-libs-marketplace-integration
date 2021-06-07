@@ -21,7 +21,7 @@ const router = new VueRouter({
             component: About
         },
         {
-            path: '/corp/settings',
+            path: '/corp/marketplace/settings',
             name: 'settings',
             component: Settings
         }

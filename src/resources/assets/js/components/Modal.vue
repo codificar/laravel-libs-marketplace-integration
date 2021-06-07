@@ -14,6 +14,9 @@
         <div v-if="$store.state.modalContent == 'orderDetails'">
           
         </div>
+        <div v-if="$store.state.modalContent == 'add_marketPlace'">
+          <form-component />
+        </div>
       </v-sheet>
     </v-bottom-sheet>
   </v-app>
@@ -27,6 +30,7 @@ export default {
   },
   mounted() {
     console.log('Modal: ', this.$store.state.sheet);
+    console.log("ModalContent: ", this.$store.state.modalContent);
   },
   methods:{
     

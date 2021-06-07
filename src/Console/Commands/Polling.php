@@ -2,7 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\iFood\iFoodController;
+use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Console\Command;
@@ -44,8 +44,8 @@ class Polling extends Command
         $stores = MarketConfig::get();
         foreach ($stores as $key => $value) {
             $shop = Shops::find($value->shop_id);
-            \Log::debug('Shop'.print_r($shop,1));
-            $polling = new iFoodController();
+            \Log::debug('Shop'.print_r($shop,1)); 
+            $polling = new IFoodController();
             $res = $polling->getOrders($value->id);
             \Log::debug('Ta rodando'.print_r($res,1));
             if ($res) {

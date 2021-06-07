@@ -148,7 +148,7 @@ import ModalComponent from "../components/Modal.vue";
                 this.$store.dispatch('getShops');
             },
             addShop(){
-                this.$store.dispatch('showDetail', {key: 'addShop', data: ''})
+                this.$store.dispatch('showDetail', {key: 'add_marketPlace', data: ''})
             }
         }
     }

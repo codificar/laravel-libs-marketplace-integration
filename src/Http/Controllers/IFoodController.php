@@ -1,15 +1,15 @@
 <?php
 
-namespace Codificar\MarketplaceIntegration\Http\Controllers\iFood;
+namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
 use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\MarketConfig;
 use Codificar\MarketplaceIntegration\OrderDetails;
-use IFoodApi;
+use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 use Illuminate\Http\Request;
 
-class iFoodController extends Controller
+class IFoodController extends Controller
 {
 
     public function getOrders($id)

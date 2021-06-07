@@ -16,7 +16,7 @@
                 fab
                 link
                 @click="fab = !fab"
-                :to="fab ? '/corp/settings' : '/corp/marketplace/integration'"
+                :to="fab ? '/corp/marketplace/settings' : '/corp/marketplace/integration'"
               >
                 <v-icon>
                   mdi-cart-variant
