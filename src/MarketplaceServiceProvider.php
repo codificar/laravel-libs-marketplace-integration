@@ -33,7 +33,7 @@ class MarketplaceServiceProvider extends ServiceProvider {
 
         // // Publish the VueJS files inside public folder of main project (Copia os arquivos do vue minificados dessa biblioteca para pasta public do projeto que instalar essa lib)
         $this->publishes([
-            '/var/www/entregas/vendor/codificar/marketplace-integration/public/js' => public_path('vendor/codificar/marketplace-integration'),
+            __DIR__.'/../public/js' => public_path('vendor/codificar/marketplace-integration'),
         ], 'public_vuejs_libs');
 
     }
