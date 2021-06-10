@@ -163,15 +163,15 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             },
         }),
         created(){
-            
+            this.getShop();
         },
         mounted() {
-            this.getShop();
+            
             console.log('Component mounted.')
-            if (this.$store.state.orders) {
-                setTimeout(() => {
+            if (this.$store.state.shops) {
+                // setTimeout(() => {
                     this.getOrders();
-                }, 2000);
+                // }, 10000);
             }  
         },
         methods: {
