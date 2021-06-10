@@ -180,7 +180,8 @@ const store = new Vuex.Store({
         commit('FETCH_SHOPS', res.data);
         commit('FETCH_SELECTED_SHOP', res.data[0])
         console.log("Shops: ",res);
-        if (res.status == 201) {
+        if (res.status == 200) {
+          this.dispatch('getOrders', res.data[0].id);
           Vue.swal.fire({
             title: 'Sucesso!',
             text: "Salvo com sucesso!",

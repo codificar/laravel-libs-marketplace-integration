@@ -4,8 +4,8 @@ namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
 use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
-use Codificar\MarketplaceIntegration\MarketConfig;
-use Codificar\MarketplaceIntegration\OrderDetails;
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 use Illuminate\Http\Request;
 
