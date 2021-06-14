@@ -19,6 +19,8 @@ class MarketplaceServiceProvider extends ServiceProvider {
         // Load Migrations (Carrega todas as migrations)
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
+        $this->commands([Polling::class]);
+
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
 
