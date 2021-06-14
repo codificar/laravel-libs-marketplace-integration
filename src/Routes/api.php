@@ -16,11 +16,11 @@ use Illuminate\Http\Request;
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
-    Route::get('/auth/ifood', 'iFoodController@auth');
-    Route::get('/ifood/merchants', 'iFoodController@getMerchants');
-    Route::get('/ifood/events', 'iFoodController@getOrders');
-    Route::get('/orders/{id}', 'iFoodController@getOrdersDataBase');
-    Route::post('/order/ifood/events', 'iFoodController@confirmOrder');
-    Route::post('/order/{id}/confirm', 'iFoodController@confirmOrder');
-    Route::post('/rtc/order', 'iFoodController@rtcOrder');
+    Route::get('/auth/ifood', 'IFoodController@auth');
+    Route::get('/ifood/merchants', 'IFoodController@getMerchants');
+    Route::get('/ifood/events', 'IFoodController@getOrders');
+    Route::get('/orders/{id}', 'IFoodController@getOrdersDataBase');
+    Route::post('/order/ifood/events', 'IFoodController@confirmOrder');
+    Route::post('/order/{id}/confirm', 'IFoodController@confirmOrder');
+    Route::post('/rtc/order', 'IFoodController@rtcOrder');
 });
