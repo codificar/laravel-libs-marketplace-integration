@@ -24,3 +24,4 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/order/{id}/confirm', 'IFoodController@confirmOrder');
     Route::post('/rtc/order', 'IFoodController@rtcOrder');
 });
+
