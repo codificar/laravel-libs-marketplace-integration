@@ -5,8 +5,8 @@ namespace Codificar\MarketplaceIntegration\Http\Controllers;
 use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
+use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Http\Request;
 
 class IFoodController extends Controller
