@@ -19,7 +19,14 @@ class MarketplaceServiceProvider extends ServiceProvider {
         // Load Migrations (Carrega todas as migrations)
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
-        $this->commands([Polling::class]);
+        // $this->commands([Polling::class]);
+
+        // $this->app->booted(function () {
+        //     $schedule = app(Schedule::class);
+        //     $schedule->command('events:polling')->everyMinute();
+        //     sleep(30);
+        //     $schedule->command('events:polling')->everyMinute();
+        // });
 
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
