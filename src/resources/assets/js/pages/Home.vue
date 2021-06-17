@@ -97,10 +97,10 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.fullCode}} -
+                                    Status: {{order.fullCode}}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Status: {{order.orderType}} -
+                                    Distancia: {{parseFloat(order.distance).toFixed()}}MT
                                 </div>
                             </div>
                             <div class="font-weight-black">
@@ -166,7 +166,6 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             this.getShop();
         },
         mounted() {
-            
             console.log('Component mounted.')
             if (this.$store.state.shops) {
                 // setTimeout(() => {
@@ -175,6 +174,18 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             }  
         },
         methods: {
+            formatNumber(number)
+            {
+                number = number.toFixed(2) + '';
+                x = number.split('.');
+                x1 = x[0];
+                x2 = x.length > 1 ? '.' + x[1] : '';
+                var rgx = /(\d+)(\d{3})/;
+                while (rgx.test(x1)) {
+                    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                }
+                return x1 + x2;
+            },
             getShop(){
                 this.$store.dispatch('getShops');
             },
@@ -186,6 +197,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             },
             getOrders() {
                 if (this.$store.state.orders) {
+                    
                     this.loading = !this.loading;
                 }
                 if (this.$store.state.orders.length === 0) {

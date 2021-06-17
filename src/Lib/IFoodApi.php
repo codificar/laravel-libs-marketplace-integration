@@ -3,6 +3,7 @@
 namespace Codificar\MarketplaceIntegration\Lib;
 
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\Shops;
 use GuzzleHttp\Client;
 
 class IFoodApi
@@ -92,11 +93,13 @@ class IFoodApi
   
   public function getOrderDetails($id)
   {
-    $res = $this->client->get('order/v1.0/orders/'.$id, [
-      'headers' => [
+    $res = $this->client->request('GET', 'order/v1.0/orders/'.$id, [
+      'headers'   => [
+        'Content-Type' => 'application/json',
         'Authorization' => 'Bearer '.$this->access_token
       ]
     ]);
+    
     $response = json_decode($res->getBody()->getContents());
     return $response;
   }
@@ -136,5 +139,18 @@ class IFoodApi
     $response = json_decode($res->getBody()->getContents());
     \Log::debug("readyToPickup: ".print_r($response,1));
     
+  }
+
+  public function getMerchantDetails($id)
+  {    
+    $res = $this->client->request('GET', 'merchant/v1.0/merchants/'.$id, [
+      'headers'   => [
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer '.$this->access_token
+      ]
+    ]);
+    $response = json_decode($res->getBody()->getContents());
+    \Log::debug("MerchantDetails: ". print_r($response, 1));
+    return $response;
   }
 }

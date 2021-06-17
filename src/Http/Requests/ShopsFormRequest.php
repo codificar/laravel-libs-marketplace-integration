@@ -26,7 +26,8 @@ class ShopsFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:5'
+            'name'          => 'required|string|min:5',
+            'merchant_id'   => 'required|string'
         ];
     }
 

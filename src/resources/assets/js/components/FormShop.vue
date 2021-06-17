@@ -46,6 +46,13 @@
 
           <v-text-field
             v-if="form.select == 1"
+            v-model="form.merchant_id"
+            label="MERCHANT_ID"
+            required
+          ></v-text-field>
+
+          <v-text-field
+            v-if="form.select == 1"
             v-model="form.client_id"
             label="CLIENT_ID"
             required
@@ -116,7 +123,8 @@ export default {
         email: '',
         select: null,
         client_id: '',
-        clinent_secret: ''
+        clinent_secret: '',
+        merchant_id: ''
       },
     }),
 

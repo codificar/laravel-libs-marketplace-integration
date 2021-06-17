@@ -32,4 +32,14 @@ class OrderDetails extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    public function getAddress()
+    {
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'orderId', 'orderId');
+    }
+
+    public function getItems()
+    {
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'orderId', 'orderId');
+    }
 }

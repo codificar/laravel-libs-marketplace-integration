@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Shops extends Model
 {
     protected $table = 'shops';
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'merchant_id',
+        'name', 
+        'institution_id'
+    ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
     public function getConfig()

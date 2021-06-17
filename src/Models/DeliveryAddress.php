@@ -11,6 +11,7 @@ class DeliveryAddress extends Model
     
     protected $table = 'delivery_address';
     protected $fillable = [
+        'orderId',
         'customerId',
         'streetName',
         'streetNumber',
@@ -20,7 +21,9 @@ class DeliveryAddress extends Model
         'city',
         'state',
         'country',
-        'coordinates'
+        'latitude',
+        'longitude',
+        'distance'
     ];
     protected $dates = [
         'deleted_at',

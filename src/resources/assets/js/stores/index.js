@@ -18,7 +18,9 @@ const store = new Vuex.Store({
     order: '',
     modalContent: null,
     orderDetail: '',
-    selectedShop: ''
+    selectedShop: '',
+    selectedOrders: ''
+
   },
   mutations: {
     toggleDrawer (state) {
@@ -45,10 +47,13 @@ const store = new Vuex.Store({
       state.shops.splice(index, 1);
     },
     CREATE_ORDER(state, order) {
-      state.orders.unshift(order);
+      state.orders.push(order);
     },
     FETCH_ORDERS(state, orders) {
       return state.orders = orders;
+    },
+    REQUEST_ORDERS(state, orders) {
+      return state.selectedOrders = orders;
     },
     DELETE_ORDER(state, order) {
       let index = state.orders.findIndex(item => item.id === order.id);
@@ -63,8 +68,52 @@ const store = new Vuex.Store({
   },
   actions: {
     makeRequest({commit}, data){
-      console.log("MakeRequest");
-      axios.post(`/corp/api/v1/admin/request/create`, data)
+      console.log("MakeRequest", data);
+      var request = [
+        points=[],
+        return_to_start=false,
+        type=22,
+        category_id=null,
+        payment_mode=5,
+        user_card_id='',
+        promo_code='',
+        user_id=1,
+        token='',
+        institution_id=1,
+        costcentre_id=3,
+        provider_id=null,
+        is_admin=false,
+        contact_info_enable=false,
+        request_info_enable=false,
+        contact_info_name=null,
+        contact_info_phone=null,
+        request_info_number=null,
+        request_info_document=null
+      ];
+      data.forEach((element, index) => {
+        points = {
+          address: element.formattedAddress,
+          formatted_address: element.formattedAddress,
+          geometry:{
+             location:{
+                lat:element.latitude,
+                lng:element.longitude
+             }
+          },
+          title: element.displayId,
+          action:"",
+          action_type:1,
+          complement:"",
+          collect_value:'',
+          change:null,
+          form_of_receipt:null,
+          collect_pictures:1,
+          collect_signature:1
+        }
+      });
+      console.log("points ", request);
+
+      axios.post(`/api/v1/corp/request/create`, data)
         .then(res => {
           console.log("Res: ", res.data.data);
         })
@@ -114,7 +163,7 @@ const store = new Vuex.Store({
           console.log("Orders", res.data);
           res.data.forEach(element => {
             commit('CREATE_ORDER', element);
-          });          
+          });
           if (res.status == 200) {
             Vue.swal.fire({
               title: 'Sucesso!',
