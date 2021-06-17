@@ -14,7 +14,10 @@ class ShopsController extends Controller
 {
     public function index()
     {
-        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->id)->get();
+        // $user = \Auth::guard('web_corp')->user();
+        // // $user->institution;
+        // \Log::debug("User 1: ".print_r($user->AdminInstitution->institution_id, 1));
+        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
             $value->getConfig;
         }
@@ -24,11 +27,11 @@ class ShopsController extends Controller
     public function store(ShopsFormRequest $request)
     {
         $user = \Auth::guard('web_corp')->user();
-        \Log::debug("User: ".print_r($user, 1));
+        \Log::debug("User: ".print_r($user->institution, 1));
         $shop = Shops::create([
             'name'          => $request->name,
             'merchant_id'   => $request->merchant_id,
-            'institution_id'=> $user->id
+            'institution_id'=> $user->AdminInstitution->institution_id
         ]);
 
         if ($shop) {

@@ -69,29 +69,31 @@ const store = new Vuex.Store({
   actions: {
     makeRequest({commit}, data){
       console.log("MakeRequest", data);
-      var request = [
-        points=[],
-        return_to_start=false,
-        type=22,
-        category_id=null,
-        payment_mode=5,
-        user_card_id='',
-        promo_code='',
-        user_id=1,
-        token='',
-        institution_id=1,
-        costcentre_id=3,
-        provider_id=null,
-        is_admin=false,
-        contact_info_enable=false,
-        request_info_enable=false,
-        contact_info_name=null,
-        contact_info_phone=null,
-        request_info_number=null,
-        request_info_document=null
-      ];
+      var request = {
+        points:[],
+        return_to_start:false,
+        type:22,
+        category_id:null,
+        payment_mode:1,
+        // payment_opt: 1,
+        user_card_id:'',
+        promo_code:'',
+        user_id:'',
+        token:'',
+        institution_id:1,
+        costcentre_id:3,
+        provider_id:null,
+        is_admin:false,
+        contact_info_enable:false,
+        request_info_enable:false,
+        contact_info_name:null,
+        contact_info_phone:null,
+        request_info_number:null,
+        request_info_document:null
+      };
       data.forEach((element, index) => {
-        points = {
+        console.log("points ", request);
+         request.points.push({
           address: element.formattedAddress,
           formatted_address: element.formattedAddress,
           geometry:{
@@ -109,13 +111,14 @@ const store = new Vuex.Store({
           form_of_receipt:null,
           collect_pictures:1,
           collect_signature:1
-        }
+        })
+        request.institution_id = this.state.shops[0].institution_id
+        // request.user_id = this.state.shops[0].institution_id
       });
-      console.log("points ", request);
 
-      axios.post(`/api/v1/corp/request/create`, data)
+      axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
-          console.log("Res: ", res.data.data);
+          console.log("Res: ", res.data);
         })
         .catch(err => {
           console.log("Erro: ", err);
