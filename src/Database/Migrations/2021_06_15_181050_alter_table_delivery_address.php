@@ -13,9 +13,12 @@ class AlterTableDeliveryAddress extends Migration
      */
     public function up()
     {
-        Schema::table('delivery_address', function (Blueprint $table) {
-            $table->dropColumn('coordinates');            
-        });
+        if (Schema::hasColumn('delivery_address', 'coordinates'))
+        {
+            Schema::table('delivery_address', function (Blueprint $table) {
+                $table->dropColumn('coordinates');            
+            });
+        }
         Schema::table('delivery_address', function (Blueprint $table) {  
             $table->float('latitude', 15, 8)->after('country');          
             $table->float('longitude', 15, 8)->after('latitude');
@@ -29,6 +32,10 @@ class AlterTableDeliveryAddress extends Migration
      */
     public function down()
     {
-        //
+        
+        Schema::table('delivery_address', function (Blueprint $table) {
+            $table->dropColumn('latitude');
+            $table->dropColumn('longitude');
+        });
     }
 }
