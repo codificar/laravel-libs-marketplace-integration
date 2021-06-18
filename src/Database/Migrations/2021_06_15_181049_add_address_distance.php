@@ -14,7 +14,7 @@ class AddAddressDistance extends Migration
     public function up()
     {
         Schema::table('delivery_address', function (Blueprint $table) {
-            $table->double('distance')->after('longitude');
+            $table->double('distance')->after('country');
         });
     }
 
