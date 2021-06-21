@@ -41,6 +41,11 @@
                                     <v-expansion-panel-content>
                                         <div class="font-weight-black">
                                             <div class="font-weight-medium">
+                                                MERCHANT_ID: {{shop.merchant_id}}
+                                            </div>
+                                        </div>
+                                        <div class="font-weight-black">
+                                            <div class="font-weight-medium">
                                                 CLIENT_ID: {{item.client_id}}
                                             </div>
                                         </div>
@@ -65,7 +70,7 @@
                                                     fab
                                                     x-small
                                                     color="cyan"
-                                                    @click="addShop('edit_marketPlace', item.id)"
+                                                    @click="addShop('edit_marketPlace', item,shop.merchant_id)"
                                                 >
                                                     <v-icon>mdi-pencil</v-icon>
                                                 </v-btn>
@@ -90,7 +95,7 @@
                                         fab
                                         x-small
                                         color="cyan"
-                                        @click="addShop('edit_marketPlace', shop)"
+                                        @click="addShop('edit_shop', shop)"
                                     >
                                         <v-icon>mdi-pencil</v-icon>
                                     </v-btn>
@@ -108,7 +113,7 @@
                                         fab
                                         x-small
                                         color="success"
-                                        @click="addShop('add_marketPlace', shop.id)"
+                                        @click="addShop('addShop')"
                                     >
                                         <v-icon dark>
                                             mdi-plus
@@ -153,8 +158,8 @@ import ModalComponent from "../components/Modal.vue";
             listStores(){
                 this.$store.dispatch('getShops');
             },
-            addShop(key, data = null){
-                this.$store.dispatch('showModal', {key: key, data: data})
+            addShop(key, data = null, merchant_id = null){
+                this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
             },
             deleteShop(id){
                 this.$store.dispatch('deleteShop', id);

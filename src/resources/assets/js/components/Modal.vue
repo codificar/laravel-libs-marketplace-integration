@@ -12,12 +12,9 @@
           <form-component
           />
         </div>
-        <div v-if="$store.state.modalContent == 'orderDetails'">
+        <div v-if="$store.state.modalContent == 'edit_shop'">
           <form-component
-          />
-        </div>
-        <div v-if="$store.state.modalContent == 'add_marketPlace'">
-          <form-component
+            :data="$store.state.dataShop"
           />
         </div>
         <div v-if="$store.state.modalContent == 'edit_marketPlace'">
@@ -25,6 +22,11 @@
             :data="$store.state.dataShop"
           />
         </div>
+        <div v-if="$store.state.modalContent == 'add_marketPlace'">
+          <form-component
+          />
+        </div>
+        
       </v-sheet>
     </v-bottom-sheet>
   </v-app>
@@ -41,21 +43,7 @@ export default {
     console.log("ModalContent: ", this.$store.state.modalContent);
   },
   methods:{
-    requestShop(data){
-      switch (key) {
-        case 'add_marketPlace':
-          this.$store.dispatch('add_marketPlace', {key: key, data: data})
-        break;
-        case 'edit_marketPlace':
-          this.$store.dispatch('edit_marketPlace', {key: key, data: data})
-        break;
-        case 'delete_marketPlace':
-          this.$store.dispatch('delete_marketPlace', {key: key, data: data})
-        break;
-        default:
-        break;
-      }
-    }
+    
   }
 }
 </script>

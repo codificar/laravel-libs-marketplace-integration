@@ -260,6 +260,40 @@ const store = new Vuex.Store({
         })
       })
     },
+    editShopConfigs({commit}, data) {
+      data.status_reload = this.state.status_reload
+      console.log("Entrou dispatch", data);
+      console.log("Status", this.state.status_reload);
+      axios.put('/corp/api/shop/update', data)
+      .then(res => {
+        console.log('Save ',res.data);
+        commit('CREATE_SHOP', res.data);
+        console.log(res);
+        if (res.status == 200) {
+          Vue.swal.fire({
+            title: 'Sucesso!',
+            text: "Salvo com sucesso!",
+            icon: 'success',
+            confirmButtonText: 'OK'
+          })
+          commit('showDetails', data.key);
+        } else if (res.data.data) {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            text: res.data.errors,
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          })
+        }
+      }).catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      })
+    },
     saveRealodStatus({commit}, data){
       this.state.selectedShop['status_reload'] = data;
       console.log("Sleected: ", this.state.selectedShop['status_reload']);
@@ -301,7 +335,9 @@ const store = new Vuex.Store({
         console.log("Data: ", this.state.selectedShop);
         console.log("Shops: ",res);
         if (res.status == 200 && res.data.length > 0) {
-          this.dispatch('getOrders', res.data[0].id);
+          res.data.forEach(element => {
+            this.dispatch('getOrders', element.id);
+          });
           Vue.swal.fire({
             title: 'Sucesso!',
             text: "Salvo com sucesso!",
