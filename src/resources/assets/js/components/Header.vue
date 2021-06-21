@@ -86,7 +86,7 @@ export default {
       this.$store.dispatch('getShops');
     },
     addShop(){
-      this.$store.dispatch('showDetail', {key: 'addShop', data: ''})
+      this.$store.dispatch('showModal', {key: 'addShop', data: ''})
     }
   },
   mounted(){

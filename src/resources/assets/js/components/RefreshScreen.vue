@@ -49,8 +49,10 @@ export default {
   },
   methods: {
     onChangeEnable(data){
-        // this.sliderValue = 30;
-        this.countTime();
+      // this.sliderValue = 30; 
+      console.log("Data: ", data);
+      this.$store.dispatch('saveRealodStatus', data)
+      this.countTime();
     },
     async onFinish() {
       if(this.ReloadScreen){
@@ -61,8 +63,9 @@ export default {
     },
     countTime() {
       setInterval(() => {
+        console.log("Enebled 2: ", this.enable);
         if (this.enabled) {
-          if (this.sliderValue < 15) {
+          if (this.sliderValue < this.CountLimit) {
             this.sliderValue = this.sliderValue + 1;
           } else {
             this.sliderValue = 0;
@@ -73,6 +76,8 @@ export default {
     },
   },
   mounted() {
+    // this.enabled = this.isEnable
+    console.log("Enebled: ", this.enabled);
     this.countTime();
   },
 };

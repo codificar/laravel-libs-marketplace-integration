@@ -160,6 +160,13 @@ class IFoodController extends Controller
         \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
+    public function dispatchOrder(Request $request)
+    {
+        $res = new IFoodApi($request->shop_id);
+        $response = $res->dispatchOrder($request->orderId);
+        \Log::debug("readyToPickup: ".print_r($response,1));
+    }
+
     public function getMerchantDetails($id)
     {
         $shop = Shops::find($id);

@@ -19,16 +19,24 @@ const store = new Vuex.Store({
     modalContent: null,
     orderDetail: '',
     selectedShop: '',
-    selectedOrders: ''
+    selectedOrders: '',
+    status_reload: false,
+    dataShop: ''
 
   },
   mutations: {
     toggleDrawer (state) {
       state.drawer = !state.drawer;
     },
+    statusReload (state, status) {
+      state.status_reload = status;
+    },
     showDetails (state, key) {
       state.sheet = !state.sheet;
       state.modalContent = key
+    },
+    DATA_SHOP (state, data){
+      state.dataShop = data;
     },
     chageTheme (state) {
         state.themeDark = !state.themeDark;
@@ -51,6 +59,9 @@ const store = new Vuex.Store({
     },
     FETCH_ORDERS(state, orders) {
       return state.orders = orders;
+    },
+    CLEAR_ORDERS(state) {
+      return state.orders = [];
     },
     REQUEST_ORDERS(state, orders) {
       return state.selectedOrders = orders;
@@ -75,7 +86,6 @@ const store = new Vuex.Store({
         type:22,
         category_id:null,
         payment_mode:1,
-        // payment_opt: 1,
         user_card_id:'',
         promo_code:'',
         user_id:'',
@@ -103,14 +113,15 @@ const store = new Vuex.Store({
              }
           },
           title: element.displayId,
-          action:"",
+          action:element.displayId,
           action_type:1,
           complement:"",
           collect_value:'',
           change:null,
           form_of_receipt:null,
           collect_pictures:1,
-          collect_signature:1
+          collect_signature:1,
+          address_instructions: element.displayId
         })
         request.institution_id = this.state.shops[0].institution_id
         // request.user_id = this.state.shops[0].institution_id
@@ -119,14 +130,32 @@ const store = new Vuex.Store({
       axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
           console.log("Res: ", res.data);
+          if (res.data.success) {
+            Vue.swal.fire({
+              title: 'Sucesso!',
+              text: "Corrida criada com sucesso!",
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            });
+
+          } else {
+            Vue.swal.fire({
+              title: 'Atenção!',
+              text: res.data,
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            })
+          }
         })
         .catch(err => {
           console.log("Erro: ", err);
         });
     },
-    showDetail({commit}, data){
+    showModal({commit}, data){
       console.log("Details", data);
       commit('showDetails', data.key);
+      commit('DATA_SHOP', data);
     },
     confirmOrder({commit}, id) {
       console.log("Entrou dispatch", id);
@@ -161,6 +190,10 @@ const store = new Vuex.Store({
     },
     getOrders({commit}, id){
       console.log("Entrou getOrders");
+      commit('CLEAR_ORDERS')
+      var status = this.state.selectedShop.status_reload == 1 ? true : false;
+      console.log("Data 2: ", status);
+      commit('statusReload', status)
       axios.get('/corp/api/orders/'+id, id)
         .then(res => {
           console.log("Orders", res.data);
@@ -194,7 +227,9 @@ const store = new Vuex.Store({
       );
     },
     saveShopConfigs({commit}, data) {
-      console.log("Entrou dispatch");
+      data.status_reload = this.state.status_reload
+      console.log("Entrou dispatch", data);
+      console.log("Status", this.state.status_reload);
       axios.post('/corp/api/shop', data)
       .then(res => {
         console.log('Save ',res.data);
@@ -225,14 +260,47 @@ const store = new Vuex.Store({
         })
       })
     },
+    saveRealodStatus({commit}, data){
+      this.state.selectedShop['status_reload'] = data;
+      console.log("Sleected: ", this.state.selectedShop['status_reload']);
+      axios.post('/corp/api/shop/status', this.state.selectedShop)
+      .then(res => {
+        console.log("res: ",res);
+        if (res.status == 200) {
+          Vue.swal.fire({
+            title: 'Sucesso!',
+            text: "Salvo com sucesso!",
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          })
+        } else if (res.data) {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            text: res.data.errors,
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          })
+        }
+      })
+      .catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      })
+    },
     getShops({commit}){
       console.log("Entrou dispatch");
       axios.get('/corp/api/shop')
       .then(res => {
         commit('FETCH_SHOPS', res.data);
         commit('FETCH_SELECTED_SHOP', res.data[0])
+        console.log("Data: ", this.state.selectedShop);
         console.log("Shops: ",res);
-        if (res.status == 200) {
+        if (res.status == 200 && res.data.length > 0) {
           this.dispatch('getOrders', res.data[0].id);
           Vue.swal.fire({
             title: 'Sucesso!',
@@ -249,9 +317,7 @@ const store = new Vuex.Store({
             confirmButtonText: 'OK'
           });
         }
-        if (res.data > 0) {
-          this.dispatch('getOrders', res.data[0].id);
-        }
+        console.log("Saindo: ", this.state.status_reload);
       }).catch(err => {
         Vue.swal.fire({
           title: 'Error!',

@@ -14,9 +14,6 @@ class ShopsController extends Controller
 {
     public function index()
     {
-        // $user = \Auth::guard('web_corp')->user();
-        // // $user->institution;
-        // \Log::debug("User 1: ".print_r($user->AdminInstitution->institution_id, 1));
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
             $value->getConfig;
@@ -31,7 +28,8 @@ class ShopsController extends Controller
         $shop = Shops::create([
             'name'          => $request->name,
             'merchant_id'   => $request->merchant_id,
-            'institution_id'=> $user->AdminInstitution->institution_id
+            'institution_id'=> $user->AdminInstitution->institution_id,
+            'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
 
         if ($shop) {
@@ -55,5 +53,17 @@ class ShopsController extends Controller
         ]);
         
         return new ShopResource($request);
+    }
+
+    public function status(Request $request)
+    {
+        \Log::debug("User: ".print_r($request->all(), 1));
+        $user = \Auth::guard('web_corp')->user();
+        // \Log::debug("User: ".print_r($user->institution, 1));
+        $shop = Shops::where('institution_id', $user->AdminInstitution->institution_id)
+                    ->update([
+            'institution_id'=> $user->AdminInstitution->institution_id,
+            'status_reload' => $request->status_reload ? $request->status_reload : 0
+        ]);
     }
 }

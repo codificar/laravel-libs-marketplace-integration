@@ -10,7 +10,8 @@ class Shops extends Model
     protected $fillable = [
         'merchant_id',
         'name', 
-        'institution_id'
+        'institution_id',
+        'status_reload'
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 

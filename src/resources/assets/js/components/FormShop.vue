@@ -6,7 +6,10 @@
         <v-card-title
           class="title font-weight-regular justify-space-between"
         >
-          <span> Adicionar Lojas </span>
+          <span v-if="$store.state.modalContent == 'addShop'"> Adicionar Loja </span>
+          <span v-if="$store.state.modalContent == 'orderDetails'"> Detalhes da Loja </span>
+          <span v-if="$store.state.modalContent == 'add_marketPlace'"> Adicionar da Marketplace </span>
+          <span v-if="$store.state.modalContent == 'edit_marketPlace'"> Editar da Marketplace </span>
           <v-btn
             class="mt-6"
             text
@@ -38,7 +41,7 @@
             :items="items"
             item-value="id"
             item-text="name"
-            :rules="[v => !!v || 'Item is required']"
+            :rules="[v => !!v || 'Item é obrigatório']"
             label="Marketplace"
             @change="checkAnswer"
             required
@@ -73,21 +76,6 @@
           >
             Salvar
           </v-btn>
-      <!-- 
-          <v-btn
-            color="error"
-            class="mr-4"
-            @click="reset"
-          >
-            Reset Form
-          </v-btn>
-
-          <v-btn
-            color="warning"
-            @click="resetValidation"
-          >
-            Reset Validation
-          </v-btn> -->
         </v-form>
     </v-card-text>
       
@@ -98,15 +86,16 @@
 <script>
 export default {
     name: 'FormShop',
+    props: {
+      data: {
+        type: Object,
+      },
+    },
     data: () => ({
       valid: true,
       nameRules: [
-        v => !!v || 'Name is required',
+        v => !!v || 'Nome é obrigatório',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
-      ],
-      emailRules: [
-          v => !!v || 'E-mail is required',
-          v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
       items: [
         {
@@ -120,17 +109,36 @@ export default {
       ],
       form: {
         name: '',
-        email: '',
         select: null,
         client_id: '',
         clinent_secret: '',
         merchant_id: ''
       },
     }),
-
+    mounted(){
+      if (this.$store.state.modalContent == 'edit_marketPlace') {
+        this.form.name = this.data.data.name;        
+        this.items.forEach(element => {
+          if (element.name.toLowerCase() == this.data.data.get_config[0].market) {
+            this.form.select = element
+          }
+        });
+        this.form.client_id = this.data.data.get_config[0].client_id;
+        this.form.client_secret = this.data.data.get_config[0].client_secret;
+        this.form.merchant_id = this.data.data.merchant_id;
+        console.log("DataForm: ", this.form);
+      }
+      
+    },
     methods: {
       saveShop() {
         this.$store.dispatch('saveShopConfigs', this.form);
+      },
+      editShop(id){
+        this.$store.dispatch('editShop', id);
+      },
+      deleteShop(id){
+        this.$store.dispatch('deleteShop', id);
       },
       validate () {
         this.$refs.form.validate()
@@ -146,9 +154,18 @@ export default {
         console.log(this.form.select);
       },
       closeModal() {
-        this.$store.dispatch('showDetail', this.$store.state.sheet)
+        this.$store.dispatch('showModal', this.$store.state.sheet)
       }
     },
+    watch: {
+        select: {
+            handler: function(newVal, oldVal){
+                console.log("OldVal settings: ", oldVal);
+                console.log("newVal settings: ", newVal);
+            },
+            deep: true
+        },
+    }
 }
 </script>
 

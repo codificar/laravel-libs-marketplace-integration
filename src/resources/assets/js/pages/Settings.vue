@@ -54,8 +54,18 @@
                                                 <v-btn
                                                     fab
                                                     x-small
+                                                    color="success"
+                                                    @click="addShop('add_marketPlace', shop)"
+                                                >
+                                                    <v-icon dark>
+                                                        mdi-plus
+                                                    </v-icon>
+                                                </v-btn> 
+                                                <v-btn
+                                                    fab
+                                                    x-small
                                                     color="cyan"
-                                                    @click="addShop"
+                                                    @click="addShop('edit_marketPlace', item.id)"
                                                 >
                                                     <v-icon>mdi-pencil</v-icon>
                                                 </v-btn>
@@ -64,20 +74,10 @@
                                                     fab
                                                     x-small
                                                     color="red"
+                                                    @click="deleteShop('delete_marketPlace', item.id)"
                                                 >
                                                     <v-icon>mdi-delete-outline</v-icon>
                                                 </v-btn>
-
-                                                <v-btn
-                                                    fab
-                                                    x-small
-                                                    color="success"
-                                                    @click="addShop"
-                                                >
-                                                    <v-icon dark>
-                                                        mdi-plus
-                                                    </v-icon>
-                                                </v-btn>  
                                             </v-btn-toggle>
                                         </div>
                                     </v-expansion-panel-content>
@@ -90,6 +90,7 @@
                                         fab
                                         x-small
                                         color="cyan"
+                                        @click="addShop('edit_marketPlace', shop)"
                                     >
                                         <v-icon>mdi-pencil</v-icon>
                                     </v-btn>
@@ -98,6 +99,7 @@
                                         fab
                                         x-small
                                         color="red"
+                                        @click="deleteShop('delete_marketPlace', shop.id)"
                                     >
                                         <v-icon>mdi-delete-outline</v-icon>
                                     </v-btn>
@@ -106,7 +108,7 @@
                                         fab
                                         x-small
                                         color="success"
-                                        @click="addShop"
+                                        @click="addShop('add_marketPlace', shop.id)"
                                     >
                                         <v-icon dark>
                                             mdi-plus
@@ -140,15 +142,22 @@ import ModalComponent from "../components/Modal.vue";
             if (this.$store.state.shops == 0) {
                 this.listStores();
             }
+            if (this.$store.state.status_reload) {
+                this.$store.commit('statusReload',!this.$store.state.status_reload)
+            }
             console.log('Config: ', this.$store.state.shops);
+            console.log('Status Relaod: ', this.$store.state.status_reload);
             // this.selectedItem = this.$store.state.shops[0].get_config[0];
         },
         methods: {
             listStores(){
                 this.$store.dispatch('getShops');
             },
-            addShop(){
-                this.$store.dispatch('showDetail', {key: 'add_marketPlace', data: ''})
+            addShop(key, data = null){
+                this.$store.dispatch('showModal', {key: key, data: data})
+            },
+            deleteShop(id){
+                this.$store.dispatch('deleteShop', id);
             }
         }
     }

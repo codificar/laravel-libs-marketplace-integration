@@ -31,7 +31,10 @@
                     :class="$vuetify.theme.dark ? 'grey darken-3 title font-weight-regular justify-space-between' : 'grey lighten-4 title font-weight-regular justify-space-between' "
                 >
                     <span> Pedidos </span>
-                    <refresh-screen/>
+                    <refresh-screen
+                        v-if="$store.state.orders.length > 0"
+                        :isEnable="$store.state.status_reload"
+                    />
 
                     <v-btn
                         v-if="$store.state.orders.length > 0"
@@ -168,9 +171,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
         mounted() {
             console.log('Component mounted.')
             if (this.$store.state.shops) {
-                // setTimeout(() => {
-                    this.getOrders();
-                // }, 10000);
+                this.getOrders();
             }  
         },
         methods: {
@@ -190,17 +191,13 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 this.$store.dispatch('getShops');
             },
             addShop(){
-                this.$store.dispatch('showDetail', {key: 'addShop', data: ''})
-            },
-            setDrawer(){
-                this.$store.commit('toggleDrawer', this.$store.state.drawer)
+                this.$store.dispatch('showModal', {key: 'addShop', data: ''})
             },
             getOrders() {
                 if (this.$store.state.orders) {
-                    
                     this.loading = !this.loading;
                 }
-                if (this.$store.state.orders.length === 0) {
+                if (this.$store.state.orders.length == 0) {
                     console.log("Vazio");
                 }
             },
@@ -215,7 +212,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             },
             showDetails(order) {
                 console.log("Sheet", this.$store.state.sheet);
-                this.$store.dispatch('showDetail', { key: 'orderDetails', data: order})
+                this.$store.dispatch('showModal', { key: 'orderDetails', data: order})
             },
         },
         watch: {
