@@ -68,15 +68,16 @@ class ShopsController extends Controller
 
     public function update(ShopsFormRequest $request)
     {
-        \Log::debug('Update Shop: '.print_r($request->all,1));
+        \Log::debug('Update Shop: '.print_r($request->all(),1));
         $user = \Auth::guard('web_corp')->user();
-        $data = Shops::where('id', $request->id)->update([
+        $shop = Shops::where('id', $request->id)->update([
             'name'          => $request->name,
             'merchant_id'   => $request->merchant_id,
             'institution_id'=> $user->AdminInstitution->institution_id,
         ]);
+        $data = Shops::where('id', $request->id)->first();
 
-        return new ShopResource($request);
+        return $data;
     }
 
     public function updateMarketConfig(Request $request)

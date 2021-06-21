@@ -47,6 +47,12 @@ const store = new Vuex.Store({
     CREATE_SHOP(state, shop) {
       state.shops.unshift(shop)
     },
+    UPDATE_SHOP(state, shop){
+      state.shops = [
+        ...state.orders.filter(element => element.id !== id),
+        shop
+      ]
+    },
     FETCH_SHOPS(state, shops) {
         return state.shops = shops;
     },
@@ -267,7 +273,7 @@ const store = new Vuex.Store({
       axios.put('/corp/api/shop/update', data)
       .then(res => {
         console.log('Save ',res.data);
-        commit('CREATE_SHOP', res.data);
+        commit('UPDATE_SHOP', res.data);
         console.log(res);
         if (res.status == 200) {
           Vue.swal.fire({

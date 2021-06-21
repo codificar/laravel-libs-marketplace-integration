@@ -159,6 +159,7 @@ import ModalComponent from "../components/Modal.vue";
                 this.$store.dispatch('getShops');
             },
             addShop(key, data = null, merchant_id = null){
+                console.log("Data z:", data);
                 this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
             },
             deleteShop(id){

@@ -108,15 +108,17 @@ export default {
         }       
       ],
       form: {
+        id: '',
         name: '',
         select: null,
         client_id: '',
-        clinent_secret: '',
+        client_secret: '',
         merchant_id: ''
       },
     }),
     mounted(){
       if (this.$store.state.modalContent == 'edit_shop') {
+        this.form.id = this.data.data.id;
         this.form.name = this.data.data.name;        
         this.items.forEach(element => {
           if (element.name.toLowerCase() == this.data.data.get_config[0].market) {
@@ -126,8 +128,9 @@ export default {
         this.form.client_id = this.data.data.get_config[0].client_id;
         this.form.client_secret = this.data.data.get_config[0].client_secret;
         this.form.merchant_id = this.data.data.merchant_id;
-        console.log("DataForm: ", this.form);
+        
       } else if (this.$store.state.modalContent == 'edit_marketPlace') {
+        this.form.id = this.data.data.id;
         this.form.name = this.data.data.name;        
         this.items.forEach(element => {
           if (element.name.toLowerCase() == this.data.data.market) {
@@ -137,13 +140,13 @@ export default {
         this.form.client_id = this.data.data.client_id;
         this.form.client_secret = this.data.data.client_secret;
         this.form.merchant_id = this.data.merchant_id;
-        console.log("DataForm: ", this.form);
+        
       }
       
     },
     methods: {
       saveShop() {
-        switch (key) {
+        switch (this.$store.state.modalContent) {
           case 'addShop':
             this.$store.dispatch('saveShopConfigs', this.form);
           break;
