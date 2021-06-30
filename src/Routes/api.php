@@ -16,7 +16,8 @@ use Illuminate\Http\Request;
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
-    // Route::ṕost('/shop/update', 'ShopsController@update');
+    Route::post('/market/store', 'ShopsController@storeMarketConfig');
+    Route::put('/market/update', 'ShopsController@updateMarketConfig');
     Route::post('/shop/status', 'ShopsController@status');
     Route::get('/auth/ifood', 'IFoodController@auth');
     Route::get('/ifood/merchants', 'IFoodController@getMerchants');
@@ -24,6 +25,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/orders/{id}', 'IFoodController@getOrdersDataBase');
     Route::post('/order/ifood/events', 'IFoodController@confirmOrder');
     Route::post('/order/{id}/confirm', 'IFoodController@confirmOrder');
+    Route::post('/order/update', 'IFoodController@updateOrderRequest');
     Route::post('/rtc/order', 'IFoodController@rtcOrder');
     Route::post('/merchant/details', 'IFoodController@getMerchantDetails');
 });

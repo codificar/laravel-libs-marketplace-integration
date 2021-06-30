@@ -41,7 +41,8 @@ import Vuetify, {
     VExpansionPanel,
     VExpansionPanelHeader,
     VExpansionPanelContent,
-    VBtnToggle
+    VBtnToggle, 
+    VDialog
  } from "vuetify/lib";
 
  Vue.use(Vuetify, {
@@ -86,7 +87,8 @@ import Vuetify, {
       VExpansionPanel,
       VExpansionPanelHeader,
       VExpansionPanelContent,
-      VBtnToggle
+      VBtnToggle,
+      VDialog
     },
  })
 

@@ -22,10 +22,13 @@ class IFoodController extends Controller
             foreach ($response as $key => $value) {
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
+                \Log::debug('value: '.print_r( $value, 1));
                 $order = OrderDetails::updateOrCreate([
                         'orderId'       => $value->orderId,
                     ],
                     [
+                        'shop_id'       => $id,
+                        'merchant_id'   => '',
                         'orderId'       => $value->orderId,
                         'code'          => $value->code,
                         'fullCode'      => $value->fullCode,
@@ -33,16 +36,16 @@ class IFoodController extends Controller
                         'createdAt'     => $createdAt
                     ]
                 );
-                $this->getOrderDetails($value->orderId);
+                $this->getOrderDetails($value->orderId, $id);
 
             }
         }
         return $response;
     }
 
-    public function getOrderDetails($id)
+    public function getOrderDetails($id, $market_id)
     {
-        $marketConfig     = MarketConfig::first();
+        $marketConfig     = MarketConfig::find($market_id);
         \Log::debug('MarketID: '. $marketConfig->id);
         $res        = new IFoodApi($marketConfig->id);
         $response   = $res->getOrderDetails($id);
@@ -76,13 +79,16 @@ class IFoodController extends Controller
             $order = OrderDetails::updateOrCreate([
                     'orderId'                   => $response->id
                 ],[
+                    'shop_id'                   => $marketConfig->id,
+                    'orderId'                   => $response->id,
+                    'merchant_id'               => $response->merchant->id,
                     'createdAt'                 => $createdAt,
                     'orderType'                 => $response->orderType,
                     'displayId'                 => $response->displayId,
                     'preparationStartDateTime'  => $preparationStartDateTime,
                     'merchantId'                => $response->merchant->id,
                     'customerId'                => $response->customer->id,
-                    'subTotal'                  => number_format($response->total->subTotal, 2, ',', '.'),
+                    'subTotal'                  => $response->total->subTotal,
                     'deliveryFee'               => $response->total->deliveryFee,
                     'benefits'                  => $response->total->benefits,
                     'orderAmount'               => $response->total->orderAmount,
@@ -109,11 +115,11 @@ class IFoodController extends Controller
     {
         $orders = OrderDetails::where('code', 'RTP')
                             ->join('delivery_address', 'order_detail.orderId', '=', 'delivery_address.orderId')
-                            ->leftJoin('order_items', 'order_detail.orderId', '=', 'order_items.orderId')
+                            // ->leftJoin('order_items', 'order_detail.orderId', '=', 'order_items.orderId')
                             ->orderBy('distance', 'asc')
                             ->limit(10)
                             ->get();
-
+        \Log::debug('OrdersDatabase: '. json_encode($orders));
         return response()->json($orders);
     }
 
@@ -134,6 +140,9 @@ class IFoodController extends Controller
                 $order = OrderDetails::updateOrCreate([
                         'orderId'                   => $response->id
                     ],[
+                        'request_id'                => $request->request_id,
+                        'tracking_route'            => $request->tracking_route,
+                        'merchant_id'               => $response->merchant->id,
                         'createdAt'                 => $createdAt,
                         'orderType'                 => $response->orderType,
                         'displayId'                 => $response->displayId,
@@ -151,6 +160,18 @@ class IFoodController extends Controller
         }catch (\Exception $e){
             return $e;
         }
+    }
+
+    public function updateOrderRequest(Request $request)
+    {
+        \Log::debug('Request Update: '.print_r($request->id, 1));
+        $order = OrderDetails::where([
+            'orderId'                       => $request->orderId
+        ])->update([
+                'request_id'                => $request->request_id,
+                'tracking_route'            => $request->tracking_route,
+        ]);
+        return $order;
     }
 
     public function rtcOrder(Request $request)

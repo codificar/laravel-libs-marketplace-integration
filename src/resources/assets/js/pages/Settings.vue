@@ -41,7 +41,7 @@
                                     <v-expansion-panel-content>
                                         <div class="font-weight-black">
                                             <div class="font-weight-medium">
-                                                MERCHANT_ID: {{shop.merchant_id}}
+                                                MERCHANT_ID: {{item.merchant_id}}
                                             </div>
                                         </div>
                                         <div class="font-weight-black">
@@ -151,6 +151,7 @@ import ModalComponent from "../components/Modal.vue";
                 this.$store.commit('statusReload',!this.$store.state.status_reload)
             }
             console.log('Config: ', this.$store.state.shops);
+            console.log('Url: ', window);
             console.log('Status Relaod: ', this.$store.state.status_reload);
             // this.selectedItem = this.$store.state.shops[0].get_config[0];
         },

@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <div class="col-lg-12">
         <v-col cols="4" class="d-inline-flex">
             <v-select
                 :items="$store.state.shops"
@@ -18,38 +18,39 @@
                     color="success"
                     @click="addShop"
                 >
-                <v-icon dark>
-                    mdi-plus
-                </v-icon>
-            </v-btn>    
+                    <v-icon dark>
+                        mdi-plus
+                    </v-icon>
+                </v-btn>    
         </v-col>
-        <v-card
-            elevation="2"
-        >
-            <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4'">
-                <v-card-title
-                    :class="$vuetify.theme.dark ? 'grey darken-3 title font-weight-regular justify-space-between' : 'grey lighten-4 title font-weight-regular justify-space-between' "
-                >
-                    <span> Pedidos </span>
-                    <refresh-screen
-                        v-if="$store.state.orders.length > 0"
-                        :isEnable="$store.state.status_reload"
-                    />
-
-                    <v-btn
-                        v-if="$store.state.orders.length > 0"
-                        class="ma-2"
-                        :loading="loading"
-                        :disabled="loading"
-                        color="success"
-                        @click="makeRequest()"
-                        small
-                    >
-                        SOLICITAR ENTREGA
-                    </v-btn>
-                </v-card-title>
+        <div class="col-lg-12 w-100 h-50 card card-outline-info">
+            <div class="card-header">
+                <div class="row justify-space-between"> 
+                    <div class="ma-5 align-center justify-start">
+                        <h4 class="m-b-0 text-white"> Pedidos </h4>
+                    </div>
+                    <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
+                        <refresh-screen
+                            v-if="$store.state.orders.length > 0"
+                            :isEnable="$store.state.status_reload"
+                        />
+                    </div>
+                    <div class="ma-5 align-center justify-end">
+                        <v-btn
+                            class="justify-end"
+                            v-if="selected.length > 0"
+                            :loading="$store.state.requestStatus"
+                            :disabled="$store.state.requestStatus"
+                            color="success"
+                            @click="makeRequest()"
+                            small
+                        >
+                            SOLICITAR ENTREGA
+                        </v-btn>
+                    </div>
+                </div>
             </div>
-            <v-card-text v-if="loading">
+            <v-card-text v-if="$store.state.requestStatus">
                 <v-sheet
                     v-for="index in 10"
                     :key="index"
@@ -75,6 +76,7 @@
                     v-for="order in $store.state.orders"
                     :key="order.orderId"
                 >
+
                     <div class="card-body">                   
                         <div class="d-flex justify-space-between caption">
                             <div class="font-weight-black mr-3">
@@ -95,7 +97,7 @@
                                     Pedido: {{order.displayId}}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Status: {{order.fullCode}}
+                                    Order ID: {{order.orderId}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
@@ -114,6 +116,7 @@
                             <div>
                                 <v-row class="grey--text text-darken-1 ma-2 mt-6">
                                     <v-checkbox
+                                        v-if="!order.request_id"
                                         v-model="selected"
                                         label="Adicionar a entrega"
                                         class="ma-2 mt-1"
@@ -121,6 +124,17 @@
                                         :id="order.orderId"
                                     ></v-checkbox>
                                     <v-btn
+                                        v-if="order.request_id"
+                                        color="primary"
+                                        dark
+                                        v-bind="attrs"
+                                        :href="'/corp/request/tracking/'+order.tracking_route"
+                                        small
+                                    >
+                                        ACOMPANHAR ENTREGA
+                                    </v-btn>
+                                    <!-- <v-btn
+                                        v-if="!order.request_id"
                                         color="primary"
                                         dark
                                         v-bind="attrs"
@@ -128,16 +142,16 @@
                                         small
                                     >
                                         DETALHES
-                                    </v-btn>
+                                    </v-btn> -->
                                 </v-row>
                             </div>
                         </div>
                     </div>
                 </v-card>
             </v-card-text>
-        </v-card>
+        </div>
         <modal-component v-if="$store.state.sheet"/>
-    </v-app>
+    </div>
 </template>
 
 <script>
@@ -169,10 +183,10 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             this.getShop();
         },
         mounted() {
-            console.log('Component mounted.')
-            if (this.$store.state.shops) {
-                this.getOrders();
-            }  
+            console.log('Component mounted.');
+            this.getOrders();
+
+            
         },
         methods: {
             formatNumber(number)
@@ -188,6 +202,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 return x1 + x2;
             },
             getShop(){
+                console.log("getShops");
                 this.$store.dispatch('getShops');
             },
             addShop(){
@@ -196,6 +211,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             getOrders() {
                 if (this.$store.state.orders) {
                     this.loading = !this.loading;
+                    
                 }
                 if (this.$store.state.orders.length == 0) {
                     console.log("Vazio");
@@ -208,12 +224,16 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 });
             }, 
             makeRequest(){
+                this.loading = true;
                 this.$store.dispatch('makeRequest', this.selected)
             },
             showDetails(order) {
                 console.log("Sheet", this.$store.state.sheet);
-                this.$store.dispatch('showModal', { key: 'orderDetails', data: order})
+                this.$store.dispatch('showDetail', { key: 'orderDetails', data: order})
             },
+            trackingRoute(order) {
+                this.$router.push('/corp/request/tracking/'+order.tracking_route);
+            }
         },
         watch: {
             selected: {

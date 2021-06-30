@@ -9,7 +9,6 @@ class Shops extends Model
     protected $table = 'shops';
     protected $fillable = [
         'id',
-        'merchant_id',
         'name', 
         'institution_id',
         'status_reload'

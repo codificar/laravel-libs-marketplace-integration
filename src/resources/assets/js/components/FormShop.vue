@@ -1,28 +1,16 @@
 <template>
-  <v-card
-      elevation="2"
+  <div
+    class="card card-outline-info"
   >
-    <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4' + 'mr-8 '">
-        <v-card-title
-          class="title font-weight-regular justify-space-between"
-        >
-          <span v-if="$store.state.modalContent == 'addShop'"> Adicionar Loja </span>
-          <span v-if="$store.state.modalContent == 'edit_shop'"> Editar da Loja </span>
-          <span v-if="$store.state.modalContent == 'add_marketPlace'"> Adicionar da Marketplace </span>
-          <span v-if="$store.state.modalContent == 'edit_marketPlace'"> Editar da Marketplace </span>
-          <v-btn
-            class="mt-6"
-            text
-            color="error"
-            @click="closeModal()"
-          >
-              <v-icon dark>
-                  mdi-close
-              </v-icon>
-          </v-btn>
-        </v-card-title>
+    <div class="modal-header">
+      <span v-if="$store.state.modalContent == 'addShop'"> Adicionar Loja </span>
+      <span v-if="$store.state.modalContent == 'edit_shop'"> Editar da Loja </span>
+      <span v-if="$store.state.modalContent == 'add_marketPlace'"> Adicionar da Marketplace </span>
+      <span v-if="$store.state.modalContent == 'edit_marketPlace'"> Editar da Marketplace </span>
+      <button type="button" @click="closeModal()"><span aria-hidden="true">&times;</span></button>
     </div>
-    <v-card-text>
+    <div class="panel-body">
+      <div class="modal-body">
         <v-form
           ref="form"
           v-model="valid"
@@ -35,7 +23,6 @@
             label="Nome da Loja"
             required
           ></v-text-field>
-
           <v-select
             v-model="form.select"
             :items="items"
@@ -46,41 +33,36 @@
             @change="checkAnswer"
             required
           ></v-select>
-
           <v-text-field
             v-if="form.select"
             v-model="form.merchant_id"
             label="MERCHANT_ID"
             required
           ></v-text-field>
-
           <v-text-field
             v-if="form.select"
             v-model="form.client_id"
             label="CLIENT_ID"
             required
           ></v-text-field>
-
           <v-text-field
             v-if="form.select"
             v-model="form.client_secret"
             label="CLIENT_SECRET"
             required
           ></v-text-field>
-
           <v-btn
             :disabled="!valid"
             color="success"
-            class="mr-4"
+            class="mr-0"
             @click="saveShop"
           >
             Salvar
           </v-btn>
         </v-form>
-    </v-card-text>
-      
-  </v-card>
-  
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -117,6 +99,7 @@ export default {
       },
     }),
     mounted(){
+      console.log("Props: ", this.data);
       if (this.$store.state.modalContent == 'edit_shop') {
         this.form.id = this.data.data.id;
         this.form.name = this.data.data.name;        
@@ -127,7 +110,7 @@ export default {
         });
         this.form.client_id = this.data.data.get_config[0].client_id;
         this.form.client_secret = this.data.data.get_config[0].client_secret;
-        this.form.merchant_id = this.data.data.merchant_id;
+        this.form.merchant_id = this.data.data.get_config[0].merchant_id;
         
       } else if (this.$store.state.modalContent == 'edit_marketPlace') {
         this.form.id = this.data.data.id;
@@ -139,16 +122,26 @@ export default {
         });
         this.form.client_id = this.data.data.client_id;
         this.form.client_secret = this.data.data.client_secret;
-        this.form.merchant_id = this.data.merchant_id;
+        this.form.merchant_id = this.data.data.merchant_id;
         
+      } else if (this.$store.state.modalContent == 'add_marketPlace') {
+        this.form.id = this.data.data.id;
+        // this.form.name = this.data.data.name;        
+        // this.items.forEach(element => {
+        //   if (element.name.toLowerCase() == this.data.data.market) {
+        //     this.form.select = element
+        //   }
+        // });
+        // this.form.client_id = this.data.data.client_id;
+        // this.form.client_secret = this.data.data.client_secret;
+        // this.form.merchant_id = this.data.data.merchant_id;
       }
-      
     },
     methods: {
       saveShop() {
         switch (this.$store.state.modalContent) {
           case 'addShop':
-            this.$store.dispatch('saveShopConfigs', this.form);
+            this.$store.dispatch('saveShopConfigs', {key: this.$store.state.modalContent, data: this.form});
           break;
           case 'edit_shop':
             this.$store.dispatch('editShopConfigs', this.form);
@@ -156,7 +149,8 @@ export default {
           case 'add_marketPlace':
             this.$store.dispatch('addMarketConfig', this.form);
           break;
-          case 'edit_marketplace':
+          case 'edit_marketPlace':
+            console.log("edit_marketplace Form");
             this.$store.dispatch('editMarketConfig', this.form);
           break;
           default:

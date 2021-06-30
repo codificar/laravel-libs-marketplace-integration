@@ -1,17 +1,24 @@
 <template>
-<div class="text-center body-2">
-    <h5>Atualizar Pedidos</h5>
-    <h5>{{ sliderValue }}</h5>
-    <v-switch
-      v-model="enabled"
-      :sync="true"
-      :label="enabled ? 'Desabilitar' : 'Habilitar'"
-      @change="onChangeEnable"
-      hide-details
-      class="pb-6"
-    ></v-switch>
-</div>
-  
+  <div class="text-center justify-end body-2">
+    <h5 class="m-b-0 text-white">Atualizar Pedidos</h5>
+    <h5 class="m-b-0 text-white">{{ sliderValue }}</h5>
+    <v-row>
+      <v-col cols="4" xs="4" md="4">
+      </v-col>
+      <v-col cols="6" xs="6" md="6">
+        <v-switch
+          v-model="enabled"
+          :sync="true"
+          @change="onChangeEnable"
+          class="justify-end text-white"
+        >
+          <template v-slot:label>
+            <span class="justify-end text-white">{{enabled ? 'Desabilitar' : 'Habilitar'}}</span>
+          </template>
+        </v-switch>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -64,6 +71,9 @@ export default {
     countTime() {
       setInterval(() => {
         console.log("Enebled 2: ", this.enable);
+        if (window.location.pathname != '/corp/marketplace/integration') {
+          this.enabled = false;
+        }
         if (this.enabled) {
           if (this.sliderValue < this.CountLimit) {
             this.sliderValue = this.sliderValue + 1;
