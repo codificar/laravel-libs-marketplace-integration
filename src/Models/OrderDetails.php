@@ -13,6 +13,7 @@ class OrderDetails extends Model
     protected $fillable = [
         'request_id',
         'tracking_route',
+        'request_status',
         'shop_id',
         'merchant_id',
         'orderId',

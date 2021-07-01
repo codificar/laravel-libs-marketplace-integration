@@ -13,8 +13,14 @@ class AddRequestStatusColumn extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('order_detail', 'request_status'))
+        {
+            Schema::table('order_detail', function (Blueprint $table) {  
+                $table->dropColumn('request_status');
+            });
+        }
         Schema::table('order_detail', function (Blueprint $table) {  
-            $table->string('request_status')->after('request_id');
+            $table->integer('request_status')->after('request_id');
         });
     }
 

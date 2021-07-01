@@ -120,7 +120,7 @@ class IFoodController extends Controller
                             ->limit(10)
                             ->get();
         \Log::debug('OrdersDatabase: '. json_encode($orders));
-        return response()->json($orders);
+        return $orders;
     }
 
     public function confirmOrder(Request $request)
