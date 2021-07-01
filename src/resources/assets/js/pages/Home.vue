@@ -102,7 +102,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.fullCode}}
+                                    Status: {{order.fullCode == 'READY_TO_PICKUP' ? 'PARA ENTREGA' : order.fullCode}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()}}MT
@@ -110,7 +110,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Valor: {{order.orderAmount ? formatCurrency(order.orderAmount) : '-'}} -
+                                    Valor: {{order.orderAmount ? formatCurrency(order.orderAmount) : '-'}}
                                 </div>
                             </div>
                             <div>
