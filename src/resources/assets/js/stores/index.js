@@ -134,7 +134,7 @@ const store = new Vuex.Store({
       });
 
       data.forEach((element, index) => {
-        console.log("points ", request);
+        
          request.points.push({
           address: element.formattedAddress,
           formatted_address: element.formattedAddress,
@@ -157,7 +157,7 @@ const store = new Vuex.Store({
         })
         request.institution_id = this.state.shops[0].institution_id
       });
-
+      console.log("points ", request);
       axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
           console.log("Res: ", res.data);
