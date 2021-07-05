@@ -187,7 +187,7 @@ const store = new Vuex.Store({
           } else {
             Vue.swal.fire({
               title: 'Atenção!',
-              text: res.data,
+              text: res.data.erros[0],
               icon: 'warning',
               confirmButtonText: 'OK'
             })
