@@ -112,29 +112,7 @@ const store = new Vuex.Store({
         request_info_number:null,
         request_info_document:null
       };
-      request.points.push({
-        address: this.state.shops[0].get_config[0].address.street,
-        formatted_address: this.state.shops[0].get_config[0].address.street,
-        geometry:{
-           location:{
-              lat:this.state.shops[0].get_config[0].address.latitude,
-              lng:this.state.shops[0].get_config[0].address.longitude
-           }
-        },
-        title: this.state.shops[0].name,
-        action:this.state.shops[0].name,
-        action_type:1,
-        complement:"",
-        collect_value:'',
-        change:null,
-        form_of_receipt:null,
-        collect_pictures:1,
-        collect_signature:1,
-        address_instructions: this.state.shops[0].name
-      });
-
       data.forEach((element, index) => {
-        
          request.points.push({
           address: element.formattedAddress,
           formatted_address: element.formattedAddress,
@@ -156,6 +134,26 @@ const store = new Vuex.Store({
           address_instructions: element.displayId
         })
         request.institution_id = this.state.shops[0].institution_id
+      });
+      request.points.push({
+        address: this.state.shops[0].get_config[0].address.street,
+        formatted_address: this.state.shops[0].get_config[0].address.street,
+        geometry:{
+           location:{
+              lat:this.state.shops[0].get_config[0].address.latitude,
+              lng:this.state.shops[0].get_config[0].address.longitude
+           }
+        },
+        title: this.state.shops[0].name,
+        action:this.state.shops[0].name,
+        action_type:1,
+        complement:"",
+        collect_value:'',
+        change:null,
+        form_of_receipt:null,
+        collect_pictures:1,
+        collect_signature:1,
+        address_instructions: this.state.shops[0].name
       });
       console.log("points ", request);
       axios.post(`/api/v1/corp/request/create`, request)
