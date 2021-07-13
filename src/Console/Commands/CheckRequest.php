@@ -2,11 +2,8 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 use Illuminate\Console\Command;
-use App\Models\Requests;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
-use Log;
 
 class CheckRequest extends Command
 {

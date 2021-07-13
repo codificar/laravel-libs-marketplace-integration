@@ -99,7 +99,6 @@ class IFoodController extends Controller
             
         }
         $order = OrderDetails::where('orderId',$response->id)->first();
-        event(new OrderUpdate($order));
     }
 
     public function getAcknowledgment($id, $data)

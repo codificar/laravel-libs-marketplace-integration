@@ -14,6 +14,9 @@ class IFoodApi
   protected $access_token;
   protected $client;
 
+  #status
+  
+
   function __construct($id)
   {
     \Log::debug("__construct". $id);
