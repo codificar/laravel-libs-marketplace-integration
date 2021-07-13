@@ -10,7 +10,7 @@ class OrderItems extends Model
     use SoftDeletes;
     protected $table = 'order_items';
     protected $filable = [
-        'orderId', 
+        'order_id', 
         'index',
         'itemId',
         'name',

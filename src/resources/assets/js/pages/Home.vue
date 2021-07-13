@@ -74,7 +74,7 @@
                     class="pa-md-4 mx-lg-auto mb-2"
                     elevation="2"
                     v-for="order in $store.state.orders"
-                    :key="order.orderId"
+                    :key="order.order_id"
                 >
 
                     <div class="card-body">                   
@@ -97,7 +97,7 @@
                                     Pedido: {{order.displayId}}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Order ID: {{order.orderId}}
+                                    Order ID: {{order.order_id}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
@@ -121,7 +121,7 @@
                                         label="Adicionar a entrega"
                                         class="ma-2 mt-1"
                                         :value="order"
-                                        :id="order.orderId"
+                                        :id="order.order_id"
                                     ></v-checkbox>
                                     <v-btn
                                         v-if="order.request_id"

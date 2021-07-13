@@ -16,7 +16,7 @@ class OrderDetails extends Model
         'request_status',
         'shop_id',
         'merchant_id',
-        'orderId',
+        'order_id',
         'fullCode',
         'code',
         'ifoodId',
@@ -40,11 +40,11 @@ class OrderDetails extends Model
 
     public function getAddress()
     {
-        return $this->hasMany('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'orderId', 'orderId');
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
     }
 
     public function getItems()
     {
-        return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'orderId', 'orderId');
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'order_id', 'order_id');
     }
 }

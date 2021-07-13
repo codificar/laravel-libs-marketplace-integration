@@ -10,7 +10,7 @@ class PaymentOrder extends Model
     use SoftDeletes;
     protected $table = 'payment_order';
     protected $fillable = [
-        'orderId',
+        'order_id',
         'prepaidValue',
         'pending',
         'value',

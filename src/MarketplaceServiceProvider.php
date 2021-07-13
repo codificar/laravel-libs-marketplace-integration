@@ -3,6 +3,7 @@ namespace Codificar\MarketplaceIntegration;
 
 use Codificar\MarketplaceIntegration\Console\Commands\CheckRequest;
 use Codificar\MarketplaceIntegration\Console\Commands\Polling;
+use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 
@@ -21,7 +22,7 @@ class MarketplaceServiceProvider extends ServiceProvider {
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
         $this->commands([Polling::class]);
-        $this->commands([CheckRequest::class]);        
+        $this->commands([CheckRequest::class]);
 
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
@@ -36,7 +37,7 @@ class MarketplaceServiceProvider extends ServiceProvider {
 
     public function register()
     {
-
+        $this->app->register(OrderUpdate::class);
     }
 
     /**

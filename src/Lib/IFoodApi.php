@@ -79,7 +79,7 @@ class IFoodApi
           'id'        => $data->id,
           'code'      => $data->code,
           'fullCode'  => $data->fullCode,
-          'orderId'   => $data->orderId,
+          'order_id'   => $data->order_id,
           'createdAt' => $data->createdAt
         )
     );

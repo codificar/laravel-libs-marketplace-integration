@@ -24,19 +24,19 @@ class IFoodController extends Controller
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
                 \Log::debug('value: '.print_r( $value, 1));
                 $order = OrderDetails::updateOrCreate([
-                        'orderId'       => $value->orderId,
+                        'order_id'       => $value->order_id,
                     ],
                     [
                         'shop_id'       => $id,
                         'merchant_id'   => '',
-                        'orderId'       => $value->orderId,
+                        'order_id'       => $value->order_id,
                         'code'          => $value->code,
                         'fullCode'      => $value->fullCode,
                         'ifoodId'       => $value->id,
                         'createdAt'     => $createdAt
                     ]
                 );
-                $this->getOrderDetails($value->orderId, $id);
+                $this->getOrderDetails($value->order_id, $id);
 
             }
         }
@@ -56,7 +56,7 @@ class IFoodController extends Controller
             ));
             \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
             $address = DeliveryAddress::updateOrCreate([
-                'orderId'                       => $response->id
+                'order_id'                       => $response->id
             ],[
                 'customerId'                    => $response->customer->id,
                 'streetName'                    => $response->delivery->deliveryAddress->streetName,
@@ -77,10 +77,10 @@ class IFoodController extends Controller
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
             $order = OrderDetails::updateOrCreate([
-                    'orderId'                   => $response->id
+                    'order_id'                   => $response->id
                 ],[
                     'shop_id'                   => $marketConfig->id,
-                    'orderId'                   => $response->id,
+                    'order_id'                   => $response->id,
                     'merchant_id'               => $response->merchant->id,
                     'createdAt'                 => $createdAt,
                     'orderType'                 => $response->orderType,
@@ -98,7 +98,7 @@ class IFoodController extends Controller
             $order->getAddress;
             
         }
-        $order = OrderDetails::where('orderId',$response->id)->first();
+        $order = OrderDetails::where('order_id',$response->id)->first();
     }
 
     public function getAcknowledgment($id, $data)
@@ -113,8 +113,8 @@ class IFoodController extends Controller
     public function getOrdersDataBase()
     {
         $orders = OrderDetails::where('code', 'RTP')
-                            ->join('delivery_address', 'order_detail.orderId', '=', 'delivery_address.orderId')
-                            // ->leftJoin('order_items', 'order_detail.orderId', '=', 'order_items.orderId')
+                            ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
+                            // ->leftJoin('order_items', 'order_detail.order_id', '=', 'order_items.order_id')
                             ->orderBy('distance', 'asc')
                             ->limit(10)
                             ->get();
@@ -137,7 +137,7 @@ class IFoodController extends Controller
                 $timestamp = strtotime($response->preparationStartDateTime);
                 $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
                 $order = OrderDetails::updateOrCreate([
-                        'orderId'                   => $response->id
+                        'order_id'                   => $response->id
                     ],[
                         'request_id'                => $request->request_id,
                         'tracking_route'            => $request->tracking_route,
@@ -165,7 +165,7 @@ class IFoodController extends Controller
     {
         \Log::debug('Request Update: '.print_r($request->id, 1));
         $order = OrderDetails::where([
-            'orderId'                       => $request->orderId
+            'order_id'                       => $request->order_id
         ])->update([
                 'request_id'                => $request->request_id,
                 'tracking_route'            => $request->tracking_route,
@@ -183,7 +183,7 @@ class IFoodController extends Controller
     public function dispatchOrder(Request $request)
     {
         $res = new IFoodApi($request->shop_id);
-        $response = $res->dispatchOrder($request->orderId);
+        $response = $res->dispatchOrder($request->order_id);
         \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
