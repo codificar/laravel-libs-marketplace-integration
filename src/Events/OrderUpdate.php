@@ -2,7 +2,6 @@
 
 namespace Codificar\MarketplaceIntegration\Events;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -33,9 +32,7 @@ class OrderUpdate implements ShouldBroadcast
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn() {         
-        $ifood = new IFoodController();
-        $ifood->updateOrderRequest($this->request);
+    public function broadcastOn() {
         return new Channel('order');
     }
 
