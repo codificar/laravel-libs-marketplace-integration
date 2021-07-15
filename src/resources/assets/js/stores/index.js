@@ -110,7 +110,8 @@ const store = new Vuex.Store({
         contact_info_name:null,
         contact_info_phone:null,
         request_info_number:null,
-        request_info_document:null
+        request_info_document:null, 
+        is_automation: true
       };
       request.points.push({
         address: this.state.shops[0].get_config[0].address.street,

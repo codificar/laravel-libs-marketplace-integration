@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Models\Requests;
 
 class OrderUpdate implements ShouldBroadcast
 {
@@ -22,7 +23,7 @@ class OrderUpdate implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($request)
+    public function __construct(Requests $request)
     {
         $this->request = $request;
     }

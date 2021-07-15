@@ -4,11 +4,12 @@ namespace Codificar\MarketplaceIntegration;
 
 use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
-        OrderUpdate::class => [
+        RequestUpdate::class => [
         ]
     ];
 
@@ -19,6 +20,9 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        parent::boot();
+        // parent::boot();
+        Event::listen(function (PodcastProcessed $event) {
+            //
+        });
     }
 }

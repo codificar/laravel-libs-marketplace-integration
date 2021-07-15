@@ -14,9 +14,12 @@ class AlterTableOrderDetailsColumnsNames extends Migration
     public function up()
     {
         # Table Order Details
-        Schema::table('order_detail', function (Blueprint $table) {  
-            $table->string('point_id')->after('request_id')->index();
-        });
+        if (!Schema::hasColumn('order_detail', 'point_id'))
+        {
+            Schema::table('order_detail', function (Blueprint $table) {  
+                $table->string('point_id')->after('request_id')->index();
+            });
+        }
         if (Schema::hasColumn('order_detail', 'orderId'))
         {
             Schema::table('order_detail', function (Blueprint $table) {
@@ -62,7 +65,7 @@ class AlterTableOrderDetailsColumnsNames extends Migration
         if (Schema::hasColumn('order_detail', 'merchantId'))
         {
             Schema::table('order_detail', function (Blueprint $table) {
-                $table->renameColumn('merchantId', 'merchant_id');            
+                $table->renameColumn('merchantId', 'merchant_id_ifood');            
             });
         }
         if (Schema::hasColumn('order_detail', 'customerId'))
