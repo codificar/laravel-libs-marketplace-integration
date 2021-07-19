@@ -184,9 +184,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
         },
         mounted() {
             console.log('Component mounted.');
-            this.getOrders();
-
-            
+            this.getOrders();            
         },
         methods: {
             formatNumber(number)

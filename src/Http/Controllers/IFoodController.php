@@ -110,11 +110,11 @@ class IFoodController extends Controller
         $acknowledgment = $res->getAcknowledgment($data);
     }
 
-    public function getOrdersDataBase()
+    public function getOrdersDataBase($id = null)
     {
-        $orders = OrderDetails::where('code', 'RTP')
+        $query = OrderDetails::where('code', 'RTP')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
-                            // ->leftJoin('order_items', 'order_detail.order_id', '=', 'order_items.order_id')
+                            ->where('shop_id', $id)
                             ->orderBy('distance', 'asc')
                             ->limit(10)
                             ->get();
