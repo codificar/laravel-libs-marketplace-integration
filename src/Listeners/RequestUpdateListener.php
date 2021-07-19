@@ -29,6 +29,7 @@ class RequestUpdateListener
     public function handle(RequestUpdate $request)
     {
         \Log::debug("Listner");
+        
     }
 
     /**
