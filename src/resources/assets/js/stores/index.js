@@ -194,7 +194,7 @@ const store = new Vuex.Store({
             })
           }
           commit('STATUS_REQUEST');
-          // window.location.reload();
+          window.location.reload();
         })
         .catch(err => {
           console.log("Erro: ", err);
