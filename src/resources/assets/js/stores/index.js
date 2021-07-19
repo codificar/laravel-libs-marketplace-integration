@@ -117,10 +117,10 @@ const store = new Vuex.Store({
         address: this.state.shops[0].get_config[0].address.street,
         formatted_address: this.state.shops[0].get_config[0].address.street,
         geometry:{
-           location:{
-              lat:this.state.shops[0].get_config[0].address.latitude,
-              lng:this.state.shops[0].get_config[0].address.longitude
-           }
+          location:{
+            lat:this.state.shops[0].get_config[0].address.latitude,
+            lng:this.state.shops[0].get_config[0].address.longitude
+          }
         },
         title: '1 + ' + this.state.shops[0].name,
         action:this.state.shops[0].name,
@@ -138,10 +138,10 @@ const store = new Vuex.Store({
           address: element.formattedAddress,
           formatted_address: element.formattedAddress,
           geometry:{
-             location:{
-                lat:element.latitude,
-                lng:element.longitude
-             }
+            location:{
+              lat:element.latitude,
+              lng:element.longitude
+            }
           },
           title: index + 1 + ' ' + element.displayId,
           action:element.displayId,
@@ -161,7 +161,6 @@ const store = new Vuex.Store({
       axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
           console.log("Res: ", res.data);
-          
           if (res.data.success) {
             Vue.swal.fire({
               title: 'Sucesso!',
@@ -185,16 +184,17 @@ const store = new Vuex.Store({
             });
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
-            window.location.reload();
           } else {
             Vue.swal.fire({
               title: 'Atenção!',
               text: res.data.errors[0],
               icon: 'warning',
-              confirmButtonText: 'OK'
+              showConfirmButton: false,
+              timer: 1500
             })
           }
           commit('STATUS_REQUEST');
+          // window.location.reload();
         })
         .catch(err => {
           console.log("Erro: ", err);
@@ -218,7 +218,8 @@ const store = new Vuex.Store({
             title: 'Atenção!',
             text: res.data,
             icon: 'warning',
-            confirmButtonText: 'OK'
+            showConfirmButton: false,
+            timer: 1500
           })
         }
       })
@@ -298,7 +299,7 @@ const store = new Vuex.Store({
           window.Echo = new Echo({
               broadcaster: 'socket.io',
               client: require("socket.io-client"),
-              host: window.location.hostname + ":7003"
+              host: window.location.hostname + ":6001"
           });
 
           window.io = require('socket.io-client');

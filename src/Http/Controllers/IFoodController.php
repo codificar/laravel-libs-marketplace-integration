@@ -24,19 +24,19 @@ class IFoodController extends Controller
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
                 \Log::debug('value: '.print_r( $value, 1));
                 $order = OrderDetails::updateOrCreate([
-                        'order_id'       => $value->order_id,
+                        'order_id'       => $value->orderId,
                     ],
                     [
-                        'shop_id'       => $id,
-                        'merchant_id'   => '',
-                        'order_id'       => $value->order_id,
-                        'code'          => $value->code,
-                        'fullCode'      => $value->fullCode,
-                        'ifoodId'       => $value->id,
-                        'createdAt'     => $createdAt
+                        'shop_id'           => $id,
+                        'merchant_id'       => '',
+                        'order_id'          => $value->orderId,
+                        'code'              => $value->code,
+                        'full_code'         => $value->fullCode,
+                        'ifood_id'          => $value->id,
+                        'created_at_ifood'  => $createdAt
                     ]
                 );
-                $this->getOrderDetails($value->order_id, $id);
+                $this->getOrderDetails($value->orderId, $id);
 
             }
         }
@@ -58,12 +58,12 @@ class IFoodController extends Controller
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                       => $response->id
             ],[
-                'customerId'                    => $response->customer->id,
-                'streetName'                    => $response->delivery->deliveryAddress->streetName,
-                'streetNumber'                  => $response->delivery->deliveryAddress->streetNumber,
-                'formattedAddress'              => $response->delivery->deliveryAddress->formattedAddress,
+                'customer_id'                    => $response->customer->id,
+                'stree_name'                    => $response->delivery->deliveryAddress->streetName,
+                'street_number'                  => $response->delivery->deliveryAddress->streetNumber,
+                'formatted_address'              => $response->delivery->deliveryAddress->formattedAddress,
                 'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                'postalCode'                    => $response->delivery->deliveryAddress->postalCode,
+                'postal_code'                    => $response->delivery->deliveryAddress->postalCode,
                 'city'                          => $response->delivery->deliveryAddress->city,
                 'state'                         => $response->delivery->deliveryAddress->state,
                 'country'                       => $response->delivery->deliveryAddress->country,
@@ -77,21 +77,21 @@ class IFoodController extends Controller
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
             $order = OrderDetails::updateOrCreate([
-                    'order_id'                   => $response->id
+                    'order_id'                      => $response->id
                 ],[
-                    'shop_id'                   => $marketConfig->id,
-                    'order_id'                   => $response->id,
-                    'merchant_id'               => $response->merchant->id,
-                    'createdAt'                 => $createdAt,
-                    'orderType'                 => $response->orderType,
-                    'displayId'                 => $response->displayId,
-                    'preparationStartDateTime'  => $preparationStartDateTime,
-                    'merchantId'                => $response->merchant->id,
-                    'customerId'                => $response->customer->id,
-                    'subTotal'                  => $response->total->subTotal,
-                    'deliveryFee'               => $response->total->deliveryFee,
-                    'benefits'                  => $response->total->benefits,
-                    'orderAmount'               => $response->total->orderAmount,
+                    'shop_id'                       => $marketConfig->id,
+                    'order_id'                      => $response->id,
+                    'merchant_id'                   => $response->merchant->id,
+                    'created_at_ifood'              => $createdAt,
+                    'order_type'                    => $response->orderType,
+                    'display_id'                    => $response->displayId,
+                    'preparation_start_date_time'   => $preparationStartDateTime,
+                    'merchant_id'                   => $response->merchant->id,
+                    'customer_id'                   => $response->customer->id,
+                    'sub_total'                     => $response->total->subTotal,
+                    'delivery_fee'                  => $response->total->deliveryFee,
+                    'benefits'                      => $response->total->benefits,
+                    'order_amount'                  => $response->total->orderAmount,
                 ]
             );
 

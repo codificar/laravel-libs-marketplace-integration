@@ -76,11 +76,11 @@ class IFoodApi
     $object = array(
       (object)
         array(
-          'id'        => $data->id,
-          'code'      => $data->code,
-          'fullCode'  => $data->fullCode,
-          'order_id'   => $data->order_id,
-          'createdAt' => $data->createdAt
+          'id'                => $data->id,
+          'code'              => $data->code,
+          'full_code'         => $data->fullCode,
+          'order_id'          => $data->orderId,
+          'created_at_ifood'  => $data->createdAt
         )
     );
 
