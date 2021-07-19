@@ -34,7 +34,7 @@ class MarketplaceServiceProvider extends ServiceProvider {
 
     public function register()
     {
-        //
+        // 
     }
 
     /**
