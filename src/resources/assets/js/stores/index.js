@@ -173,12 +173,12 @@ const store = new Vuex.Store({
               console.log("Elementy: ", element);
               data.forEach((e, i) => {
                 console.log("data displayId: ", e);
-                if (e.displayId == element.title) {
+                if (e.display_id == element.title) {
                   console.log("Order request: ", e);
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
                   commit('UPDATE_ORDER', e);
-                  this.$store.dispatch('updateOrder', e);
+                  this.dispatch('updateOrder', e);
                 }
               });
             });
