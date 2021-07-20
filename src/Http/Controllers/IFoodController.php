@@ -112,6 +112,7 @@ class IFoodController extends Controller
 
     public function getOrdersDataBase($id = null)
     {
+        \Log::debug('SHOP ID: '.$id);
         $orders = OrderDetails::where('code', 'RTP')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
                             // ->leftJoin('order_items', 'order_detail.order_id', '=', 'order_items.order_id')

@@ -194,7 +194,7 @@ const store = new Vuex.Store({
             })
           }
           commit('STATUS_REQUEST');
-          window.location.reload();
+          // window.location.reload();
         })
         .catch(err => {
           console.log("Erro: ", err);
@@ -269,7 +269,7 @@ const store = new Vuex.Store({
       })
     },
     getOrders({commit}, id){
-      console.log("Entrou getOrders");
+      console.log("Entrou getOrders", id);
       commit('CLEAR_ORDERS')
       var status = this.state.selectedShop.status_reload == 1 ? true : false;
       console.log("Data 2: ", status);
