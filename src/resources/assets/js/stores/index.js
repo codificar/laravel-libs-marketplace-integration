@@ -122,7 +122,7 @@ const store = new Vuex.Store({
             lng:this.state.shops[0].get_config[0].address.longitude
           }
         },
-        title: '1 + ' + this.state.shops[0].name,
+        title: this.state.shops[0].name,
         action:this.state.shops[0].name,
         action_type:1,
         complement:"",
@@ -143,7 +143,7 @@ const store = new Vuex.Store({
               lng:element.longitude
             }
           },
-          title: index + 1 + ' ' + element.displayId,
+          title: element.displayId,
           action:element.displayId,
           action_type:1,
           complement:"",

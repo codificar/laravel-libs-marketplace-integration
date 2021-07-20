@@ -79,7 +79,7 @@ class IFoodController extends Controller
             $order = OrderDetails::updateOrCreate([
                     'order_id'                      => $response->id
                 ],[
-                    'shop_id'                       => $marketConfig->id,
+                    'shop_id'                       => $marketConfig->shop_id,
                     'order_id'                      => $response->id,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_ifood'              => $createdAt,
