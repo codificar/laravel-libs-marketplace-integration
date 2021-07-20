@@ -178,7 +178,7 @@ const store = new Vuex.Store({
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
                   commit('UPDATE_ORDER', e);
-                  this.dispatch('updateOrder', e);
+                  this.$store.dispatch('updateOrder', e);
                 }
               });
             });
