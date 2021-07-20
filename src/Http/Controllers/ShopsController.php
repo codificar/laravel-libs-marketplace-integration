@@ -15,13 +15,11 @@ class ShopsController extends Controller
     public function index()
     {
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
-        \Log::debug("Shop: ".print_r($shops, 1));
         foreach ($shops as $key => $value) {
             $value->getConfig;
             foreach ($value->getConfig as $key => $v) {
                 $address = new IFoodApi($v->id);
                 $address = $address->getMerchantDetails($v->merchant_id);
-                \Log::debug("address: ".print_r($address->address, 1));
                 $v['address'] = $address->address;
             }
         }
@@ -31,7 +29,6 @@ class ShopsController extends Controller
     public function store(ShopsFormRequest $request)
     {
         $user = \Auth::guard('web_corp')->user();
-        \Log::debug("User: ".print_r($user->institution, 1));
         $shop = Shops::create([
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
@@ -48,11 +45,9 @@ class ShopsController extends Controller
                 ]);
         }
 
-        \Log::info('ShopID: '.print_r($shop->id,1));
 
         $res = new IFoodApi($marketConfig->id);
         $response = $res->getMerchantDetails($marketConfig->merchant_id);
-        \Log::info('response: '.print_r($response,1));
         $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                         ->update([
             'latitude'      =>$response->address->latitude,
@@ -69,7 +64,6 @@ class ShopsController extends Controller
 
     public function status(Request $request)
     {
-        \Log::debug("User: ".print_r($request->all(), 1));
         $user = \Auth::guard('web_corp')->user();
         $shop = Shops::where('institution_id', $user->AdminInstitution->institution_id)
                     ->update([
@@ -80,7 +74,6 @@ class ShopsController extends Controller
 
     public function update(ShopsFormRequest $request)
     {
-        \Log::debug('Update Shop: '.print_r($request->all(),1));
         $user = \Auth::guard('web_corp')->user();
         $shop = Shops::where('id', $request->id)->update([
             'name'          => $request->name,
@@ -97,7 +90,6 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        \Log::debug('Add Market: '.print_r($request->all(),1));
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
@@ -111,8 +103,6 @@ class ShopsController extends Controller
 
     public function updateMarketConfig(Request $request)
     {
-        \Log::debug('Update Market: '.print_r($request->all(),1));
-
         $marketConfig = MarketConfig::where('id', $request->id)->update([
             'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
             'merchant_id'   => $request->merchant_id,
