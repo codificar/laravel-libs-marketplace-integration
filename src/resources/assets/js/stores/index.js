@@ -135,16 +135,16 @@ const store = new Vuex.Store({
       });
       data.forEach((element, index) => {
          request.points.push({
-          address: element.formattedAddress,
-          formatted_address: element.formattedAddress,
+          address: element.formatted_address,
+          formatted_address: element.formatted_address,
           geometry:{
             location:{
               lat:element.latitude,
               lng:element.longitude
             }
           },
-          title: element.displayId,
-          action:element.displayId,
+          title: element.display_id,
+          action:element.display_id,
           action_type:1,
           complement:"",
           collect_value:'',
@@ -152,7 +152,7 @@ const store = new Vuex.Store({
           form_of_receipt:null,
           collect_pictures:1,
           collect_signature:1,
-          address_instructions: element.displayId
+          address_instructions: element.display_id
         })
         request.institution_id = this.state.shops[0].institution_id
       });
