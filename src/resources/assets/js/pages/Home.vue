@@ -94,7 +94,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Pedido: {{order.displayId}}
+                                    Pedido: {{order.display_id}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Order ID: {{order.order_id}}
@@ -102,7 +102,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.fullCode == 'READY_TO_PICKUP' ? 'PARA ENTREGA' : order.fullCode}}
+                                    Status: {{order.full_code == 'READY_TO_PICKUP' ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()}}MT
@@ -110,7 +110,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Valor: {{order.orderAmount ? formatCurrency(order.orderAmount) : '-'}}
+                                    Valor: {{order.order_amount ? formatCurrency(order.order_amount) : '-'}}
                                 </div>
                             </div>
                             <div>
