@@ -114,7 +114,7 @@ class IFoodController extends Controller
     {
         $query = OrderDetails::where('code', 'RTP')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
-                            if (isset($id)) {
+                            if (isset($id) && $id != null) {
                                 $query = $query->where('shop_id', $id);
                             }
         $orders =           $query->orderBy('distance', 'asc')
