@@ -170,9 +170,9 @@ const store = new Vuex.Store({
               timer: 1500
             });
             res.data.points.forEach((element, index) => {
-              console.log("Elementy: ", element.title);
+              console.log("Elementy: ", element);
               data.forEach((e, i) => {
-                console.log("data displayId: ", e.displayId);
+                console.log("data displayId: ", e);
                 if (e.displayId == element.title) {
                   console.log("Order request: ", e);
                   e['request_id']     = res.data.request_id;
