@@ -7,7 +7,7 @@ use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RequestUpdateListener
+class RequestUpdateListener implements ShouldQueue
 {
 
     /**

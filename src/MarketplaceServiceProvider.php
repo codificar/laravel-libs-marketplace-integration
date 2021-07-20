@@ -2,9 +2,23 @@
 namespace Codificar\MarketplaceIntegration;
 
 use Codificar\MarketplaceIntegration\Console\Commands\Polling;
+use Codificar\MarketplaceIntegration\Listeners\RequestUpdateListener;
+use App\Events\RequestUpdate;
 use Illuminate\Support\ServiceProvider;
 
-class MarketplaceServiceProvider extends ServiceProvider {
+class MarketplaceServiceProvider extends ServiceProvider
+{
+
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array
+     */
+    protected $listen = [
+        RequestUpdate::class => [
+            RequestUpdateListener::class,
+        ],
+    ];
 
     public function boot()
     {
