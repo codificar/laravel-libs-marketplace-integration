@@ -47,7 +47,7 @@ class IFoodController extends Controller
     {
         $marketConfig     = MarketConfig::find($market_id);
         \Log::debug('MarketID: '. $marketConfig->id);
-        $res        = new IFoodApi($marketConfig->id);
+        $res        = new IFoodApi($marketConfig->shop_id);
         $response   = $res->getOrderDetails($id);
         if ($response) {
             \Log::debug('Details 0: '.print_r($response,1));
