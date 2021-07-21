@@ -20,8 +20,8 @@ class IFoodApi
   function __construct($id)
   {
     \Log::debug("__construct". $id);
-    $this->clientId     = MarketConfig::select('client_id')->where('id', $id)->first();
-    $this->clientSecret     = MarketConfig::select('client_secret')->where('id', $id)->first();
+    $this->clientId     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
+    $this->clientSecret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
     $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
     $this->client       = new Client([
       'base_uri'  => $this->baseUrl

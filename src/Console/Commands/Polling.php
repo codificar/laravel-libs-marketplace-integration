@@ -46,7 +46,7 @@ class Polling extends Command
             $shop = Shops::find($value->shop_id);
             \Log::debug('Shop'.print_r($shop,1)); 
             $polling = new IFoodController();
-            $res = $polling->getOrders($value->id);
+            $res = $polling->getOrders($value->shop_id);
             
             \Log::debug('Ta rodando'.print_r($res,1));
             if ($res) {
