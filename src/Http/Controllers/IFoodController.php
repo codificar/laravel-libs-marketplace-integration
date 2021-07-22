@@ -45,8 +45,10 @@ class IFoodController extends Controller
 
     public function getOrderDetails($id, $market_id)
     {
+        \Log::debug('MarketID: '. $market_id);
+        \Log::debug('ID: '. $id);
         $marketConfig     = MarketConfig::find($market_id);
-        \Log::debug('MarketID: '. $marketConfig->id);
+        
         $res        = new IFoodApi($marketConfig->shop_id);
         $response   = $res->getOrderDetails($id);
         if ($response) {
@@ -56,14 +58,14 @@ class IFoodController extends Controller
             ));
             \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
             $address = DeliveryAddress::updateOrCreate([
-                'order_id'                       => $response->id
+                'order_id'                      => $response->id
             ],[
-                'customer_id'                    => $response->customer->id,
+                'customer_id'                   => $response->customer->id,
                 'stree_name'                    => $response->delivery->deliveryAddress->streetName,
-                'street_number'                  => $response->delivery->deliveryAddress->streetNumber,
-                'formatted_address'              => $response->delivery->deliveryAddress->formattedAddress,
+                'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
+                'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
                 'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                'postal_code'                    => $response->delivery->deliveryAddress->postalCode,
+                'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
                 'city'                          => $response->delivery->deliveryAddress->city,
                 'state'                         => $response->delivery->deliveryAddress->state,
                 'country'                       => $response->delivery->deliveryAddress->country,
