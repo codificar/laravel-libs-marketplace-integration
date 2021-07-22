@@ -22,6 +22,12 @@ class MarketplaceServiceProvider extends ServiceProvider
 
     public function boot()
     {
+
+        \Illuminate\Support\Facades\Event::listen(
+            RequestUpdate::class,
+            RequestUpdateListener::class
+        );
+
         // Load routes (carrega as rotas)
         $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
@@ -48,7 +54,7 @@ class MarketplaceServiceProvider extends ServiceProvider
 
     public function register()
     {
-        // 
+        //
     }
 
     /**
