@@ -19,7 +19,7 @@ class ShopsController extends Controller
             $value->getConfig;
             foreach ($value->getConfig as $key => $v) {
                 $address = new IFoodApi($v->id);
-                $address = $address->getMerchantDetails($v->merchant_id);
+                $address = $address->getMerchantDetails($v->id);
                 $v['address'] = $address->address;
             }
         }
@@ -47,12 +47,12 @@ class ShopsController extends Controller
 
 
         $res = new IFoodApi($marketConfig->id);
-        $response = $res->getMerchantDetails($marketConfig->merchant_id);
+        $response = $res->getMerchantDetails($shop->id);
         $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
-                        ->update([
-            'latitude'      =>$response->address->latitude,
-            'longitude'      =>$response->address->longitude
-        ]);
+                                    ->update([
+                                        'latitude'      =>$response->address->latitude,
+                                        'longitude'      =>$response->address->longitude
+                                    ]);
 
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {

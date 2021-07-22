@@ -299,7 +299,7 @@ const store = new Vuex.Store({
           window.Echo = new Echo({
             broadcaster: 'socket.io',
             client: require("socket.io-client"),
-            host: window.location.hostname + ":6001"
+            host: window.location.hostname + ":7011"
           });
 
           window.io = require('socket.io-client');
