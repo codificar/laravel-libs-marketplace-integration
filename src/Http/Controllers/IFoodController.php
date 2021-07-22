@@ -49,7 +49,7 @@ class IFoodController extends Controller
         $marketConfig     = MarketConfig::where('shop_id',$id)->get();
         \Log::debug('marketConfig: '. $marketConfig);
         $res        = new IFoodApi($id);
-        $response   = $res->getOrderDetails($id);
+        $response   = $res->getOrderDetails($market_id);
         if ($response) {
             \Log::debug('Details 0: '.print_r($response,1));
             $diffDistance = \DB::select( \DB::raw(
