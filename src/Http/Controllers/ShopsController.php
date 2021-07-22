@@ -17,6 +17,7 @@ class ShopsController extends Controller
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
             $value->getConfig;
+            \Log::debug("Shops: ".print_r($value, 1));
             foreach ($value->getConfig as $key => $v) {
                 $address = new IFoodApi($v->id);
                 $address = $address->getMerchantDetails($v->merchant_id);
