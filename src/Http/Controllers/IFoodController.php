@@ -192,7 +192,7 @@ class IFoodController extends Controller
 
     public function getMerchantDetails($id)
     {
-        $shop = Shops::find($id);
+        $shop = MarketConfig::where('shop_id', $id)->get();
         $res = new IFoodApi($id);
         $response = $res->getMerchantDetails($shop->merchant_id);
         \Log::debug("MerchantDetails: ".print_r($response,1));
