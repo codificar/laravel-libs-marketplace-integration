@@ -19,7 +19,7 @@ class ShopsController extends Controller
             $value->getConfig;
             \Log::debug("Shops: ".print_r($value, 1));
             foreach ($value->getConfig as $key => $v) {
-                $address = new IFoodApi($v->id);
+                $address = new IFoodApi($v->shop_id);
                 $address = $address->getMerchantDetails($v->merchant_id);
                 $v['address'] = $address->address;
             }
