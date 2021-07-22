@@ -55,7 +55,7 @@ class Polling extends Command
                     $acknowledgment = $polling->getAcknowledgment($value->id, $v);
                 
                     if ($acknowledgment) {
-                        $polling->getOrderDetails($value->orderId, $value->id);
+                        $polling->getOrderDetails($value->id, $value->orderId);
                     }
                     
                 } 

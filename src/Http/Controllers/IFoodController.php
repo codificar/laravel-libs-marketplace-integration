@@ -36,7 +36,7 @@ class IFoodController extends Controller
                         'created_at_ifood'  => $createdAt
                     ]
                 );
-                $this->getOrderDetails($value->orderId, $id);
+                $this->getOrderDetails($id, $value->orderId);
 
             }
         }
