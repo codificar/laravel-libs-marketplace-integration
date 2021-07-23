@@ -53,7 +53,7 @@ class IFoodController extends Controller
         if ($response) {
             \Log::debug('Details 0: '.print_r($response,1));
             $diffDistance = \DB::select( \DB::raw(
-                "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig[0]->longitude." ".$marketConfig[0]->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
+                "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
             ));
             \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
             $address = DeliveryAddress::updateOrCreate([
