@@ -105,7 +105,8 @@ class IFoodController extends Controller
     public function getAcknowledgment($id, $data)
     {
 
-        // Auth::guard('web_corp')->user();
+        \Log::debug('data: '. $data);
+        \Log::debug('ID: '. $id);
         $res        = new IFoodApi($id);
         \Log::debug('Data: '. json_encode($data));
         $acknowledgment = $res->getAcknowledgment($data);
