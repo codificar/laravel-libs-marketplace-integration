@@ -133,16 +133,6 @@
                                     >
                                         ACOMPANHAR ENTREGA
                                     </v-btn>
-                                    <!-- <v-btn
-                                        v-if="!order.request_id"
-                                        color="primary"
-                                        dark
-                                        v-bind="attrs"
-                                        @click="showDetails(order)"
-                                        small
-                                    >
-                                        DETALHES
-                                    </v-btn> -->
                                 </v-row>
                             </div>
                         </div>

@@ -14,7 +14,8 @@ class MarketConfig extends Model
         'client_id',
         'client_secret',
         'latitude',
-        'longitude'
+        'longitude',
+        'address'
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 

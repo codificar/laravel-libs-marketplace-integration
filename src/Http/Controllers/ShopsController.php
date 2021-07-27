@@ -18,11 +18,6 @@ class ShopsController extends Controller
         foreach ($shops as $key => $value) {
             $value->getConfig;
             \Log::debug("Shops: ".print_r($value, 1));
-            foreach ($value->getConfig as $key => $v) {
-                $address = new IFoodApi($value->id);
-                $address = $address->getMerchantDetails($v->merchant_id);
-                $v['address'] = $address->address;
-            }
         }
         return $shops;
     }
@@ -36,16 +31,19 @@ class ShopsController extends Controller
             'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
 
+        $address = new IFoodApi($shop->id);
+        $address = $address->getMerchantDetails($request->merchant_id);
+
         if ($shop) {
             $marketConfig = MarketConfig::create([
-                'shop_id'       => $shop->id,
-                'merchant_id'   => $request->merchant_id,
-                'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
-                'client_id'     => $request->client_id,
-                'client_secret' => $request->client_secret
-                ]);
+                                'shop_id'       => $shop->id,
+                                'merchant_id'   => $request->merchant_id,
+                                'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
+                                'client_id'     => $request->client_id,
+                                'client_secret' => $request->client_secret,
+                                'address'       => $address->address
+                            ]);
         }
-
 
         $res = new IFoodApi($marketConfig->shop_id);
         $response = $res->getMerchantDetails($marketConfig->merchant_id);
@@ -91,12 +89,16 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
+        \Log::debug("storeMarketConfig");
+        $address = new IFoodApi($request->select->id);
+        $address = $address->getMerchantDetails($request->merchant_id);
         $marketConfig = MarketConfig::create([
-            'shop_id'       => $request->id,
+            'shop_id'       => $request->select->id,
             'merchant_id'   => $request->merchant_id,
             'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
             'client_id'     => $request->client_id,
-            'client_secret' => $request->client_secret
+            'client_secret' => $request->client_secret,
+            'address'       => $address->address
         ]);
         \Log::debug('Market: '.print_r($marketConfig,1));
         return $marketConfig;
@@ -104,11 +106,16 @@ class ShopsController extends Controller
 
     public function updateMarketConfig(Request $request)
     {
+        $address = new IFoodApi($request->select['id']);
+        $address = $address->getMerchantDetails($request->merchant_id);
+        \Log::debug("updateMarketConfig". json_encode($address->address));
+
         $marketConfig = MarketConfig::where('id', $request->id)->update([
             'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
             'merchant_id'   => $request->merchant_id,
             'client_id'     => $request->client_id,
-            'client_secret' => $request->client_secret
+            'client_secret' => $request->client_secret,
+            'address'       => json_encode($address->address)
         ]);
 
         return new ShopResource($request);

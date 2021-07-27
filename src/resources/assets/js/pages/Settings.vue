@@ -1,7 +1,5 @@
 <template>
-    <v-card
-        elevation="2"
-    >
+    <v-card>
         <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4'">
             <v-card-title
                 class="title font-weight-regular justify-space-between"
@@ -25,9 +23,11 @@
                         <div class="d-flex justify-space-between caption">
                             
                             <div class="font-weight-black">
-                                <div class="font-weight-medium">
-                                    Nome: {{shop.name}}
-                                </div>
+                                <!-- <div class="font-weight-medium"> -->
+                                    <h3>
+                                        Nome: {{shop.name}}
+                                    </h3>
+                                <!-- </div> -->
                             </div>
                             <div class="font-weight-black col-8">
                                 <v-expansion-panels>

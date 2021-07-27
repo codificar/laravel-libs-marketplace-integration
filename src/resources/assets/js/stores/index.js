@@ -101,7 +101,7 @@ const store = new Vuex.Store({
         promo_code:'',
         user_id:'',
         token:'',
-        institution_id:1,
+        institution_id:this.state.shops.institution_id,
         costcentre_id:3,
         provider_id:null,
         is_admin:false,
@@ -118,8 +118,8 @@ const store = new Vuex.Store({
         formatted_address: this.state.shops[0].get_config[0].address.street,
         geometry:{
           location:{
-            lat:this.state.shops[0].get_config[0].address.latitude,
-            lng:this.state.shops[0].get_config[0].address.longitude
+            lat:this.state.shops[0].get_config[0].latitude,
+            lng:this.state.shops[0].get_config[0].longitude
           }
         },
         title: this.state.shops[0].name,
@@ -281,13 +281,13 @@ const store = new Vuex.Store({
             commit('CREATE_ORDER', element);
           });
           if (res.status == 200) {
-            Vue.swal.fire({
-              title: 'Sucesso!',
-              text: "Lista atualizada com sucesso!",
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500
-            })
+            // Vue.swal.fire({
+            //   title: 'Sucesso!',
+            //   text: "Lista atualizada com sucesso!",
+            //   icon: 'success',
+            //   showConfirmButton: false,
+            //   timer: 1500
+            // });
           } else {
             // Vue.swal.fire({
             //   title: 'Atenção!',
@@ -477,13 +477,13 @@ const store = new Vuex.Store({
       .then(res => {
         console.log("res: ",res);
         if (res.status == 200) {
-          Vue.swal.fire({
-            title: 'Sucesso!',
-            text: "Salvo com sucesso!",
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
+          // Vue.swal.fire({
+          //   title: 'Sucesso!',
+          //   text: "Salvo com sucesso!",
+          //   icon: 'success',
+          //   showConfirmButton: false,
+          //   timer: 1500
+          // })
         } else if (res.data) {
           Vue.swal.fire({
             title: 'Atenção!',
@@ -494,6 +494,7 @@ const store = new Vuex.Store({
         }
       })
       .catch(err => {
+        console.log("Error", err);
         Vue.swal.fire({
           title: 'Error!',
           text: err,
@@ -514,12 +515,12 @@ const store = new Vuex.Store({
           res.data.forEach(element => {
             this.dispatch('getOrders', element.id);
           });
-          Vue.swal.fire({
-            title: 'Sucesso!',
-            text: "Salvo com sucesso!",
-            icon: 'success',
-            confirmButtonText: 'OK'
-          });
+          // Vue.swal.fire({
+          //   title: 'Sucesso!',
+          //   text: "Salvo com sucesso!",
+          //   icon: 'success',
+          //   confirmButtonText: 'OK'
+          // });
           
         } else if (res.data == 0) {
           Vue.swal.fire({
