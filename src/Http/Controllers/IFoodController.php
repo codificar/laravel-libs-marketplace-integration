@@ -104,8 +104,7 @@ class IFoodController extends Controller
 
     public function getAcknowledgment($id, $data)
     {
-
-        \Log::debug('data: '. $data);
+        \Log::debug('data: '. print_r($data, 1));
         \Log::debug('ID: '. $id);
         $res        = new IFoodApi($id);
         \Log::debug('Data: '. json_encode($data));
@@ -194,10 +193,21 @@ class IFoodController extends Controller
 
     public function getMerchantDetails($id)
     {
+        \Log::debug("id merchantDetails: ".$id);
         $shop = MarketConfig::where('shop_id', $id)->get();
         $res = new IFoodApi($id);
+        \Log::debug("Shop: ".print_r($shop,1));
         $response = $res->getMerchantDetails($shop->merchant_id);
         \Log::debug("MerchantDetails: ".print_r($response,1));
         return $response;
+    }
+
+    public function updateOrderRequestListener($request)
+    {
+        \Log::debug("Request Update In Controller: ".print_r($request->request->id, 1));
+        $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
+
+        \Log::debug('Orders: '.print_r($order->id, 1));
+
     }
 }

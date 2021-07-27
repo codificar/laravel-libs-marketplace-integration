@@ -9,17 +9,6 @@ use Illuminate\Support\ServiceProvider;
 class MarketplaceServiceProvider extends ServiceProvider
 {
 
-    /**
-     * The event listener mappings for the application.
-     *
-     * @var array
-     */
-    protected $listen = [
-        RequestUpdate::class => [
-            RequestUpdateListener::class,
-        ],
-    ];
-
     public function boot()
     {
 

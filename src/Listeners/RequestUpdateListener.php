@@ -6,6 +6,7 @@ use App\Events\RequestUpdate;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 
 class RequestUpdateListener implements ShouldQueue
 {
@@ -28,8 +29,9 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function handle(RequestUpdate $request)
     {
-        \Log::debug("Listner");
-        
+        \Log::debug("Listener: ". print_r($request, 1));
+        $order = new IFoodController();
+        $res = $order->updateOrderRequestListener($request);
     }
 
     /**
@@ -40,6 +42,13 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function shouldQueue(RequestUpdate $request)
     {
-        return $request;
+        \Log::debug("ID Request: ".$request->request->id);
+        $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
+        \Log::debug("Order: ".print_r($order, 1));
+        if (!$order->isEmpty()) {
+            \Log::debug("TRUE");
+            return TRUE;
+        }
+        return FALSE;
     }
 }

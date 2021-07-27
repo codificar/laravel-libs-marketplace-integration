@@ -47,8 +47,8 @@ class ShopsController extends Controller
         }
 
 
-        $res = new IFoodApi($marketConfig->id);
-        $response = $res->getMerchantDetails($marketConfig->id);
+        $res = new IFoodApi($marketConfig->shop_id);
+        $response = $res->getMerchantDetails($marketConfig->merchant_id);
         $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
                                         'latitude'      =>$response->address->latitude,

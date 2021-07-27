@@ -96,7 +96,7 @@ const store = new Vuex.Store({
         return_to_start:false,
         type:22,
         category_id:null,
-        payment_mode:1,
+        payment_mode:5,
         user_card_id:'',
         promo_code:'',
         user_id:'',
@@ -299,7 +299,7 @@ const store = new Vuex.Store({
           window.Echo = new Echo({
             broadcaster: 'socket.io',
             client: require("socket.io-client"),
-            host: window.location.hostname + ":7011"
+            host: window.location.hostname + ":6001"
           });
 
           window.io = require('socket.io-client');

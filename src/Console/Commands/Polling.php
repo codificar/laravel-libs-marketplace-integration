@@ -52,7 +52,7 @@ class Polling extends Command
             if ($res) {
                 foreach ($res as $i => $v) {
                     \Log::debug('v: '.print_r($v,1));
-                    $acknowledgment = $polling->getAcknowledgment($value->id, $v);
+                    $acknowledgment = $polling->getAcknowledgment($value->shop_id, $v);
                 
                     if ($acknowledgment) {
                         $polling->getOrderDetails($value->id, $value->orderId);
