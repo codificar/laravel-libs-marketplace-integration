@@ -31,26 +31,25 @@ class ShopsController extends Controller
             'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
 
-        $address = new IFoodApi($shop->id);
-        $address = $address->getMerchantDetails($request->merchant_id);
-
         if ($shop) {
             $marketConfig = MarketConfig::create([
                                 'shop_id'       => $shop->id,
                                 'merchant_id'   => $request->merchant_id,
                                 'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
                                 'client_id'     => $request->client_id,
-                                'client_secret' => $request->client_secret,
-                                'address'       => $address->address
+                                'client_secret' => $request->client_secret
                             ]);
+            
         }
 
         $res = new IFoodApi($marketConfig->shop_id);
-        $response = $res->getMerchantDetails($marketConfig->merchant_id);
+        $response = $res->getMerchantDetails($request->merchant_id);
+        \Log::debug('Merchat store: '.print_r($response, 1));
         $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
                                         'latitude'      =>$response->address->latitude,
-                                        'longitude'      =>$response->address->longitude
+                                        'longitude'      =>$response->address->longitude,
+                                        'address'       => json_encode($response->address)
                                     ]);
 
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
