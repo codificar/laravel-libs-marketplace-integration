@@ -102,7 +102,7 @@ const store = new Vuex.Store({
         user_id:'',
         token:'',
         institution_id:this.state.shops.institution_id,
-        costcentre_id:3,
+        costcentre_id:1,
         provider_id:null,
         is_admin:false,
         contact_info_enable:false,
@@ -111,7 +111,8 @@ const store = new Vuex.Store({
         contact_info_phone:null,
         request_info_number:null,
         request_info_document:null, 
-        is_automation: true
+        is_automation: true,
+        from: 'panel'
       };
       request.points.push({
         address: this.state.shops[0].get_config[0].address.street,
@@ -168,33 +169,55 @@ const store = new Vuex.Store({
               icon: 'success',
               showConfirmButton: false,
               timer: 1500
+            }).then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                res.data.points.forEach((element, index) => {
+                  console.log("Elementy: ", element);
+                  data.forEach((e, i) => {
+                    console.log("data displayId: ", e);
+                    if (e.display_id == element.title) {
+                      console.log("Order request: ", e);
+                      e['request_id']     = res.data.request_id;
+                      e['tracking_route'] = res.data.request_id;
+                      commit('UPDATE_ORDER', e);
+                      this.dispatch('updateOrder', e);
+                    }
+                  });
+                });
+                commit('STATUS_REQUEST');
+                window.location.reload();
+              } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+              }
             });
-            res.data.points.forEach((element, index) => {
-              console.log("Elementy: ", element);
-              data.forEach((e, i) => {
-                console.log("data displayId: ", e);
-                if (e.display_id == element.title) {
-                  console.log("Order request: ", e);
-                  e['request_id']     = res.data.request_id;
-                  e['tracking_route'] = res.data.request_id;
-                  commit('UPDATE_ORDER', e);
-                  this.dispatch('updateOrder', e);
-                }
-              });
-            });
+            
+            
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
-            Vue.swal.fire({
-              title: 'Atenção!',
-              text: res.data.errors[0],
-              icon: 'warning',
-              showConfirmButton: false,
-              timer: 1500
-            })
+            if (res.data.error) {
+              Vue.swal.fire({
+                title: 'Atenção!',
+                text: res.data.error,
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 1500
+              }).then((result) => {              
+                window.location.reload();
+              })
+            } else {
+              Vue.swal.fire({
+                title: 'Atenção!',
+                text: res.data.errors[0],
+                icon: 'warning',
+                showConfirmButton: false,
+                timer: 1500
+              }).then((result) => {              
+                window.location.reload();
+              })
+            }
           }
-          commit('STATUS_REQUEST');
-          window.location.reload();
         })
         .catch(err => {
           console.log("Erro: ", err);
