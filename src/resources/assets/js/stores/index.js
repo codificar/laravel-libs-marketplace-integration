@@ -170,7 +170,6 @@ const store = new Vuex.Store({
               showConfirmButton: false,
               timer: 1500
             }).then((result) => {
-              /* Read more about isConfirmed, isDenied below */
               if (result.isConfirmed) {
                 res.data.points.forEach((element, index) => {
                   console.log("Elementy: ", element);
