@@ -75,6 +75,7 @@ class IFoodController extends Controller
 
             $timestamp = strtotime($response->createdAt);
             $createdAt = date('Y-m-d H:i:s', $timestamp);
+            \Log::debug('preparationStartDateTime: '.print_r($response->preparationStartDateTime, 1));
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
             $order = OrderDetails::updateOrCreate([
