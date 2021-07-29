@@ -31,7 +31,6 @@
                     </div>
                     <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
                         <refresh-screen
-                            v-if="$store.state.orders.length > 0"
                             :isEnable="$store.state.status_reload"
                         />
                     </div>

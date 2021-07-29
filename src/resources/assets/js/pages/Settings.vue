@@ -1,40 +1,92 @@
 <template>
-    <v-card>
-        <div :class="$vuetify.theme.dark ? 'grey darken-3' : 'grey lighten-4'">
-            <v-card-title
-                class="title font-weight-regular justify-space-between"
+    <div class="col-lg-12 col-md-12 w-100 h-50 card card-outline-info">
+        <v-card-title class="card-header title font-weight-regular justify-space-between">
+            <h4 class="white--text"> Configurações </h4>
+            <v-btn
+                class="ma-1"
+                small
+                depressed
+                color="success"
+                @click="addShop('addShop')"
+                style="width:100px;"
             >
-                <span> Configurações </span>
-                <v-avatar
-                    color="primary lighten-2"
-                    class="subheading white--text"
-                    size="24"
-                ></v-avatar>
-            </v-card-title>
-        </div>
+                <v-icon 
+                    color="white"
+                    left
+                >mdi-plus
+                </v-icon>
+                <span class="font-weight-white white--text"> Loja</span>
+            </v-btn>
+        </v-card-title>
         <v-card-text>
             <v-card 
-                    class="pa-md-4 mx-lg-auto mb-2"
-                    elevation="2"
-                    v-for="shop in $store.state.shops"
-                    :key="shop.id"
-                >
-                    <div class="card-body">                   
-                        <div class="d-flex justify-space-between caption">
-                            
-                            <div class="font-weight-black">
-                                <!-- <div class="font-weight-medium"> -->
-                                    <h3>
-                                        Nome: {{shop.name}}
-                                    </h3>
-                                <!-- </div> -->
+                class="pa-md-4 mx-lg-auto mb-2"
+                elevation="2"
+                v-for="shop in $store.state.shops"
+                :key="shop.id"
+            >
+                <div class="card-body">                   
+                    <div class="d-flex justify-space-between caption">
+                        <div class="font-weight-black">
+                            <h3>
+                                Nome: {{shop.name}}
+                            </h3>
+                            <div class="font-weight-white">
+                                <v-btn
+                                    class="ma-1"
+                                    small
+                                    depressed
+                                    color="success"
+                                    @click="addShop('add_marketPlace', shop)"
+                                    style="width:150px;"
+                                >
+                                    <v-icon 
+                                        color="white"
+                                        left
+                                    >mdi-plus
+                                    </v-icon>
+                                    <span class="font-weight-white white--text"> Marketplace</span>
+                                </v-btn>
                             </div>
-                            <div class="font-weight-black col-8">
-                                <v-expansion-panels>
-                                    <v-expansion-panel
-                                        v-for="(item,i) in shop.get_config"
-                                        :key="i"
-                                    >
+                            <div class="font-weight-white">
+                                <v-btn
+                                    class="ma-1"
+                                    small
+                                    depressed
+                                    color="cyan"
+                                    @click="addShop('edit_shop', shop)"
+                                    style="width:150px;"
+                                >
+                                    <v-icon 
+                                        color="white"
+                                        left
+                                    >mdi-pencil</v-icon>
+                                        <span class="font-weight-white white--text"> Editar</span>
+                                </v-btn>
+                            </div>
+                            <div class="font-weight-white">
+                                <v-btn
+                                    class="ma-1"
+                                    small
+                                    depressed
+                                    color="red"
+                                    @click="deleteShop('delete_marketPlace', shop.id)"
+                                    style="width:150px;"
+                                >
+                                    <v-icon 
+                                        color="white"
+                                        left
+                                    >mdi-delete-outline</v-icon>
+                                    <span class="font-weight-white white--text"> Apagar</span>
+                                </v-btn>
+                            </div>
+                        </div>
+                        <div class="font-weight-black col-10">
+                            <v-expansion-panels>
+                                <v-expansion-panel
+                                    v-for="(item,i) in shop.get_config"
+                                    :key="i"
+                                >
                                     <v-expansion-panel-header>
                                         {{item.market.toUpperCase()}}
                                     </v-expansion-panel-header>
@@ -54,80 +106,50 @@
                                                 CLIENT_SECRET: {{item.client_secret}}
                                             </div>
                                         </div>
-                                        <div class="font-weight-black">
-                                            <v-btn-toggle >
+                                        <div class="font-weight-white">
+                                            <div class="font-weight-white">
                                                 <v-btn
-                                                    fab
-                                                    x-small
-                                                    color="success"
-                                                    @click="addShop('add_marketPlace', shop)"
-                                                >
-                                                    <v-icon dark>
-                                                        mdi-plus
-                                                    </v-icon>
-                                                </v-btn> 
-                                                <v-btn
-                                                    fab
-                                                    x-small
+                                                    class="ma-1"
+                                                    small
+                                                    depressed
                                                     color="cyan"
                                                     @click="addShop('edit_marketPlace', item,shop.merchant_id)"
+                                                    style="width:150px;"
                                                 >
-                                                    <v-icon>mdi-pencil</v-icon>
+                                                    <v-icon 
+                                                        color="white"
+                                                        left
+                                                    >mdi-pencil</v-icon>
+                                                        <span class="font-weight-white white--text"> Editar</span>
                                                 </v-btn>
-
+                                            </div>
+                                            <div class="font-weight-white">
                                                 <v-btn
-                                                    fab
-                                                    x-small
+                                                    class="ma-1"
+                                                    small
+                                                    depressed
                                                     color="red"
                                                     @click="deleteShop('delete_marketPlace', item.id)"
+                                                    style="width:150px;"
                                                 >
-                                                    <v-icon>mdi-delete-outline</v-icon>
+                                                    <v-icon 
+                                                        color="white"
+                                                        left
+                                                    >mdi-delete-outline</v-icon>
+                                                    <span class="font-weight-white white--text"> Apagar</span>
                                                 </v-btn>
-                                            </v-btn-toggle>
+                                            </div>
                                         </div>
                                     </v-expansion-panel-content>
-                                    </v-expansion-panel>
-                                </v-expansion-panels>
-                            </div>
-                            <div class="font-weight-black">
-                                <v-btn-toggle >
-                                    <v-btn
-                                        fab
-                                        x-small
-                                        color="cyan"
-                                        @click="addShop('edit_shop', shop)"
-                                    >
-                                        <v-icon>mdi-pencil</v-icon>
-                                    </v-btn>
-
-                                    <v-btn
-                                        fab
-                                        x-small
-                                        color="red"
-                                        @click="deleteShop('delete_marketPlace', shop.id)"
-                                    >
-                                        <v-icon>mdi-delete-outline</v-icon>
-                                    </v-btn>
-
-                                    <v-btn
-                                        fab
-                                        x-small
-                                        color="success"
-                                        @click="addShop('addShop')"
-                                    >
-                                        <v-icon dark>
-                                            mdi-plus
-                                        </v-icon>
-                                    </v-btn>  
-                                </v-btn-toggle>
-                            </div>
+                                </v-expansion-panel>
+                            </v-expansion-panels>
                         </div>
                     </div>
-                </v-card>
+                </div>
+            </v-card>
         </v-card-text>
         <modal-component v-if="$store.state.sheet"/>
-    </v-card>
-   
+    </div>
 </template>
 
 <script>

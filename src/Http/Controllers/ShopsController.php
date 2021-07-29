@@ -23,13 +23,23 @@ class ShopsController extends Controller
     }
 
     public function store(ShopsFormRequest $request)
-    {
+    {        
         $user = \Auth::guard('web_corp')->user();
         $shop = Shops::create([
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
             'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
+        \Log::debug('Merchat store: ');
+        try {
+            $res = new IFoodApi($shop->shop_id);
+            $response = $res->getMerchantDetails($request->merchant_id);
+            \Log::debug('Merchat store: '.print_r($response, 1));
+        } catch (\Exception $ex) {
+            $shop->delete();
+            \Log::error($ex->getMessage());
+            return $ex->getMessage();
+        }
 
         if ($shop) {
             $marketConfig = MarketConfig::create([
@@ -39,12 +49,8 @@ class ShopsController extends Controller
                                 'client_id'     => $request->client_id,
                                 'client_secret' => $request->client_secret
                             ]);
-            
         }
 
-        $res = new IFoodApi($marketConfig->shop_id);
-        $response = $res->getMerchantDetails($request->merchant_id);
-        \Log::debug('Merchat store: '.print_r($response, 1));
         $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
                                         'latitude'      =>$response->address->latitude,

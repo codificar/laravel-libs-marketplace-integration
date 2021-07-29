@@ -191,7 +191,6 @@ const store = new Vuex.Store({
               }
             });
             
-            
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
@@ -331,7 +330,7 @@ const store = new Vuex.Store({
           this.state.orders.forEach(element => {
               console.log('Evento', element);
               if (element.request_id) {
-                window.Echo.channel('request.'+element.request_id)
+                window.Echo.channel('requestUpdate.'+element.request_id)
                   .listen('.requestUpdate',
                   (e) => {
                       console.log('Evento 2', e);

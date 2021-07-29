@@ -145,15 +145,21 @@ class IFoodApi
   }
 
   public function getMerchantDetails($id)
-  {    
-    $res = $this->client->request('GET', 'merchant/v1.0/merchants/'.$id, [
-      'headers'   => [
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
-      ]
-    ]);
-    $response = json_decode($res->getBody()->getContents());
-    \Log::debug("MerchantDetails: ". print_r($response, 1));
-    return $response;
+  { 
+    try {
+      $res = $this->client->request('GET', 'merchant/v1.0/merchants/'.$id, [
+        'headers'   => [
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer '.$this->access_token
+        ]
+      ]);
+      $response = json_decode($res->getBody());
+      \Log::error("MerchantDetails: ". print_r($response, 1));
+      return $res;
+    } catch (\Exception $e) {
+      
+      throw $e;
+    }   
+    
   }
 }
