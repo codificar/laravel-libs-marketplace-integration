@@ -5,6 +5,8 @@ namespace Codificar\MarketplaceIntegration\Lib;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\ClientException;
 
 class IFoodApi
 {
@@ -145,7 +147,7 @@ class IFoodApi
   }
 
   public function getMerchantDetails($id)
-  { 
+  {    
     try {
       $res = $this->client->request('GET', 'merchant/v1.0/merchants/'.$id, [
         'headers'   => [
@@ -153,13 +155,19 @@ class IFoodApi
           'Authorization' => 'Bearer '.$this->access_token
         ]
       ]);
-      $response = json_decode($res->getBody());
-      \Log::error("MerchantDetails: ". print_r($response, 1));
-      return $res;
-    } catch (\Exception $e) {
-      
-      throw $e;
-    }   
-    
+      \Log::debug("StatusCode: ".$res->getStatusCode());
+      $response = json_decode($res->getBody()->getContents());
+      \Log::debug("MerchantDetails: ". print_r($response, 1));
+      return $response;
+    } catch (ClientException $e) {
+      \Log::debug("Erro: ".$e->getCode());
+      // \Log::debug("Erro Content: ".$e->getResponse());
+      // $message = Psr7\str($e->getResponse());
+      // \Log::debug('Message: '. $message);
+      return [
+        'code'      => $e->getCode(),
+        'message'   => 'Sua loja não foi salva, verifique as informações e tente novamente.'
+      ];
+    }
   }
 }

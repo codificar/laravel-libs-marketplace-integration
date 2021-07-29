@@ -357,17 +357,26 @@ const store = new Vuex.Store({
         console.log('Save ',res.data);
         console.log(res);
         if (res.status == 201 || res.status == 200) {
-          commit('FETCH_SELECTED_SHOP', res.data[0]);
-          commit('CREATE_SHOP', res.data[0]);
-          commit('showDetails', data.key);
-          Vue.swal.fire({
-            title: 'Sucesso!',
-            text: "Salvo com sucesso!",
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.dispatch('getOrders', res.data.id);
+          if (!res.data.code) {
+            commit('FETCH_SELECTED_SHOP', res.data[0]);
+            commit('CREATE_SHOP', res.data[0]);
+            commit('showDetails', data.key);
+            Vue.swal.fire({
+              title: 'Sucesso!',
+              text: "Salvo com sucesso!",
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            this.dispatch('getOrders', res.data.id);
+          } else if (res.data.code == 401) {
+            Vue.swal.fire({
+              title: 'Atenção!',
+              text: res.data.message,
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+          }
         } else if (res.data.data) {
           Vue.swal.fire({
             title: 'Atenção!',

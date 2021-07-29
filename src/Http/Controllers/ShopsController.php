@@ -30,16 +30,6 @@ class ShopsController extends Controller
             'institution_id'=> $user->AdminInstitution->institution_id,
             'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
-        \Log::debug('Merchat store: ');
-        try {
-            $res = new IFoodApi($shop->shop_id);
-            $response = $res->getMerchantDetails($request->merchant_id);
-            \Log::debug('Merchat store: '.print_r($response, 1));
-        } catch (\Exception $ex) {
-            $shop->delete();
-            \Log::error($ex->getMessage());
-            return $ex->getMessage();
-        }
 
         if ($shop) {
             $marketConfig = MarketConfig::create([
@@ -51,19 +41,28 @@ class ShopsController extends Controller
                             ]);
         }
 
-        $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
+            $res = new IFoodApi($shop->id);
+            $response = $res->getMerchantDetails($request->merchant_id);
+            \Log::debug('Merchat store: '.print_r($response['code'], 1));
+
+        if ($response['code'] == 200 || $response['code'] == 201) {
+            $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
                                         'latitude'      =>$response->address->latitude,
                                         'longitude'      =>$response->address->longitude,
                                         'address'       => json_encode($response->address)
                                     ]);
 
-        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
-        foreach ($shops as $key => $value) {
-            $value->getConfig;
+            $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
+            foreach ($shops as $key => $value) {
+                $value->getConfig;
+            }
+            
+            return new ShopResource($shops);
+        } else {
+            $shop->delete();
+            return $response;
         }
-        
-        return new ShopResource($shops);
     }
 
     public function status(Request $request)
