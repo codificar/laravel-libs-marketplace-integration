@@ -43,7 +43,7 @@ class ShopsController extends Controller
 
             $res = new IFoodApi($shop->id);
             $response = $res->getMerchantDetails($request->merchant_id);
-            \Log::debug('Merchat store: '.print_r($response['code'], 1));
+            \Log::debug('Merchat store: '.print_r($response, 1));
 
         if ($response['code'] == 200 || $response['code'] == 201) {
             $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
