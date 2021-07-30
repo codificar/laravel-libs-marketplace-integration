@@ -17,7 +17,7 @@ class ShopsController extends Controller
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
             $value->getConfig;
-            \Log::debug("Shops: ".print_r($value, 1));
+            // \Log::debug("Shops: ".print_r($value, 1));
         }
         return $shops;
     }
@@ -43,7 +43,7 @@ class ShopsController extends Controller
 
         $res = new IFoodApi($shop->id);
         $response = $res->getMerchantDetails($request->merchant_id);
-        \Log::debug('Merchat store: '.print_r($response, 1));
+        // // \Log::debug('Merchat store: '.print_r($response, 1));
 
         if ($response && isset($response->id)) {
             $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
@@ -93,7 +93,7 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        \Log::debug("storeMarketConfig");
+        // \Log::debug("storeMarketConfig");
         $address = new IFoodApi($request->select->id);
         $address = $address->getMerchantDetails($request->merchant_id);
         $marketConfig = MarketConfig::create([
@@ -104,7 +104,7 @@ class ShopsController extends Controller
             'client_secret' => $request->client_secret,
             'address'       => $address->address
         ]);
-        \Log::debug('Market: '.print_r($marketConfig,1));
+        // \Log::debug('Market: '.print_r($marketConfig,1));
         return $marketConfig;
     }
 
@@ -112,7 +112,7 @@ class ShopsController extends Controller
     {
         $address = new IFoodApi($request->select['id']);
         $address = $address->getMerchantDetails($request->merchant_id);
-        \Log::debug("updateMarketConfig". json_encode($address->address));
+        // \Log::debug("updateMarketConfig". json_encode($address->address));
 
         $marketConfig = MarketConfig::where('id', $request->id)->update([
             'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',

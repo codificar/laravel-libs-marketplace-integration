@@ -22,7 +22,7 @@ class IFoodController extends Controller
             foreach ($response as $key => $value) {
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
-                \Log::debug('value: '.print_r( $value, 1));
+                // \Log::debug('value: '.print_r( $value, 1));
                 $order = OrderDetails::updateOrCreate([
                         'order_id'       => $value->orderId,
                     ],
@@ -44,18 +44,18 @@ class IFoodController extends Controller
 
     public function getOrderDetails($id, $market_id)
     {
-        \Log::debug('MarketID: '. $market_id);
-        \Log::debug('ID: '. $id);
+        // \Log::debug('MarketID: '. $market_id);
+        // \Log::debug('ID: '. $id);
         $marketConfig     = MarketConfig::where('shop_id',$id)->first();
-        \Log::debug('marketConfig: '. $marketConfig);
+        // \Log::debug('marketConfig: '. $marketConfig);
         $res        = new IFoodApi($id);
         $response   = $res->getOrderDetails($market_id);
         if ($response) {
-            \Log::debug('Details 0: '.print_r($response,1));
+            // \Log::debug('Details 0: '.print_r($response,1));
             $diffDistance = \DB::select( \DB::raw(
                 "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
             ));
-            \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
+            // \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                      => $response->id
             ],[
@@ -75,7 +75,7 @@ class IFoodController extends Controller
 
             $timestamp = strtotime($response->createdAt);
             $createdAt = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('preparationStartDateTime: '.print_r($response->preparationStartDateTime, 1));
+            // \Log::debug('preparationStartDateTime: '.print_r($response->preparationStartDateTime, 1));
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
             $order = OrderDetails::updateOrCreate([
@@ -105,16 +105,16 @@ class IFoodController extends Controller
 
     public function getAcknowledgment($id, $data)
     {
-        \Log::debug('data: '. print_r($data, 1));
-        \Log::debug('ID: '. $id);
+        // \Log::debug('data: '. print_r($data, 1));
+        // \Log::debug('ID: '. $id);
         $res        = new IFoodApi($id);
-        \Log::debug('Data: '. json_encode($data));
+        // \Log::debug('Data: '. json_encode($data));
         $acknowledgment = $res->getAcknowledgment($data);
     }
 
     public function getOrdersDataBase($id = null)
     {
-        \Log::debug('SHOP ID: '.$id);
+        // \Log::debug('SHOP ID: '.$id);
         $query = OrderDetails::where('code', 'RTP')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
@@ -123,18 +123,18 @@ class IFoodController extends Controller
         $orders =           $query->orderBy('distance', 'asc')
                             ->limit(10)
                             ->get();
-        \Log::debug('OrdersDatabase: '. json_encode($orders));
+        // \Log::debug('OrdersDatabase: '. json_encode($orders));
         return $orders;
     }
 
     public function confirmOrder(Request $request)
     {
         try {
-            \Log::debug('s_id: '.$request->s_id);
-            \Log::debug('id: '.$request->id);
+            // \Log::debug('s_id: '.$request->s_id);
+            // \Log::debug('id: '.$request->id);
             $res        = new IFoodApi($request->id);
             $response   = $res->confirmOrderApi($request->s_id);
-            \Log::debug('Controller 1: '.print_r($response,1));
+            // \Log::debug('Controller 1: '.print_r($response,1));
             if ($response) {
                 
                 $timestamp = strtotime($response->createdAt);
@@ -168,7 +168,7 @@ class IFoodController extends Controller
 
     public function updateOrderRequest(Request $request)
     {
-        \Log::debug('Request Update: '.print_r($request->id, 1));
+        // \Log::debug('Request Update: '.print_r($request->id, 1));
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
@@ -182,35 +182,35 @@ class IFoodController extends Controller
     {
         $res = new IFoodApi($request->s_id);
         $response = $res->rtcOrder($request->id);
-        \Log::debug("readyToPickup: ".print_r($response,1));
+        // \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
     public function dispatchOrder(Request $request)
     {
         $res = new IFoodApi($request->shop_id);
         $response = $res->dispatchOrder($request->order_id);
-        \Log::debug("readyToPickup: ".print_r($response,1));
+        // \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
     public function getMerchantDetails($id)
     {
-        \Log::debug("id merchantDetails: ".$id);
+        // \Log::debug("id merchantDetails: ".$id);
         $shop = MarketConfig::where('shop_id', $id)->get();
         $res = new IFoodApi($id);
-        \Log::debug("Shop: ".print_r($shop,1));
+        // \Log::debug("Shop: ".print_r($shop,1));
         $response = $res->getMerchantDetails($shop->merchant_id);
-        \Log::debug("MerchantDetails: ".print_r($response,1));
+        // \Log::debug("MerchantDetails: ".print_r($response,1));
         return $response;
     }
 
     public function updateOrderRequestListener($request)
     {
-        \Log::debug("Request Update In Controller: ".print_r($request->request, 1));
+        // \Log::debug("Request Update In Controller: ".print_r($request->request, 1));
         $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
-        foreach ($request->request->points as $key => $value) {
-            \Log::debug('Listener Controller: '.print_r($value, 1));
-        }
-        \Log::debug('Orders: '.print_r($order->id, 1));
+        // foreach ($request->request->points as $key => $value) {
+            // // \Log::debug('Listener Controller: '.print_r($value, 1));
+        // }
+        // // \Log::debug('Orders: '.print_r($order->id, 1));
 
     }
 }

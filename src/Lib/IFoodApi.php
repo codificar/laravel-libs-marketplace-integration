@@ -21,7 +21,7 @@ class IFoodApi
 
   function __construct($id)
   {
-    \Log::debug("__construct". $id);
+    // \Log::debug("__construct". $id);
     $this->clientId     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
     $this->clientSecret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
     $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
@@ -34,8 +34,8 @@ class IFoodApi
 
   public function auth()
   {   
-    \Log::debug("ClientId: ".$this->clientId);
-    \Log::debug("ClientSecret: ".$this->clientSecret);
+    // \Log::debug("ClientId: ".$this->clientId);
+    // \Log::debug("ClientSecret: ".$this->clientSecret);
     try {
       $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
       $body       = [
@@ -51,7 +51,7 @@ class IFoodApi
       $this->access_token = $res->accessToken;
       return $res->accessToken;
     }catch (\Exception $e){
-      \Log::debug($e->getMessage());
+      // \Log::debug($e->getMessage());
       return $e;
     }
   }
@@ -86,7 +86,7 @@ class IFoodApi
         )
     );
 
-    \Log::debug('acknowledgment: '.print_r($object,1));
+    // \Log::debug('acknowledgment: '.print_r($object,1));
     $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [
       'headers'   => $headers,
       'body'      => json_encode($object)
@@ -111,19 +111,19 @@ class IFoodApi
 
   public function confirmOrderApi($id)
   {
-    \Log::debug("Token: ".$this->access_token);
-    \Log::debug("Entrou". $id);
+    // \Log::debug("Token: ".$this->access_token);
+    // \Log::debug("Entrou". $id);
     try {
       $res   = $this->client->post('order/v1.0/orders/'.$id.'/confirm', [
         'headers' => [
           'Authorization' => 'Bearer '.$this->access_token
         ]
       ]);
-      \Log::debug('Details 1: '.print_r($res,1));
+      // \Log::debug('Details 1: '.print_r($res,1));
       $response = json_decode($res->getBody()->getContents());
       return $response;
     }catch (\Exception $e){
-      \Log::debug($e->getMessage());
+      // \Log::debug($e->getMessage());
       return $e;
     }
   }
@@ -142,7 +142,7 @@ class IFoodApi
       'headers'       => $headers
     ]);
     $response = json_decode($res->getBody()->getContents());
-    \Log::debug("readyToPickup: ".print_r($response,1));
+    // \Log::debug("readyToPickup: ".print_r($response,1));
     
   }
 
@@ -155,15 +155,15 @@ class IFoodApi
           'Authorization' => 'Bearer '.$this->access_token
         ]
       ]);
-      \Log::debug("StatusCode: ".$res->getStatusCode());
+      // \Log::debug("StatusCode: ".$res->getStatusCode());
       $response = json_decode($res->getBody()->getContents());
-      \Log::debug("MerchantDetails: ". print_r($response, 1));
+      // // \Log::debug("MerchantDetails: ". print_r($response, 1));
       return $response;
     } catch (ClientException $e) {
-      \Log::debug("Erro: ".$e->getCode());
-      // \Log::debug("Erro Content: ".$e->getResponse());
+      // \Log::debug("Erro: ".$e->getCode());
+      // // \Log::debug("Erro Content: ".$e->getResponse());
       // $message = Psr7\str($e->getResponse());
-      // \Log::debug('Message: '. $message);
+      // // \Log::debug('Message: '. $message);
       return [
         'code'      => $e->getCode(),
         'message'   => 'Sua loja não foi salva, verifique as informações e tente novamente.'

@@ -29,7 +29,7 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function handle(RequestUpdate $request)
     {
-        \Log::debug("Listener: ". print_r($request, 1));
+        // \Log::debug("Listener: ". print_r($request, 1));
         $order = new IFoodController();
         $res = $order->updateOrderRequestListener($request);
     }
@@ -42,11 +42,11 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function shouldQueue(RequestUpdate $request)
     {
-        \Log::debug("ID Request: ".$request->request->id);
+        // \Log::debug("ID Request: ".$request->request->id);
         $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
-        \Log::debug("Order: ".print_r($order, 1));
+        // \Log::debug("Order: ".print_r($order, 1));
         if (!$order->isEmpty()) {
-            \Log::debug("TRUE");
+            // \Log::debug("TRUE");
             return TRUE;
         }
         return FALSE;

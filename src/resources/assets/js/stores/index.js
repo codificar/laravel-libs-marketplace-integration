@@ -195,9 +195,7 @@ const store = new Vuex.Store({
                 icon: 'warning',
                 showConfirmButton: false,
                 timer: 1500
-              }).then((result) => {              
-                window.location.reload();
-              })
+              });
             } else {
               Vue.swal.fire({
                 title: 'Atenção!',
