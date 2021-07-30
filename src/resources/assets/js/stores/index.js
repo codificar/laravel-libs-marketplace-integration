@@ -169,28 +169,22 @@ const store = new Vuex.Store({
               icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            }).then((result) => {
-              if (result.isConfirmed) {
-                res.data.points.forEach((element, index) => {
-                  console.log("Elementy: ", element);
-                  data.forEach((e, i) => {
-                    console.log("data displayId: ", e);
-                    if (e.display_id == element.title) {
-                      console.log("Order request: ", e);
-                      e['request_id']     = res.data.request_id;
-                      e['tracking_route'] = res.data.request_id;
-                      commit('UPDATE_ORDER', e);
-                      this.dispatch('updateOrder', e);
-                    }
-                  });
-                });
-                commit('STATUS_REQUEST');
-                window.location.reload();
-              } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-              }
+            })
+            res.data.points.forEach((element, index) => {
+              console.log("Elementy: ", element);
+              data.forEach((e, i) => {
+                console.log("data displayId: ", e);
+                if (e.display_id == element.title) {
+                  console.log("Order request: ", e);
+                  e['request_id']     = res.data.request_id;
+                  e['tracking_route'] = res.data.request_id;
+                  commit('UPDATE_ORDER', e);
+                  this.dispatch('updateOrder', e);
+                }
+              });
             });
-            
+            commit('STATUS_REQUEST');
+            window.location.reload();
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {

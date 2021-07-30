@@ -205,9 +205,11 @@ class IFoodController extends Controller
 
     public function updateOrderRequestListener($request)
     {
-        \Log::debug("Request Update In Controller: ".print_r($request->request->id, 1));
+        \Log::debug("Request Update In Controller: ".print_r($request->request, 1));
         $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
-
+        foreach ($request->request->points as $key => $value) {
+            \Log::debug('Listener Controller: '.print_r($value, 1));
+        }
         \Log::debug('Orders: '.print_r($order->id, 1));
 
     }
