@@ -45,7 +45,7 @@ class ShopsController extends Controller
         $response = $res->getMerchantDetails($request->merchant_id);
         \Log::debug('Merchat store: '.print_r($response, 1));
 
-        if ($response->code == 200 || $response->code == 201) {
+        if ($response && isset($response->id)) {
             $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
                                         'latitude'      =>$response->address->latitude,
