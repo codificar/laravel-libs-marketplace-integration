@@ -112,6 +112,9 @@
                                 <div class="font-weight-medium">
                                     Valor: {{order.order_amount ? formatCurrency(order.order_amount) : '-'}}
                                 </div>
+                                <div class="font-weight-medium">
+                                    Pagamento: {{order.method_payment != '' ? order.method_payment : '-'}}
+                                </div>
                             </div>
                             <div>
                                 <v-row class="grey--text text-darken-1 ma-2 mt-6">

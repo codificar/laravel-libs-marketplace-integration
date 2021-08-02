@@ -75,7 +75,7 @@ class IFoodController extends Controller
 
             $timestamp = strtotime($response->createdAt);
             $createdAt = date('Y-m-d H:i:s', $timestamp);
-            // \Log::debug('preparationStartDateTime: '.print_r($response->preparationStartDateTime, 1));
+            \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
             $order = OrderDetails::updateOrCreate([
@@ -94,6 +94,9 @@ class IFoodController extends Controller
                     'delivery_fee'                  => $response->total->deliveryFee,
                     'benefits'                      => $response->total->benefits,
                     'order_amount'                  => $response->total->orderAmount,
+                    'method_payment'                => $response->payments->methods[0]->method,
+                    'prepaid'                       => $response->payments->methods[0]->prepaid,
+                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : ''
                 ]
             );
 

@@ -30,7 +30,10 @@ class OrderDetails extends Model
         'delivery_fee',
         'benefits',
         'order_amount',
-        'payments_id'
+        'payments_id',
+        'method_payment',
+        'change_for',
+        'prepaid'
     ];
     protected $dates = [
         'created_at',

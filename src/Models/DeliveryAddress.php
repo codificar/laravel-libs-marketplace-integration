@@ -12,12 +12,12 @@ class DeliveryAddress extends Model
     protected $table = 'delivery_address';
     protected $fillable = [
         'order_id',
-        'customerId',
-        'streetName',
-        'streetNumber',
-        'formattedAddress',
+        'customer_id',
+        'street_name',
+        'street_number',
+        'formatted_address',
         'neighborhood',
-        'postalCode',
+        'postal_code',
         'city',
         'state',
         'country',

@@ -114,28 +114,39 @@ const store = new Vuex.Store({
         is_automation: true,
         from: 'panel'
       };
-      request.points.push({
-        address: this.state.shops[0].get_config[0].address.street,
-        formatted_address: this.state.shops[0].get_config[0].address.street,
-        geometry:{
-          location:{
-            lat:this.state.shops[0].get_config[0].latitude,
-            lng:this.state.shops[0].get_config[0].longitude
-          }
-        },
-        title: this.state.shops[0].name,
-        action:this.state.shops[0].name,
-        action_type:1,
-        complement:"",
-        collect_value:'',
-        change:null,
-        form_of_receipt:null,
-        collect_pictures:1,
-        collect_signature:1,
-        address_instructions: this.state.shops[0].name
-      });
+      
       data.forEach((element, index) => {
-         request.points.push({
+        if (index == 0) {
+          var shop = this.state.shops.filter(function(item) {
+            if (item.id == element.shop_id) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          console.log('Shop: ', shop);
+          request.points.push({
+            address: shop[0].get_config[0].address.street,
+            formatted_address: shop[0].get_config[0].address.street,
+            geometry:{
+              location:{
+                lat:shop[0].get_config[0].latitude,
+                lng:shop[0].get_config[0].longitude
+              }
+            },
+            title: shop[0].name,
+            action:shop[0].name,
+            action_type:1,
+            complement:"",
+            collect_value:'',
+            change:null,
+            form_of_receipt:null,
+            collect_pictures:1,
+            collect_signature:1,
+            address_instructions: shop[0].name
+          });
+        }
+        request.points.push({
           address: element.formatted_address,
           formatted_address: element.formatted_address,
           geometry:{
@@ -148,14 +159,14 @@ const store = new Vuex.Store({
           action:element.display_id,
           action_type:1,
           complement:"",
-          collect_value:'',
-          change:null,
-          form_of_receipt:null,
+          collect_value: element.prepaid ? '' : element.order_amount,
+          change: element.prepaid ? '' : element.change_for,
+          form_of_receipt: element.prepaid ? '' : element.method_payment,
           collect_pictures:1,
           collect_signature:1,
           address_instructions: element.display_id
         })
-        request.institution_id = this.state.shops[0].institution_id
+        request.institution_id = shop.institution_id
       });
       
       console.log("points ", request);
@@ -184,7 +195,7 @@ const store = new Vuex.Store({
               });
             });
             commit('STATUS_REQUEST');
-            window.location.reload();
+            // window.location.reload();
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
