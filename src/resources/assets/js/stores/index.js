@@ -166,7 +166,7 @@ const store = new Vuex.Store({
           collect_signature:1,
           address_instructions: element.display_id
         })
-        request.institution_id = shop.institution_id
+        request.institution_id = shop[0].institution_id
       });
       
       console.log("points ", request);
