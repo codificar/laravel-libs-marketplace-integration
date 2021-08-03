@@ -195,7 +195,7 @@ const store = new Vuex.Store({
               });
             });
             commit('STATUS_REQUEST');
-            // window.location.reload();
+            window.location.reload();
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
