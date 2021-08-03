@@ -23,7 +23,8 @@ const store = new Vuex.Store({
     selectedOrders: '',
     status_reload: false,
     dataShop: '',
-    requestStatus: false
+    requestStatus: false,
+    alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
   },
   mutations: {
     toggleDrawer (state) {
@@ -114,27 +115,30 @@ const store = new Vuex.Store({
         is_automation: true,
         from: 'panel'
       };
-      
+      var shop;
       data.forEach((element, index) => {
+        console.log("Index: ", index);
+        
         if (index == 0) {
-          var shop = this.state.shops.filter(function(item) {
+          shop = this.state.shops.filter(function(item) {
             if (item.id == element.shop_id) {
               return true;
             } else {
               return false;
             }
           });
-          console.log('Shop: ', shop);
+          
+          var address = JSON.parse(shop[0].get_config[0].address);
           request.points.push({
-            address: shop[0].get_config[0].address.street,
-            formatted_address: shop[0].get_config[0].address.street,
+            address: address.street,
+            formatted_address: address.street,
             geometry:{
               location:{
                 lat:shop[0].get_config[0].latitude,
                 lng:shop[0].get_config[0].longitude
               }
             },
-            title: shop[0].name,
+            title:this.state.alphabet[index].toLocaleUpperCase() + ' ' + shop[0].name,
             action:shop[0].name,
             action_type:1,
             complement:"",
@@ -146,6 +150,7 @@ const store = new Vuex.Store({
             address_instructions: shop[0].name
           });
         }
+        console.log('Shop: ', shop);
         request.points.push({
           address: element.formatted_address,
           formatted_address: element.formatted_address,
@@ -155,7 +160,7 @@ const store = new Vuex.Store({
               lng:element.longitude
             }
           },
-          title: element.display_id,
+          title: this.state.alphabet[index+1].toLocaleUpperCase() + ' '  + element.display_id,
           action:element.display_id,
           action_type:1,
           complement:"",
@@ -195,7 +200,7 @@ const store = new Vuex.Store({
               });
             });
             commit('STATUS_REQUEST');
-            window.location.reload();
+            // window.location.reload();
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
