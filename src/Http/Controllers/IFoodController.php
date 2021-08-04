@@ -171,11 +171,12 @@ class IFoodController extends Controller
 
     public function updateOrderRequest(Request $request)
     {
-        // \Log::debug('Request Update: '.print_r($request->id, 1));
+        \Log::debug('Request Update: '.print_r($request->id, 1));
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
                 'request_id'                => $request->request_id,
+                'point_id'                  => $request->id,
                 'tracking_route'            => $request->tracking_route,
         ]);
         return $order;
@@ -206,14 +207,36 @@ class IFoodController extends Controller
         return $response;
     }
 
-    public function updateOrderRequestListener($request)
+    public function updateOrderRequestListener($points, $request)
     {
-        // \Log::debug("Request Update In Controller: ".print_r($request->request, 1));
-        $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
-        // foreach ($request->request->points as $key => $value) {
-            // // \Log::debug('Listener Controller: '.print_r($value, 1));
-        // }
-        // // \Log::debug('Orders: '.print_r($order->id, 1));
+        $request_status=>'';
+        $code=>'';
+        $full_code=>'';
+        if (!$request->request->is_cancelled) {
+            if ($points->start_time != NULL) {
+                $request_status = 0;
+                $code = "DSP";
+                $full_code = "DISPATCHED";
+            }
+            if ($points->finish_time) {
+                $request_status = 0;
+                $code = "CON";
+                $full_code = "CONCLUDED";
+            }
+        } else {
+            $request_status = 1;
+            $code = "CAN";
+            $full_code = "CANCELLED";
+        }
+        
+        $order = OrderDetails::where('request_id', '=', $points->request_id)
+                                ->where('point_id', '=', $points->id)
+                                ->update([
+                                    'request_status'    => $request_status,
+                                    'code'              => $code,
+                                    'full_code'         => $full_code
+                                ]);
+        \Log::debug('Orders: '.print_r($order->id, 1));
 
     }
 }

@@ -118,7 +118,6 @@ const store = new Vuex.Store({
       var shop;
       data.forEach((element, index) => {
         console.log("Index: ", index);
-        
         if (index == 0) {
           shop = this.state.shops.filter(function(item) {
             if (item.id == element.shop_id) {
@@ -127,7 +126,6 @@ const store = new Vuex.Store({
               return false;
             }
           });
-          
           var address = JSON.parse(shop[0].get_config[0].address);
           request.points.push({
             address: address.street,
@@ -138,9 +136,9 @@ const store = new Vuex.Store({
                 lng:shop[0].get_config[0].longitude
               }
             },
-            title:this.state.alphabet[index].toLocaleUpperCase() + ' ' + shop[0].name,
+            title:this.state.alphabet[index].toLocaleUpperCase() + ' - ' + shop[0].name,
             action:shop[0].name,
-            action_type:1,
+            action_type:4,
             complement:"",
             collect_value:'',
             change:null,
@@ -160,37 +158,32 @@ const store = new Vuex.Store({
               lng:element.longitude
             }
           },
-          title: this.state.alphabet[index+1].toLocaleUpperCase() + ' '  + element.display_id,
+          title: this.state.alphabet[index+1].toLocaleUpperCase() + ' - '  + element.display_id,
           action:element.display_id,
-          action_type:1,
+          action_type:2,
           complement:"",
           collect_value: element.prepaid ? '' : element.order_amount,
           change: element.prepaid ? '' : element.change_for,
-          form_of_receipt: element.prepaid ? '' : element.method_payment,
+          form_of_receipt: element.method_payment,
           collect_pictures:1,
           collect_signature:1,
           address_instructions: element.display_id
         })
         request.institution_id = shop[0].institution_id
+        if (!element.prepaid) {
+          request.return_to_start = true;
+        }
       });
-      
       console.log("points ", request);
       axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
           console.log("Res: ", res.data);
           if (res.data.success) {
-            Vue.swal.fire({
-              title: 'Sucesso!',
-              text: "Corrida criada com sucesso!",
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500
-            })
             res.data.points.forEach((element, index) => {
               console.log("Elementy: ", element);
               data.forEach((e, i) => {
                 console.log("data displayId: ", e);
-                if (e.display_id == element.title) {
+                if (e.display_id == element.action) {
                   console.log("Order request: ", e);
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
@@ -200,7 +193,13 @@ const store = new Vuex.Store({
               });
             });
             commit('STATUS_REQUEST');
-            window.location.reload();
+            Vue.swal.fire({
+              title: 'Sucesso!',
+              text: "Corrida criada com sucesso!",
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            });
             console.log("Data request: ", data);
             console.log("Orders: ", this.state.orders);
           } else {
@@ -209,16 +208,16 @@ const store = new Vuex.Store({
                 title: 'Atenção!',
                 text: res.data.error,
                 icon: 'warning',
-                showConfirmButton: false,
-                timer: 1500
+                showConfirmButton: true,
+              }).then((result) => {              
+                window.location.reload();
               });
             } else {
               Vue.swal.fire({
                 title: 'Atenção!',
                 text: res.data.errors[0],
                 icon: 'warning',
-                showConfirmButton: false,
-                timer: 1500
+                showConfirmButton: true,
               }).then((result) => {              
                 window.location.reload();
               })
@@ -239,8 +238,9 @@ const store = new Vuex.Store({
             title: 'Sucesso!',
             text: "Atualizado com sucesso!",
             icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
+            showConfirmButton: true,
+          }).then((result) => {              
+            window.location.reload();
           })
         } else {
           Vue.swal.fire({

@@ -29,9 +29,12 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function handle(RequestUpdate $request)
     {
-        // \Log::debug("Listener: ". print_r($request, 1));
+        \Log::debug("Listener: ". print_r($request->all(), 1));
         $order = new IFoodController();
-        $res = $order->updateOrderRequestListener($request);
+        foreach ($request->points as $key => $value) {
+            $res = $order->updateOrderRequestListener($value, $request);
+
+        }
     }
 
     /**
