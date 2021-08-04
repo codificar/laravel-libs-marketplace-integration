@@ -136,7 +136,7 @@ const store = new Vuex.Store({
                 lng:shop[0].get_config[0].longitude
               }
             },
-            title:this.state.alphabet[index].toLocaleUpperCase() + ' - ' + shop[0].name,
+            title:this.state.alphabet[index].toLocaleUpperCase(),
             action:shop[0].name,
             action_type:4,
             complement:"",
@@ -158,7 +158,7 @@ const store = new Vuex.Store({
               lng:element.longitude
             }
           },
-          title: this.state.alphabet[index+1].toLocaleUpperCase() + ' - '  + element.display_id,
+          title: this.state.alphabet[index+1].toLocaleUpperCase(),
           action:element.display_id,
           action_type:2,
           complement:"",

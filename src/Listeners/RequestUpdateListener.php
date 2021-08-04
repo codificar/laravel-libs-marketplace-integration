@@ -32,7 +32,6 @@ class RequestUpdateListener implements ShouldQueue
         $order = new IFoodController();
         foreach ($request->points as $key => $value) {
             $res = $order->updateOrderRequestListener($value, $request);
-
         }
     }
 
