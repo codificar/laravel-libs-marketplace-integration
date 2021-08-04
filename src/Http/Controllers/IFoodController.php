@@ -209,9 +209,9 @@ class IFoodController extends Controller
 
     public function updateOrderRequestListener($points, $request)
     {
-        $request_status=>'';
-        $code=>'';
-        $full_code=>'';
+        $request_status='';
+        $code='';
+        $full_code='';
         if (!$request->request->is_cancelled) {
             if ($points->start_time != NULL) {
                 $request_status = 0;
