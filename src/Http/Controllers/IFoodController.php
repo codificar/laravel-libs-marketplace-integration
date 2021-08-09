@@ -97,7 +97,7 @@ class IFoodController extends Controller
                     'method_payment'                => $response->payments->methods[0]->method,
                     'prepaid'                       => $response->payments->methods[0]->prepaid,
                     'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
-                    'car_brand'                     => $response->payments->methods[0]->method == 'CARD' ? $response->payments->methods[0]->card->brand : NULL,
+                    'card_brand'                     => $response->payments->methods[0]->method == 'CREDIT' ? $response->payments->methods[0]->card->brand : NULL,
                 ]
             );
 

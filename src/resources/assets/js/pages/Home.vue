@@ -128,8 +128,14 @@
                                 <div class="font-weight-medium">
                                     Pagamento: {{order.method_payment != '' ? order.method_payment : '-'}}
                                 </div>
-                                <div class="font-weight-medium" v-if="order.method_payment == 'CASH'">
+                                <div class="font-weight-medium" v-if="order.method_payment === 'CASH' && !order.prepaid">
                                     Troco para: {{formatCurrency(order.change_for)}}
+                                </div>
+                                <div class="font-weight-medium" v-if="order.method_payment === 'CREDIT'">
+                                    Troco para: {{order.brand}}
+                                </div>
+                                <div class="font-weight-medium" v-if="order.prepaid">
+                                    Pago: SIM
                                 </div>
                             </div>
                             <div class="font-weight-black">

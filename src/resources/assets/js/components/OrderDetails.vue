@@ -58,8 +58,14 @@
                         <div class="font-weight-medium" v-if="$store.state.dataOrder.data.method_payment == 'CASH'">
                             Troco para: {{formatCurrency($store.state.dataOrder.data.change_for)}}
                         </div>
-                        <div class="font-weight-medium" v-if="$store.state.dataOrder.data.method_payment == 'CARD'">
+                        <div class="font-weight-medium" v-if="$store.state.dataOrder.data.method_payment == 'CREDIT'">
                             Bandeira: {{$store.state.dataOrder.data.card_brand}}
+                        </div>
+                        <div class="font-weight-medium" v-if="$store.state.dataOrder.data.method_payment === 'CREDIT'">
+                            Troco para: {{$store.state.dataOrder.data.brand}}
+                        </div>
+                        <div class="font-weight-medium" v-if="$store.state.dataOrder.data.prepaid">
+                            Pago: SIM
                         </div>
                     </div>
                 </v-col>
