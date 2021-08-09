@@ -23,7 +23,8 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/ifood/merchants', 'IFoodController@getMerchants');
     Route::get('/ifood/events', 'IFoodController@getOrders');
     Route::get('/orders/{id}', 'IFoodController@getOrdersDataBase');
-    Route::post('/order/ifood/events', 'IFoodController@confirmOrder');
+    Route::post('/order/cancel', 'IFoodController@cancelOrder');
+    Route::post('/order/readyToPickup', 'IFoodController@rtpOrder');
     Route::post('/order/{id}/confirm', 'IFoodController@confirmOrder');
     Route::post('/order/update', 'IFoodController@updateOrderRequest');
     Route::post('/rtc/order', 'IFoodController@rtcOrder');

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import Echo from 'laravel-echo';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
@@ -23,6 +23,7 @@ const store = new Vuex.Store({
     selectedOrders: '',
     status_reload: false,
     dataShop: '',
+    dataOrder: '',
     requestStatus: false,
     alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
   },
@@ -42,6 +43,9 @@ const store = new Vuex.Store({
     },
     DATA_SHOP (state, data){
       state.dataShop = data;
+    },
+    ORDER_DETAILS(state, data){
+      state.dataOrder = data;
     },
     chageTheme (state) {
         state.themeDark = !state.themeDark;
@@ -79,13 +83,13 @@ const store = new Vuex.Store({
     },
     DELETE_ORDER(state, order) {
       let index = state.orders.findIndex(item => item.id === order.id);
-      state.shops.splice(index, 1);
+      state.orders.splice(index, 1);
     },
     UPDATE_ORDER(state, order){
       state.orders = [
-        ...state.orders.filter(element => element.displayId !== order.displayId),
+        ...state.orders.filter(element => element.id !== order.id),
         order
-      ]
+      ]      
     }
   },
   actions: {
@@ -266,20 +270,99 @@ const store = new Vuex.Store({
       commit('showDetails', data.key);
       commit('DATA_SHOP', data);
     },
-    confirmOrder({commit}, id) {
-      console.log("Entrou dispatch", id);
-      axios.post(`/corp/api/order/${id}/confirm`)
+    showDetail({commit}, data){
+      console.log("showDetail");
+      commit('showDetails', data.key);
+      commit('ORDER_DETAILS', data);
+    },
+    readyToPickup({commit}, data){
+      console.log("Entrou readyToPickup: ", data);
+      axios.post('/corp/api/order/readyToPickup', {
+        'id': data.shop_id,
+        's_id':   data.order_id
+      })
       .then(res => {
-        console.log('Save ',res.data.data);
-        commit('UPDATE_ORDER', res.data.data)
+        console.log('Save ',res);
+        commit('UPDATE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
           Vue.swal.fire({
             title: 'Sucesso!',
             text: "Confirmado com sucesso!",
             icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } else {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            text: res.data,
+            icon: 'warning',
             confirmButtonText: 'OK'
           })
+        }
+      }).catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      })
+    },
+    cancelOrder({commit}, data){
+      console.log("Entrou dispatch: ", data);
+      axios.post('/corp/api/order/cancel', {
+        'id': data.shop_id,
+        's_id':   data.order_id
+      })
+      .then(res => {
+        console.log('Save ',res);
+        commit('DELETE_ORDER', res.data)
+        console.log(res);
+        if (res.status == 200) {
+          Vue.swal.fire({
+            title: 'Sucesso!',
+            text: "Confirmado com sucesso!",
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } else {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            text: res.data,
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          })
+        }
+      }).catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      })
+    },
+    confirmOrder({commit}, data) {
+      console.log("Entrou dispatch: ", data);
+      axios.post(`/corp/api/order/${data.order_id}/confirm`, {
+        'id': data.shop_id,
+        's_id':   data.order_id
+      })
+      .then(res => {
+        console.log('Save ',res);
+        commit('UPDATE_ORDER', res.data)
+        console.log(res);
+        if (res.status == 200) {
+          Vue.swal.fire({
+            title: 'Sucesso!',
+            text: "Confirmado com sucesso!",
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          });
         } else {
           Vue.swal.fire({
             title: 'Atenção!',
@@ -325,34 +408,13 @@ const store = new Vuex.Store({
             //   confirmButtonText: 'OK'
             // })
           }
-          window.Echo = new Echo({
-            broadcaster: 'socket.io',
-            client: require("socket.io-client"),
-            host: window.location.hostname + ":6001"
-          });
-
-          window.io = require('socket.io-client');
-
-          console.log("DIOGO");
-
-          this.state.orders.forEach(element => {
-              console.log('Evento', element);
-              if (element.request_id) {
-                window.Echo.channel('requestUpdate.'+element.request_id)
-                  .listen('.requestUpdate',
-                  (e) => {
-                      console.log('Evento 2', e);
-                  });
-              }
-              
-          });
         }).catch(err => {
-          Vue.swal.fire({
-            title: 'Error!',
-            text: err,
-            icon: 'error',
-            confirmButtonText: 'OK'
-          })
+          // Vue.swal.fire({
+          //   title: 'Error!',
+          //   text: err,
+          //   icon: 'error',
+          //   confirmButtonText: 'OK'
+          // })
         }
       );
     },
@@ -447,15 +509,24 @@ const store = new Vuex.Store({
         console.log('Save ',res.data);
         console.log(res);
         if (res.status == 201 || res.status == 200) {
-          Vue.swal.fire({
-            title: 'Sucesso!',
-            text: "Salvo com sucesso!",
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          commit('showDetails', data.key);
-          window.location.reload();
+          if (!res.data.code) {
+            Vue.swal.fire({
+              title: 'Sucesso!',
+              text: "Salvo com sucesso!",
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            commit('showDetails', data.key);
+            window.location.reload();
+          } else {
+            Vue.swal.fire({
+              title: 'Atenção!',
+              text: res.data.message,
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+          }
         } else if (res.data) {
           Vue.swal.fire({
             title: 'Atenção!',

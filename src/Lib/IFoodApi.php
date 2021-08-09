@@ -21,7 +21,7 @@ class IFoodApi
 
   function __construct($id)
   {
-    // \Log::debug("__construct". $id);
+    \Log::debug("__construct". $id);
     $this->clientId     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
     $this->clientSecret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
     $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
@@ -112,38 +112,78 @@ class IFoodApi
   public function confirmOrderApi($id)
   {
     // \Log::debug("Token: ".$this->access_token);
-    // \Log::debug("Entrou". $id);
+    \Log::debug("Entrou". $id);
     try {
-      $res   = $this->client->post('order/v1.0/orders/'.$id.'/confirm', [
+      $res   = $this->client->request('POST', 'order/v1.0/orders/'.$id.'/confirm', [
         'headers' => [
           'Authorization' => 'Bearer '.$this->access_token
         ]
       ]);
-      // \Log::debug('Details 1: '.print_r($res,1));
-      $response = json_decode($res->getBody()->getContents());
-      return $response;
+      \Log::debug('Details 1: '.$res->getStatusCode());
+      if ($res->getStatusCode() == 202) {
+        return TRUE;
+      } else {
+        return FALSE;
+      }
     }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
-      return $e;
+      \Log::debug($e->getMessage());
+      return FALSE;
     }
   }
 
-  public function rtcOrder($id)
+  public function cancelOrderApi($id)
   {
-    $headers    = [
-      'Content-Type' => 'application/x-www-form-urlencoded',
-      'Authorization' => 'Bearer '.$this->access_token
-    ];
-    $body       = [
-        'id'     => $id,
-      ];
-    $res   = $this->client->post('order/v1.0/orders/'.$id.'/readyToPickup',[
-      'form_params'   => $body,
-      'headers'       => $headers
-    ]);
-    $response = json_decode($res->getBody()->getContents());
-    // \Log::debug("readyToPickup: ".print_r($response,1));
+    \Log::debug("Entrou Cancel: ". $id);
     
+    $object = array(
+      'reason'                        => 'PEDIDO FORA DA ÁREA DE ENTREGA',
+      'cancellationCode'              => '506'
+    );
+    
+    try {
+      $res   = $this->client->request('POST', 'order/v1.0/orders/'.$id.'/requestCancellation', [
+        'headers'   => [
+          'Content-Type' => 'application/json',
+          'Authorization' => 'Bearer '.$this->access_token
+        ],
+        'body'      => json_encode($object)
+      ]);
+      \Log::debug('Details 1: '.$res->getStatusCode());
+      if ($res->getStatusCode() == 202) {
+        return TRUE;
+      } else {
+        return FALSE;
+      }
+    }catch (\Exception $e){
+      \Log::debug($e->getMessage());
+      return FALSE;
+    }
+  }
+
+  public function rtpOrder($id)
+  {
+    try {
+      $headers    = [
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Bearer '.$this->access_token
+      ];
+      $body       = [
+          'id'     => $id,
+        ];
+      $res   = $this->client->post('order/v1.0/orders/'.$id.'/readyToPickup',[
+        'form_params'   => $body,
+        'headers'       => $headers
+      ]);
+      \Log::debug('Details 1: '.$res->getStatusCode());
+      if ($res->getStatusCode() == 202) {
+        return TRUE;
+      } else {
+        return FALSE;
+      }
+    }catch (\Exception $e){
+      \Log::debug($e->getMessage());
+      return FALSE;
+    }
   }
 
   public function getMerchantDetails($id)
@@ -157,13 +197,12 @@ class IFoodApi
       ]);
       // \Log::debug("StatusCode: ".$res->getStatusCode());
       $response = json_decode($res->getBody()->getContents());
-      // // \Log::debug("MerchantDetails: ". print_r($response, 1));
+      \Log::debug("MerchantDetails: ". print_r($response, 1));
       return $response;
     } catch (ClientException $e) {
-      // \Log::debug("Erro: ".$e->getCode());
-      // // \Log::debug("Erro Content: ".$e->getResponse());
-      // $message = Psr7\str($e->getResponse());
-      // // \Log::debug('Message: '. $message);
+      \Log::debug("Erro: ".$e->getCode());
+      \Log::debug("Erro Content: ".$e->getMessage());
+      // \Log::debug('Message: '. $e->getResponse());
       return [
         'code'      => $e->getCode(),
         'message'   => 'Sua loja não foi salva, verifique as informações e tente novamente.'

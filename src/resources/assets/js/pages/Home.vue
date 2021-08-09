@@ -9,19 +9,29 @@
                 label="Lojas"
                 dense
                 outlined
-                ></v-select>
+                >
+                    <template slot='selection' slot-scope='{ item }'>
+                        {{ item.name }} - {{ item.get_config[0].status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}
+                    </template>
+                    <template slot='item' slot-scope='{ item }'>
+                        {{ item.name }} - {{ item.get_config[0].status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}
+                    </template>
+                </v-select>
                 <v-btn
                     class="ma-1"
-                    fab
-                    dark
-                    x-small
+                    small
+                    depressed
                     color="success"
                     @click="addShop"
+                    style="width:100px;"
                 >
-                    <v-icon dark>
-                        mdi-plus
+                    <v-icon 
+                        color="white"
+                        left
+                    >mdi-plus
                     </v-icon>
-                </v-btn>    
+                    <span class="font-weight-white white--text"> Loja</span>
+                </v-btn>   
         </v-col>
         <div class="col-lg-12 w-100 h-50 card card-outline-info">
             <div class="card-header">
@@ -91,6 +101,9 @@
                                         />
                                     </v-avatar>
                                 </div>
+                                <div class="font-weight-medium">
+                                    {{$store.state.shops.filter(element => element.id == order.shop_id)[0].name}}
+                                </div>
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
@@ -115,28 +128,116 @@
                                 <div class="font-weight-medium">
                                     Pagamento: {{order.method_payment != '' ? order.method_payment : '-'}}
                                 </div>
+                                <div class="font-weight-medium" v-if="order.method_payment == 'CASH'">
+                                    Troco para: {{formatCurrency(order.change_for)}}
+                                </div>
+                            </div>
+                            <div class="font-weight-black">
+                                <div class="font-weight-medium">
+                                    <v-btn
+                                        class="ma-1"
+                                        small
+                                        depressed
+                                        color="primary"
+                                        @click="showDetails(order)"
+                                        style="width:150px;"
+                                    >
+                                        <v-icon 
+                                            color="white"
+                                            left
+                                        >mdi-clipboard-text</v-icon>
+                                            <span class="font-weight-white white--text"> Detalhes</span>
+                                    </v-btn>
+                                </div>
                             </div>
                             <div>
-                                <v-row class="grey--text text-darken-1 ma-2 mt-6">
-                                    <v-checkbox
-                                        v-if="!order.request_id"
-                                        v-model="selected"
-                                        label="Adicionar a entrega"
-                                        class="ma-2 mt-1"
-                                        :value="order"
-                                        :id="order.order_id"
-                                    ></v-checkbox>
+                                <div class="grey--text text-darken-1 ma-2 mt-6">
+                                    <div
+                                        class="font-weight-white"
+                                        v-if="order.request_id == null && order.code == 'RTP'"
+                                    >
+                                        <v-checkbox
+                                            v-model="selected"
+                                            label="Adicionar a entrega"
+                                            class="ma-2 mt-1"
+                                            :value="order"
+                                            :id="order.order_id"
+                                        ></v-checkbox>
+                                    </div>
+                                    <div
+                                        class="font-weight-white"
+                                        v-if="order.code == 'CFM'"
+                                    >
+                                        <v-btn
+                                            class="ma-1"
+                                            small
+                                            depressed
+                                            color="success"
+                                            @click="readyToPickup(order)"
+                                            style="width:150px;"
+                                        >
+                                            <v-icon 
+                                                color="white"
+                                                left
+                                            >mdi-motorbike</v-icon>
+                                                <span class="font-weight-white white--text"> Liberar</span>
+                                        </v-btn>
+                                    </div>
+                                    <div
+                                        class="font-weight-white"
+                                        v-if="order.code == 'PLC'"
+                                    >
+                                        <v-btn
+                                            class="ma-1"
+                                            small
+                                            depressed
+                                            color="success"
+                                            @click="confirmOrder(order)"
+                                            style="width:150px;"
+                                        >
+                                            <v-icon 
+                                                color="white"
+                                                left
+                                            >mdi-check</v-icon>
+                                                <span class="font-weight-white white--text"> Confirmar</span>
+                                        </v-btn>
+                                    </div>
+                                    <div
+                                        class="font-weight-white"
+                                        v-if="order.code == 'PLC'"
+                                    >
+                                        <v-btn
+                                            class="ma-1"
+                                            small
+                                            depressed
+                                            color="error"
+                                            @click="cancelOrder(order)"
+                                            style="width:150px;"
+                                        >
+                                            <v-icon 
+                                                color="white"
+                                                left
+                                            >mdi-cancel</v-icon>
+                                                <span class="font-weight-white white--text"> Cancelar</span>
+                                        </v-btn>
+                                    </div>
                                     <v-btn
+                                        class="ma-1"
+                                        small
+                                        depressed
                                         v-if="order.request_id"
                                         color="primary"
-                                        dark
+                                        style="width:150px;"
                                         v-bind="attrs"
                                         :href="'/corp/request/tracking/'+order.tracking_route"
-                                        small
                                     >
-                                        ACOMPANHAR ENTREGA
+                                        <v-icon 
+                                            color="white"
+                                            left
+                                        >mdi-map</v-icon>
+                                        ACOMPANHAR
                                     </v-btn>
-                                </v-row>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -224,6 +325,16 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             },
             trackingRoute(order) {
                 this.$router.push('/corp/request/tracking/'+order.tracking_route);
+            },
+            confirmOrder(item){
+                console.log("Item: ", item);
+                this.$store.dispatch('confirmOrder', item)
+            },
+            cancelOrder(item){
+                this.$store.dispatch('cancelOrder', item)
+            },
+            readyToPickup(item){
+                this.$store.dispatch('readyToPickup', item)
             }
         },
         watch: {

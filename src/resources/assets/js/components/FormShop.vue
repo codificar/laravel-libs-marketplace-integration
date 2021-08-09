@@ -138,6 +138,7 @@ export default {
     },
     methods: {
       saveShop() {
+        console.log("SaveShop: ", this.form);
         switch (this.$store.state.modalContent) {
           case 'addShop':
             this.$store.dispatch('saveShopConfigs', {key: this.$store.state.modalContent, data: this.form});

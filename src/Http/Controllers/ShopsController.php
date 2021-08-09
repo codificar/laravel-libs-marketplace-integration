@@ -17,7 +17,13 @@ class ShopsController extends Controller
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
             $value->getConfig;
-            // \Log::debug("Shops: ".print_r($value, 1));
+            foreach ($value->getConfig as $key => $v) {
+                $res = new IFoodApi($value->id);
+                $response = $res->getMerchantDetails($v->merchant_id);
+                $v->status = $response->status;
+            }
+            
+            \Log::debug("Shops: ".print_r($value, 1));
         }
         return $shops;
     }
@@ -93,19 +99,26 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        // \Log::debug("storeMarketConfig");
-        $address = new IFoodApi($request->select->id);
-        $address = $address->getMerchantDetails($request->merchant_id);
+        \Log::debug("storeMarketConfig".print_r($request->id,1));
+        
         $marketConfig = MarketConfig::create([
-            'shop_id'       => $request->select->id,
+            'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
             'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
             'client_id'     => $request->client_id,
             'client_secret' => $request->client_secret,
-            'address'       => $address->address
+            // 'address'       => $address->address
         ]);
-        // \Log::debug('Market: '.print_r($marketConfig,1));
-        return $marketConfig;
+        \Log::debug('marketConfig: '.print_r($marketConfig,1));
+        $address = new IFoodApi($request->id);
+        $address = $address->getMerchantDetails($request->merchant_id);
+        \Log::debug('Address: '.print_r($address,1));
+        if (!isset($address['code'])) {
+            return $marketConfig;
+        } else {
+            return $address;
+        }
+        
     }
 
     public function updateMarketConfig(Request $request)

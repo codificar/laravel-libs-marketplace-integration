@@ -96,7 +96,8 @@ class IFoodController extends Controller
                     'order_amount'                  => $response->total->orderAmount,
                     'method_payment'                => $response->payments->methods[0]->method,
                     'prepaid'                       => $response->payments->methods[0]->prepaid,
-                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : ''
+                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
+                    'car_brand'                     => $response->payments->methods[0]->method == 'CARD' ? $response->payments->methods[0]->card->brand : NULL,
                 ]
             );
 
@@ -118,53 +119,100 @@ class IFoodController extends Controller
     public function getOrdersDataBase($id = null)
     {
         // \Log::debug('SHOP ID: '.$id);
-        $query = OrderDetails::where('code', 'RTP')
+        $query = OrderDetails::where('code', '!=', 'CON')
+                            ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
             $query = $query->where('shop_id', $id);
         }
-        $orders =           $query->orderBy('distance', 'asc')
+        $orders =           $query->orderBy('distance', 'DESC')
+                            ->orderBy('order_detail.created_at', 'DESC')
                             ->limit(10)
                             ->get();
-        // \Log::debug('OrdersDatabase: '. json_encode($orders));
         return $orders;
     }
 
     public function confirmOrder(Request $request)
     {
         try {
-            // \Log::debug('s_id: '.$request->s_id);
-            // \Log::debug('id: '.$request->id);
+            \Log::debug('s_id: '.$request->s_id);
+            \Log::debug('id: '.$request->id);
             $res        = new IFoodApi($request->id);
             $response   = $res->confirmOrderApi($request->s_id);
-            // \Log::debug('Controller 1: '.print_r($response,1));
+            \Log::debug('Controller 1: '.print_r($response,1));
+            // $order = '';
             if ($response) {
-                
-                $timestamp = strtotime($response->createdAt);
+                $ifoodData = $res->getOrderDetails($request->s_id);
+                \Log::debug('entrou 1: '.print_r($ifoodData,1));
+                $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
-                $timestamp = strtotime($response->preparationStartDateTime);
+                $timestamp = strtotime($ifoodData->preparationStartDateTime);
                 $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-                $order = OrderDetails::updateOrCreate([
-                        'order_id'                   => $response->id
-                    ],[
-                        'request_id'                => $request->request_id,
-                        'tracking_route'            => $request->tracking_route,
-                        'merchant_id'               => $response->merchant->id,
-                        'createdAt'                 => $createdAt,
-                        'orderType'                 => $response->orderType,
-                        'displayId'                 => $response->displayId,
-                        'preparationStartDateTime'  => $preparationStartDateTime,
-                        'merchantId'                => $response->merchant->id,
-                        'customerId'                => $response->customer->id,
-                        'subTotal'                  => number_format($response->total->subTotal, 2, ',', '.'),
-                        'deliveryFee'               => $response->total->deliveryFee,
-                        'benefits'                  => $response->total->benefits,
-                        'orderAmount'               => $response->total->orderAmount,
-                    ]
-                );
-            }       
-            return $response;
+                $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
+                $order->merchant_id               = $ifoodData->merchant->id;
+                $order->created_at_ifood          = $createdAt;
+                $order->order_type                 = $ifoodData->orderType;
+                $order->display_id                 = $ifoodData->displayId;
+                $order->code                        = 'CFM';
+                $order->full_code                   = 'CONFIRMED';
+                $order->preparation_start_date_time  = $preparationStartDateTime;
+                $order->merchant_id                = $ifoodData->merchant->id;
+                $order->customer_id                = $ifoodData->customer->id;
+                $order->sub_total                  = number_format($ifoodData->total->subTotal, 2, ',', '.');
+                $order->delivery_fee               = $ifoodData->total->deliveryFee;
+                $order->benefits                  = $ifoodData->total->benefits;
+                $order->order_amount               = $ifoodData->total->orderAmount;
+                $order->save();
+            }
+            \Log::debug('Order: '.print_r($order, 1));
+            $order->getAddress;
+            return $order;
+            
         }catch (\Exception $e){
+            \Log::error("Erro: ".$e->getMessage());
+            return $e;
+        }
+    }
+
+    public function cancelOrder(Request $request)
+    {
+        \Log::debug('s_id: '.$request->s_id);
+        \Log::debug('id: '.$request->id);
+        try {
+            
+            $res        = new IFoodApi($request->id);
+            $response   = $res->cancelOrderApi($request->s_id);
+            \Log::debug('Controller 1: '.print_r($response,1));
+            // $order = '';
+            if ($response) {
+                $ifoodData = $res->getOrderDetails($request->s_id);
+                \Log::debug('entrou 1: '.print_r($ifoodData,1));
+                $timestamp = strtotime($ifoodData->createdAt);
+                $createdAt = date('Y-m-d H:i:s', $timestamp);
+                $timestamp = strtotime($ifoodData->preparationStartDateTime);
+                $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
+                $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
+                $order->merchant_id               = $ifoodData->merchant->id;
+                $order->created_at_ifood          = $createdAt;
+                $order->order_type                 = $ifoodData->orderType;
+                $order->display_id                 = $ifoodData->displayId;
+                $order->code                        = 'CAN';
+                $order->full_code                   = 'CANCELLED';
+                $order->preparation_start_date_time  = $preparationStartDateTime;
+                $order->merchant_id                = $ifoodData->merchant->id;
+                $order->customer_id                = $ifoodData->customer->id;
+                $order->sub_total                  = number_format($ifoodData->total->subTotal, 2, ',', '.');
+                $order->delivery_fee               = $ifoodData->total->deliveryFee;
+                $order->benefits                  = $ifoodData->total->benefits;
+                $order->order_amount               = $ifoodData->total->orderAmount;
+                $order->save();
+            }
+            \Log::debug('Order: '.print_r($order, 1));
+            $order->getAddress;
+            return $order;
+            
+        }catch (\Exception $e){
+            \Log::error("Erro: ".$e->getMessage());
             return $e;
         }
     }
@@ -182,11 +230,46 @@ class IFoodController extends Controller
         return $order;
     }
 
-    public function rtcOrder(Request $request)
+    public function rtpOrder(Request $request)
     {
-        $res = new IFoodApi($request->s_id);
-        $response = $res->rtcOrder($request->id);
-        // \Log::debug("readyToPickup: ".print_r($response,1));
+        \Log::debug("readyToPickup: ".print_r($request->all(),1));
+        \Log::debug('s_id: '.$request->s_id);
+        \Log::debug('id: '.$request->id);
+        try {
+            $res = new IFoodApi($request->id);
+            $response = $res->rtpOrder($request->s_id);
+            \Log::debug('Controller 1: '.print_r($response,1));
+            if ($response) {
+                $ifoodData = $res->getOrderDetails($request->s_id);
+                \Log::debug('entrou 1: '.print_r($ifoodData,1));
+                $timestamp = strtotime($ifoodData->createdAt);
+                $createdAt = date('Y-m-d H:i:s', $timestamp);
+                $timestamp = strtotime($ifoodData->preparationStartDateTime);
+                $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
+                $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
+                $order->merchant_id               = $ifoodData->merchant->id;
+                $order->created_at_ifood          = $createdAt;
+                $order->order_type                 = $ifoodData->orderType;
+                $order->display_id                 = $ifoodData->displayId;
+                $order->code                        = 'RTP';
+                $order->full_code                   = 'READ_TO_PICKUP';
+                $order->preparation_start_date_time  = $preparationStartDateTime;
+                $order->merchant_id                = $ifoodData->merchant->id;
+                $order->customer_id                = $ifoodData->customer->id;
+                $order->sub_total                  = number_format($ifoodData->total->subTotal, 2, ',', '.');
+                $order->delivery_fee               = $ifoodData->total->deliveryFee;
+                $order->benefits                  = $ifoodData->total->benefits;
+                $order->order_amount               = $ifoodData->total->orderAmount;
+                $order->save();
+            }
+            \Log::debug('Order: '.print_r($order, 1));
+            $order->getAddress;
+            return $order;
+            
+        }catch (\Exception $e){
+            \Log::error("Erro: ".$e->getMessage());
+            return $e;
+        }
     }
 
     public function dispatchOrder(Request $request)

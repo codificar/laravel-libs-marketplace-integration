@@ -44,14 +44,14 @@ class Polling extends Command
         $stores = MarketConfig::get();
         foreach ($stores as $key => $value) {
             $shop = Shops::find($value->shop_id);
-            // \Log::debug('Shop'.print_r($shop,1)); 
+            \Log::debug('Shop'.print_r($shop,1)); 
             $polling = new IFoodController();
             $res = $polling->getOrders($value->shop_id);
             
-            // \Log::debug('Ta rodando'.print_r($res,1));
+            \Log::debug('Ta rodando: '.print_r($res,1));
             if ($res) {
                 foreach ($res as $i => $v) {
-                    // \Log::debug('v: '.print_r($v,1));
+                    \Log::debug('v: '.print_r($v,1));
                     $acknowledgment = $polling->getAcknowledgment($value->shop_id, $v);
                 
                     if ($acknowledgment) {
