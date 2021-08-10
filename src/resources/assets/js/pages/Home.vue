@@ -115,7 +115,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.full_code == 'READY_TO_PICKUP' ? 'PARA ENTREGA' : order.full_code}}
+                                    Status: {{order.full_code == 'READ_TO_PICKUP' ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()}}MT

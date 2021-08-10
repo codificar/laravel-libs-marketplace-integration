@@ -40,7 +40,7 @@
                 <v-col class="d-flex justify-space-between caption">
                     <div class="font-weight-black">
                         <div class="font-weight-medium">
-                            Status: {{$store.state.dataOrder.data.full_code == 'READY_TO_PICKUP' ? 'PARA ENTREGA' : $store.state.dataOrder.data.full_code}}
+                            Status: {{$store.state.dataOrder.data.full_code == 'READ_TO_PICKUP' ? 'PARA ENTREGA' : $store.state.dataOrder.data.full_code}}
                         </div>
                         <div class="font-weight-medium">
                                 Distancia: {{parseFloat($store.state.dataOrder.data.distance).toFixed()}}MT
