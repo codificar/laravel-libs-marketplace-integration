@@ -170,7 +170,7 @@ class IFoodApi
       $body       = [
           'id'     => $id,
         ];
-      $res   = $this->client->post('order/v1.0/orders/'.$id.'/readyToPickup',[
+      $res   = $this->client->post('order/v1.0/orders/'.$id.'/dispatch',[
         'form_params'   => $body,
         'headers'       => $headers
       ]);
