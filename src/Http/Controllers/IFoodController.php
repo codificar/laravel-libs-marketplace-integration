@@ -101,23 +101,6 @@ class IFoodController extends Controller
                 ]
             );
 
-            foreach ($response->items as $key => $value) {
-                $items = OrderItems::updateOrCreate([
-                    'order_id'              =>
-                    'index'                 =>
-                    'itemId'                =>
-                    'name'                  =>
-                    'externalCode'          =>
-                    'unit'                  =>
-                    'quantity'              =>
-                    'unitPrice'             =>
-                    'optionsPrice'          =>
-                    'totalPrice'            =>
-                    'price'                 =>
-                    'options'               =>
-                ]);
-            }
-
             $order->getAddress;
             
         }
