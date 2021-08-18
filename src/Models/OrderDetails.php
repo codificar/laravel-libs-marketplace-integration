@@ -34,7 +34,8 @@ class OrderDetails extends Model
         'method_payment',
         'change_for',
         'prepaid',
-        'card_brand'
+        'card_brand',
+        'extra_info'
     ];
     protected $dates = [
         'created_at',

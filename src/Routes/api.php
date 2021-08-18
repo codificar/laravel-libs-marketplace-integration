@@ -19,15 +19,15 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/market/store', 'ShopsController@storeMarketConfig');
     Route::put('/market/update', 'ShopsController@updateMarketConfig');
     Route::post('/shop/status', 'ShopsController@status');
-    Route::get('/auth/ifood', 'IFoodController@auth');
-    Route::get('/ifood/merchants', 'IFoodController@getMerchants');
-    Route::get('/ifood/events', 'IFoodController@getOrders');
-    Route::get('/orders/{id}', 'IFoodController@getOrdersDataBase');
-    Route::post('/order/cancel', 'IFoodController@cancelOrder');
-    Route::post('/order/readyToPickup', 'IFoodController@rtpOrder');
-    Route::post('/order/{id}/confirm', 'IFoodController@confirmOrder');
-    Route::post('/order/update', 'IFoodController@updateOrderRequest');
-    Route::post('/rtc/order', 'IFoodController@rtcOrder');
-    Route::post('/merchant/details', 'IFoodController@getMerchantDetails');
+    Route::get('/auth/ifood', 'DeliveryFactory@auth');
+    // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
+    Route::get('/ifood/events', 'DeliveryFactory@getOrders');
+    Route::post('/orders/{id}', 'DeliveryFactory@getOrdersDataBase');
+    Route::post('/order/cancel', 'DeliveryFactory@cancelOrder');
+    Route::post('/order/readyToPickup', 'DeliveryFactory@rtpOrder');
+    Route::post('/order/{id}/confirm', 'DeliveryFactory@confirmOrder');
+    Route::post('/order/update', 'DeliveryFactory@updateOrderRequest');
+    Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');
+    // Route::post('/merchant/details', 'DeliveryFactory@getMerchantDetails');
 });
 

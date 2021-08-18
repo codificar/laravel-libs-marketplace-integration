@@ -10,19 +10,37 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class IFoodController extends Controller
 {
+    public function auth($id)
+    {
+        $client_id     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
+        $client_secret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
+        \Log::debug("client_id: ". print_r($client_id['client_id'], 1));
+        \Log::debug("client_secret: ". print_r($client_secret['client_secret'], 1));
+        $api = new IFoodApi;
+        $res = json_decode($api->auth($client_id['client_id'], $client_secret['client_secret']));
+        \Log::debug("auth: ". print_r($res, 1));
+        MarketConfig::where('shop_id', $id)->update([
+            'token'         => $res->accessToken,
+            'expiry_token'  => Carbon::now()->addHours(6)
+        ]);
+    }
 
     public function getOrders($id)
     {
-        $res        = new IFoodApi($id);
-        $response   = $res->getOrders();
+        \Log::debug('ID: '. $id);
+        $market     = MarketConfig::where('shop_id', $id)->first();
+        $res        = new IFoodApi;
+        $response   = json_decode($res->getOrders($market->token));
+        // \Log::debug('getOrders: '.print_r($response,1));
         if ($response) {
             foreach ($response as $key => $value) {
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
-                // \Log::debug('value: '.print_r( $value, 1));
+                \Log::debug('value: '.print_r($value->orderId, 1));
                 $order = OrderDetails::updateOrCreate([
                         'order_id'       => $value->orderId,
                     ],
@@ -36,93 +54,95 @@ class IFoodController extends Controller
                         'created_at_ifood'  => $createdAt
                     ]
                 );
-                $this->getOrderDetails($id, $value->orderId);
+                self::getOrderDetails($id, $order->order_id);
             }
         }
         return $response;
     }
 
-    public function getOrderDetails($id, $market_id)
+    public function getOrderDetails($id, $order_id)
     {
-        // \Log::debug('MarketID: '. $market_id);
-        // \Log::debug('ID: '. $id);
+        \Log::debug('MarketID: '. $order_id);
+        
         $marketConfig     = MarketConfig::where('shop_id',$id)->first();
-        // \Log::debug('marketConfig: '. $marketConfig);
-        $res        = new IFoodApi($id);
-        $response   = $res->getOrderDetails($market_id);
+        \Log::debug('marketConfig: '. print_r($marketConfig, 1));
+        $res        = new IFoodApi;
+        $response   = json_decode($res->getOrderDetails($order_id, $marketConfig->token));
         if ($response) {
-            // \Log::debug('Details 0: '.print_r($response,1));
-            $diffDistance = \DB::select( \DB::raw(
-                "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
-            ));
+            \Log::debug('Details 0: '.print_r($response,1));
+            
             // \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
-            $address = DeliveryAddress::updateOrCreate([
-                'order_id'                      => $response->id
-            ],[
-                'customer_id'                   => $response->customer->id,
-                'stree_name'                    => $response->delivery->deliveryAddress->streetName,
-                'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
-                'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
-                'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
-                'city'                          => $response->delivery->deliveryAddress->city,
-                'state'                         => $response->delivery->deliveryAddress->state,
-                'country'                       => $response->delivery->deliveryAddress->country,
-                'latitude'                      => $response->delivery->deliveryAddress->coordinates->latitude,
-                'longitude'                     => $response->delivery->deliveryAddress->coordinates->longitude,
-                'distance'                      => $diffDistance[0]->diffDistance
-            ]);
-
-            $timestamp = strtotime($response->createdAt);
-            $createdAt = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
-            $timestamp = strtotime($response->preparationStartDateTime);
-            $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-            $order = OrderDetails::updateOrCreate([
+            if (isset($response->delivery)) {
+                $diffDistance = \DB::select( \DB::raw(
+                    "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
+                ));
+                $address = DeliveryAddress::updateOrCreate([
                     'order_id'                      => $response->id
                 ],[
-                    'shop_id'                       => $marketConfig->shop_id,
-                    'order_id'                      => $response->id,
-                    'merchant_id'                   => $response->merchant->id,
-                    'created_at_ifood'              => $createdAt,
-                    'order_type'                    => $response->orderType,
-                    'display_id'                    => $response->displayId,
-                    'preparation_start_date_time'   => $preparationStartDateTime,
-                    'merchant_id'                   => $response->merchant->id,
                     'customer_id'                   => $response->customer->id,
-                    'sub_total'                     => $response->total->subTotal,
-                    'delivery_fee'                  => $response->total->deliveryFee,
-                    'benefits'                      => $response->total->benefits,
-                    'order_amount'                  => $response->total->orderAmount,
-                    'method_payment'                => $response->payments->methods[0]->method,
-                    'prepaid'                       => $response->payments->methods[0]->prepaid,
-                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
-                    'card_brand'                     => $response->payments->methods[0]->method == 'CREDIT' ? $response->payments->methods[0]->card->brand : NULL,
-                ]
-            );
+                    'stree_name'                    => $response->delivery->deliveryAddress->streetName,
+                    'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
+                    'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
+                    'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
+                    'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
+                    'city'                          => $response->delivery->deliveryAddress->city,
+                    'state'                         => $response->delivery->deliveryAddress->state,
+                    'country'                       => $response->delivery->deliveryAddress->country,
+                    'latitude'                      => $response->delivery->deliveryAddress->coordinates->latitude,
+                    'longitude'                     => $response->delivery->deliveryAddress->coordinates->longitude,
+                    'distance'                      => $diffDistance[0]->diffDistance,
+                ]);
 
-            $order->getAddress;
-            
+                $timestamp = strtotime($response->createdAt);
+                $createdAt = date('Y-m-d H:i:s', $timestamp);
+                \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
+                $timestamp = strtotime($response->preparationStartDateTime);
+                $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
+                $order = OrderDetails::updateOrCreate([
+                        'order_id'                      => $response->id
+                    ],[
+                        'shop_id'                       => $marketConfig->shop_id,
+                        'order_id'                      => $response->id,
+                        'merchant_id'                   => $response->merchant->id,
+                        'created_at_ifood'              => $createdAt,
+                        'order_type'                    => $response->orderType,
+                        'display_id'                    => $response->displayId,
+                        'preparation_start_date_time'   => $preparationStartDateTime,
+                        'merchant_id'                   => $response->merchant->id,
+                        'customer_id'                   => $response->customer->id,
+                        'sub_total'                     => $response->total->subTotal,
+                        'delivery_fee'                  => $response->total->deliveryFee,
+                        'benefits'                      => $response->total->benefits,
+                        'order_amount'                  => $response->total->orderAmount,
+                        'method_payment'                => $response->payments->methods[0]->method,
+                        'prepaid'                       => $response->payments->methods[0]->prepaid,
+                        'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
+                        'card_brand'                     => $response->payments->methods[0]->method == 'CREDIT' ? $response->payments->methods[0]->card->brand : NULL,
+                        'extra_info'                    => isset($response->extraInfo) ? $response->extraInfo : ''
+                    ]
+                );
+
+                $order->getAddress;
+            }
         }
         $order = OrderDetails::where('order_id',$response->id)->first();
     }
 
     public function getAcknowledgment($id, $data)
     {
-        // \Log::debug('data: '. print_r($data, 1));
-        // \Log::debug('ID: '. $id);
-        $res        = new IFoodApi($id);
-        // \Log::debug('Data: '. json_encode($data));
-        $acknowledgment = $res->getAcknowledgment($data);
+        $market     = MarketConfig::where('shop_id', $id)->first();
+        $res        = new IFoodApi;
+        \Log::debug('acknowledgment: '.print_r($res,1));
+        $acknowledgment = $res->getAcknowledgment($market->token, $data);
     }
 
-    public function getOrdersDataBase($id = null)
+    public function getOrdersDataBase($id = NULL)
     {
-        // \Log::debug('SHOP ID: '.$id);
-        $query = OrderDetails::where('code', '!=', 'CON')
-                            ->where('code', '!=', 'CAN')
+        $query = OrderDetails::where('code', 'DSP')
+                            // ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
+            \Log::debug('SHOP ID: '.$id);
             $query = $query->where('shop_id', $id);
         }
         $orders =           $query->orderBy('distance', 'DESC')
@@ -135,20 +155,23 @@ class IFoodController extends Controller
     public function confirmOrder(Request $request)
     {
         try {
+            $market     = MarketConfig::where('shop_id', $request->id)->first();
             \Log::debug('s_id: '.$request->s_id);
             \Log::debug('id: '.$request->id);
-            $res        = new IFoodApi($request->id);
-            $response   = $res->confirmOrderApi($request->s_id);
-            \Log::debug('Controller 1: '.print_r($response,1));
+            $res        = new IFoodApi;
+            $response   = $res->confirmOrderApi($request->s_id, $market->token);
+            
             // $order = '';
-            if ($response) {
-                $ifoodData = $res->getOrderDetails($request->s_id);
-                \Log::debug('entrou 1: '.print_r($ifoodData,1));
+            // if ($response) {
+                \Log::debug('Controller 1: '.print_r($response,1));
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id, $market->token));
+                \Log::debug('entrou 1: '.print_r($ifoodData->createdAt,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
                 $timestamp = strtotime($ifoodData->preparationStartDateTime);
                 $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-                $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
+                $order = OrderDetails::where('order_id', '=', $request->s_id)->first();
+                \Log::debug("Order: ". print_r($order, 1));
                 $order->merchant_id               = $ifoodData->merchant->id;
                 $order->created_at_ifood          = $createdAt;
                 $order->order_type                 = $ifoodData->orderType;
@@ -163,7 +186,7 @@ class IFoodController extends Controller
                 $order->benefits                  = $ifoodData->total->benefits;
                 $order->order_amount               = $ifoodData->total->orderAmount;
                 $order->save();
-            }
+            // }
             \Log::debug('Order: '.print_r($order, 1));
             $order->getAddress;
             return $order;
@@ -180,7 +203,7 @@ class IFoodController extends Controller
         \Log::debug('id: '.$request->id);
         try {
             
-            $res        = new IFoodApi($request->id);
+            $res        = new IFoodApi;
             $response   = $res->cancelOrderApi($request->s_id);
             \Log::debug('Controller 1: '.print_r($response,1));
             // $order = '';
@@ -236,11 +259,12 @@ class IFoodController extends Controller
         \Log::debug('s_id: '.$request->s_id);
         \Log::debug('id: '.$request->id);
         try {
-            $res = new IFoodApi($request->id);
-            $response = $res->rtpOrder($request->s_id);
+            $market     = MarketConfig::where('shop_id', $request->id)->first();
+            $res = new IFoodApi;
+            $response = $res->rtpOrder($request->s_id, $market->token);
             \Log::debug('Controller 1: '.print_r($response,1));
-            if ($response) {
-                $ifoodData = $res->getOrderDetails($request->s_id);
+            // if ($response) {
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id, $market->token));
                 \Log::debug('entrou 1: '.print_r($ifoodData,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
@@ -261,7 +285,7 @@ class IFoodController extends Controller
                 $order->benefits                  = $ifoodData->total->benefits;
                 $order->order_amount               = $ifoodData->total->orderAmount;
                 $order->save();
-            }
+            // }
             \Log::debug('Order: '.print_r($order, 1));
             $order->getAddress;
             return $order;
@@ -274,18 +298,19 @@ class IFoodController extends Controller
 
     public function dispatchOrder(Request $request)
     {
-        $res = new IFoodApi($request->shop_id);
+        $res = new IFoodApi;
         $response = $res->dispatchOrder($request->order_id);
         // \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
     public function getMerchantDetails($id)
     {
-        // \Log::debug("id merchantDetails: ".$id);
-        $shop = MarketConfig::where('shop_id', $id)->get();
-        $res = new IFoodApi($id);
-        // \Log::debug("Shop: ".print_r($shop,1));
-        $response = $res->getMerchantDetails($shop->merchant_id);
+        \Log::debug("id merchantDetails: ".$id);
+        $market = MarketConfig::where('shop_id', $id)->first();
+        $market->refresh();
+        \Log::debug("MArket merchant_id: ".json_encode($market->merchant_id));
+        $res = new IFoodApi;
+        $response = $res->getMerchantDetails($market->token, $market->merchant_id);
         // \Log::debug("MerchantDetails: ".print_r($response,1));
         return $response;
     }

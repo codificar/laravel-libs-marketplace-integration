@@ -18,62 +18,66 @@ class IFoodApi
 
   #status
   
-
-  function __construct($id)
+  function __construct()
   {
-    \Log::debug("__construct". $id);
-    $this->clientId     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
-    $this->clientSecret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
     $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
     $this->client       = new Client([
       'base_uri'  => $this->baseUrl
-    ]);
-    
-    $this->access_token = $this->auth();
+    ]);    
   }
 
-  public function auth()
-  {   
-    // \Log::debug("ClientId: ".$this->clientId);
-    // \Log::debug("ClientSecret: ".$this->clientSecret);
-    try {
+  public function send($requestType, $route, $headers, $body = NULL)
+  {
+    \Log::debug("requestType: ". print_r($requestType, 1));
+    \Log::debug("route: ". print_r($route, 1));
+    \Log::debug("headers: ". print_r($headers,1));
+    \Log::debug("body: ". print_r($body,1));
+    $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
+    \Log::debug("Code: ". $response->getStatusCode());
+    // \Log::debug("Response: ". $response->getBody()->getContents());
+    return $response->getBody()->getContents();
+  }
+
+  public function auth($clientId, $clientSecret)
+  {
+    \Log::debug('clientId:'.print_r($clientId,1));
+    \Log::debug('clientSecret:'.print_r($clientSecret,1));
+    try
+    {
       $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
       $body       = [
-        'grantType'     => 'client_credentials',
-        'clientId'      => $this->clientId['client_id'],
-        'clientSecret'  => $this->clientSecret['client_secret'],
+          'grantType'     => 'client_credentials',
+          'clientId'      => $clientId,
+          'clientSecret'  => $clientSecret,
       ];
-      $response   = $this->client->post('authentication/v1.0/oauth/token',[
-        'form_params'   => $body,
-        'headers'       => $headers
-      ]);
-      $res = json_decode($response->getBody()->getContents());
-      $this->access_token = $res->accessToken;
-      return $res->accessToken;
-    }catch (\Exception $e){
+      $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
+      // \Log::debug("Res: ". print_r($res,1));
+      return $res;
+    }
+    catch (\Exception $e)
+    {
       // \Log::debug($e->getMessage());
       return $e;
     }
   }
 
-  public function getOrders()
+  public function getOrders($token)
   {
-    $res = $this->client->get('order/v1.0/events:polling', [
-      'headers'   => [
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
-      ]
-    ]);
-    $response = json_decode($res->getBody()->getContents());
+    \Log::debug('TOKEN: '. $token);
+    $headers = [
+      'Content-Type' => 'application/json',
+      'Authorization' => 'Bearer '.$token
+    ];
+    return $this->send('GET','order/v1.0/events:polling?groups=DELIVERY', $headers);
     
-    return $response;
   }
 
-  public function getAcknowledgment($data)
+  public function getAcknowledgment($token, $data)
   { 
+    \Log::debug("getAcknowledgment: ".print_r($data, 1));
     $headers    = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$token
     ];
     $object = array(
       (object)
@@ -84,121 +88,87 @@ class IFoodApi
           'order_id'          => $data->orderId,
           'created_at_ifood'  => $data->createdAt
         )
-    );
-
-    // \Log::debug('acknowledgment: '.print_r($object,1));
-    $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [
-      'headers'   => $headers,
-      'body'      => json_encode($object)
-    ]);
-    $response = json_decode($res->getBody()->getContents());
-    
-    return $response;
+      );
+      $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [
+        'headers'   => $headers,
+        'body'      => json_encode($object)
+      ]);
+      $response = json_decode($res->getBody()->getContents());
+      
+      return $response;
   }
   
-  public function getOrderDetails($id)
+  public function getOrderDetails($id, $token)
   {
-    $res = $this->client->request('GET', 'order/v1.0/orders/'.$id, [
-      'headers'   => [
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
-      ]
-    ]);
-    
-    $response = json_decode($res->getBody()->getContents());
-    return $response;
+    $headers = [
+      'Content-Type' => 'application/json',
+      'Authorization' => 'Bearer '.$token
+    ];
+    return $this->send('GET', 'order/v1.0/orders/'.$id, $headers);
   }
 
-  public function confirmOrderApi($id)
+  public function confirmOrderApi($id, $token)
   {
-    // \Log::debug("Token: ".$this->access_token);
-    \Log::debug("Entrou". $id);
+    $headers = [
+      'headers'   => [
+        'Authorization' => 'Bearer '.$token
+      ]
+    ];
     try {
-      $res   = $this->client->request('POST', 'order/v1.0/orders/'.$id.'/confirm', [
-        'headers' => [
-          'Authorization' => 'Bearer '.$this->access_token
-        ]
-      ]);
-      \Log::debug('Details 1: '.$res->getStatusCode());
-      if ($res->getStatusCode() == 202) {
-        return TRUE;
-      } else {
-        return FALSE;
-      }
+      return $this->send('POST', 'order/v1.0/orders/'.$id.'/confirm', $headers);
     }catch (\Exception $e){
-      \Log::debug($e->getMessage());
+      // \Log::debug($e->getMessage());
       return FALSE;
     }
   }
 
   public function cancelOrderApi($id)
   {
-    \Log::debug("Entrou Cancel: ". $id);
-    
+    $headers = [
+      'headers'   => [
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer '.$this->access_token
+      ]
+    ];
     $object = array(
       'reason'                        => 'PEDIDO FORA DA ÁREA DE ENTREGA',
       'cancellationCode'              => '506'
-    );
-    
+    );    
     try {
-      $res   = $this->client->request('POST', 'order/v1.0/orders/'.$id.'/requestCancellation', [
-        'headers'   => [
-          'Content-Type' => 'application/json',
-          'Authorization' => 'Bearer '.$this->access_token
-        ],
-        'body'      => json_encode($object)
-      ]);
-      \Log::debug('Details 1: '.$res->getStatusCode());
-      if ($res->getStatusCode() == 202) {
-        return TRUE;
-      } else {
-        return FALSE;
-      }
+      return $this->send('POST', 'order/v1.0/orders/'.$id.'/requestCancellation', $headers, json_encode($object));
     }catch (\Exception $e){
-      \Log::debug($e->getMessage());
+      // \Log::debug($e->getMessage());
       return FALSE;
     }
   }
 
-  public function rtpOrder($id)
+  public function rtpOrder($id, $token)
   {
     try {
       $headers    = [
         'Content-Type' => 'application/x-www-form-urlencoded',
-        'Authorization' => 'Bearer '.$this->access_token
+        'Authorization' => 'Bearer '.$token
       ];
       $body       = [
           'id'     => $id,
         ];
-      $res   = $this->client->post('order/v1.0/orders/'.$id.'/dispatch',[
-        'form_params'   => $body,
-        'headers'       => $headers
-      ]);
-      \Log::debug('Details 1: '.$res->getStatusCode());
-      if ($res->getStatusCode() == 202) {
-        return TRUE;
-      } else {
-        return FALSE;
-      }
+      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, $body);      
     }catch (\Exception $e){
-      \Log::debug($e->getMessage());
+      // \Log::debug($e->getMessage());
       return FALSE;
     }
   }
 
-  public function getMerchantDetails($id)
+  public function getMerchantDetails($token, $id)
   {    
+    // \Log::debug("ID Merchant: ".$id);
+    // \Log::debug("Token Merchant: ".$token);
+    $headers = [
+      'accept' => 'application/json',
+      'Authorization' => 'Bearer '.$token
+    ];
     try {
-      $res = $this->client->request('GET', 'merchant/v1.0/merchants/'.$id, [
-        'headers'   => [
-          'Content-Type' => 'application/json',
-          'Authorization' => 'Bearer '.$this->access_token
-        ]
-      ]);
-      // \Log::debug("StatusCode: ".$res->getStatusCode());
-      $response = json_decode($res->getBody()->getContents());
-      \Log::debug("MerchantDetails: ". print_r($response, 1));
-      return $response;
+      return json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
     } catch (ClientException $e) {
       \Log::debug("Erro: ".$e->getCode());
       \Log::debug("Erro Content: ".$e->getMessage());

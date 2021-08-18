@@ -7,8 +7,9 @@ use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
-use Codificar\MarketplaceIntegration\Lib\IFoodApi;
+use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ShopsController extends Controller
 {
@@ -18,12 +19,10 @@ class ShopsController extends Controller
         foreach ($shops as $key => $value) {
             $value->getConfig;
             foreach ($value->getConfig as $key => $v) {
-                $res = new IFoodApi($value->id);
-                $response = $res->getMerchantDetails($v->merchant_id);
-                $v->status = $response->status;
+                $res = new DeliveryFactory();
+                $response = $res->getMerchantDetails($v->shop_id);
+                $v->status = isset($response->status) ? $response->status : "UNAVIABLE";
             }
-            
-            \Log::debug("Shops: ".print_r($value, 1));
         }
         return $shops;
     }
@@ -36,7 +35,6 @@ class ShopsController extends Controller
             'institution_id'=> $user->AdminInstitution->institution_id,
             'status_reload' => $request->status_reload ? $request->status_reload : 0
         ]);
-
         if ($shop) {
             $marketConfig = MarketConfig::create([
                                 'shop_id'       => $shop->id,
@@ -47,25 +45,27 @@ class ShopsController extends Controller
                             ]);
         }
 
-        $res = new IFoodApi($shop->id);
-        $response = $res->getMerchantDetails($request->merchant_id);
-        // // \Log::debug('Merchat store: '.print_r($response, 1));
-
+        $res = new IFoodController();
+        $token = $res->auth($shop->id);
+        $response = $res->getMerchantDetails($shop->id);
+        // \Log::debug("response: ".json_decode($response->id));
+        
         if ($response && isset($response->id)) {
             $marketConfig = MarketConfig::where(['shop_id'       => $shop->id])
                                     ->update([
-                                        'latitude'      =>$response->address->latitude,
-                                        'longitude'      =>$response->address->longitude,
-                                        'address'       => json_encode($response->address)
+                                        'latitude'      => $response->address->latitude,
+                                        'longitude'     => $response->address->longitude,
+                                        'address'       => json_encode($response->address),
                                     ]);
 
             $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
             foreach ($shops as $key => $value) {
                 $value->getConfig;
             }
-            
+            // \Log::debug("shops: ".json_encode($shops,1));
             return new ShopResource($shops);
         } else {
+            \Log::debug("else: ".json_encode($shop));
             $shop->delete();
             return $response;
         }
@@ -110,7 +110,7 @@ class ShopsController extends Controller
             // 'address'       => $address->address
         ]);
         \Log::debug('marketConfig: '.print_r($marketConfig,1));
-        $address = new IFoodApi($request->id);
+        $address = new IFoodApi;
         $address = $address->getMerchantDetails($request->merchant_id);
         \Log::debug('Address: '.print_r($address,1));
         if (!isset($address['code'])) {
@@ -123,7 +123,7 @@ class ShopsController extends Controller
 
     public function updateMarketConfig(Request $request)
     {
-        $address = new IFoodApi($request->select['id']);
+        $address = new IFoodApi;
         $address = $address->getMerchantDetails($request->merchant_id);
         // \Log::debug("updateMarketConfig". json_encode($address->address));
 

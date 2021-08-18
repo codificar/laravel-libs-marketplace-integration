@@ -283,7 +283,7 @@ const store = new Vuex.Store({
       })
       .then(res => {
         console.log('Save ',res);
-        commit('UPDATE_ORDER', res.data)
+        // commit('UPDATE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
           Vue.swal.fire({
@@ -293,6 +293,7 @@ const store = new Vuex.Store({
             showConfirmButton: false,
             timer: 1500
           });
+          window.location.reload();
         } else {
           Vue.swal.fire({
             title: 'Atenção!',
@@ -353,7 +354,7 @@ const store = new Vuex.Store({
       })
       .then(res => {
         console.log('Save ',res);
-        commit('UPDATE_ORDER', res.data)
+        // commit('UPDATE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
           Vue.swal.fire({
@@ -363,6 +364,7 @@ const store = new Vuex.Store({
             showConfirmButton: false,
             timer: 1500
           });
+          window.location.reload();
         } else {
           Vue.swal.fire({
             title: 'Atenção!',
@@ -386,7 +388,7 @@ const store = new Vuex.Store({
       var status = this.state.selectedShop.status_reload == 1 ? true : false;
       console.log("Data 2: ", status);
       commit('statusReload', status);
-      axios.get('/corp/api/orders/'+id, id)
+      axios.post('/corp/api/orders/'+id, id)
         .then(res => {
           console.log("Orders", res.data);
           res.data.forEach(element => {

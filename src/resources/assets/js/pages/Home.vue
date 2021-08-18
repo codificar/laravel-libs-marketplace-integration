@@ -86,7 +86,6 @@
                     v-for="order in $store.state.orders"
                     :key="order.order_id"
                 >
-
                     <div class="card-body">                   
                         <div class="d-flex justify-space-between caption">
                             <div class="font-weight-black mr-3">
@@ -110,32 +109,35 @@
                                     Pedido: {{order.display_id}}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Order ID: {{order.order_id}}
+                                    Endereço: {{order.formatted_address}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.full_code == 'READ_TO_PICKUP' ? 'PARA ENTREGA' : order.full_code}}
+                                    Status: {{order.full_code == 'DISPATCHED' ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Distancia: {{parseFloat(order.distance).toFixed()}}MT
+                                    Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
                                 </div>
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
                                     Valor: {{order.order_amount ? formatCurrency(order.order_amount) : '-'}}
                                 </div>
-                                <div class="font-weight-medium">
-                                    Pagamento: {{order.method_payment != '' ? order.method_payment : '-'}}
+                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
+                                    Pagamento: DINHEIRO
                                 </div>
-                                <div class="font-weight-medium" v-if="order.method_payment === 'CASH' && !order.prepaid">
+                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
                                     Troco para: {{formatCurrency(order.change_for)}}
                                 </div>
-                                <div class="font-weight-medium" v-if="order.method_payment === 'CREDIT'">
-                                    Troco para: {{order.brand}}
+                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CREDIT'">
+                                    Pagamento: MÁQUINA
+                                </div>
+                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment == 'CREDIT'">
+                                    Bandeira: {{order.card_brand}}
                                 </div>
                                 <div class="font-weight-medium" v-if="order.prepaid">
-                                    Pago: SIM
+                                    Pagamento: ONLINE
                                 </div>
                             </div>
                             <div class="font-weight-black">
@@ -160,72 +162,15 @@
                                 <div class="grey--text text-darken-1 ma-2 mt-6">
                                     <div
                                         class="font-weight-white"
-                                        v-if="order.request_id == null && order.code == 'RTP'"
                                     >
                                         <v-checkbox
                                             v-model="selected"
+                                            v-if="order.request_id == null && order.code == 'DSP'"
                                             label="Adicionar a entrega"
                                             class="ma-2 mt-1"
                                             :value="order"
                                             :id="order.order_id"
                                         ></v-checkbox>
-                                    </div>
-                                    <div
-                                        class="font-weight-white"
-                                        v-if="order.code == 'CFM'"
-                                    >
-                                        <v-btn
-                                            class="ma-1"
-                                            small
-                                            depressed
-                                            color="success"
-                                            @click="readyToPickup(order)"
-                                            style="width:150px;"
-                                        >
-                                            <v-icon 
-                                                color="white"
-                                                left
-                                            >mdi-motorbike</v-icon>
-                                                <span class="font-weight-white white--text"> Liberar</span>
-                                        </v-btn>
-                                    </div>
-                                    <div
-                                        class="font-weight-white"
-                                        v-if="order.code == 'PLC'"
-                                    >
-                                        <v-btn
-                                            class="ma-1"
-                                            small
-                                            depressed
-                                            color="success"
-                                            @click="confirmOrder(order)"
-                                            style="width:150px;"
-                                        >
-                                            <v-icon 
-                                                color="white"
-                                                left
-                                            >mdi-check</v-icon>
-                                                <span class="font-weight-white white--text"> Confirmar</span>
-                                        </v-btn>
-                                    </div>
-                                    <div
-                                        class="font-weight-white"
-                                        v-if="order.code == 'PLC'"
-                                    >
-                                        <v-btn
-                                            class="ma-1"
-                                            small
-                                            depressed
-                                            color="error"
-                                            @click="cancelOrder(order)"
-                                            style="width:150px;"
-                                        >
-                                            <v-icon 
-                                                color="white"
-                                                left
-                                            >mdi-cancel</v-icon>
-                                                <span class="font-weight-white white--text"> Cancelar</span>
-                                        </v-btn>
                                     </div>
                                     <v-btn
                                         class="ma-1"

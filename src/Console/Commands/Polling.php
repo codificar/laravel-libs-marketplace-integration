@@ -2,11 +2,12 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
+use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Console\Command;
 use Log;
+use Carbon\Carbon;
 
 class Polling extends Command
 {
@@ -43,19 +44,20 @@ class Polling extends Command
     {
         $stores = MarketConfig::get();
         foreach ($stores as $key => $value) {
-            $shop = Shops::find($value->shop_id);
-            \Log::debug('Shop'.print_r($shop,1)); 
-            $polling = new IFoodController();
-            $res = $polling->getOrders($value->shop_id);
-            
+            $polling = new DeliveryFactory();
+            if ($value->expiry_token == NULL || Carbon::parse($value->expiry_token) < Carbon::now()) {
+                \Log::debug("Entrou ");
+                $polling->auth($value->shop_id);
+            }
+            $res = $polling->getOrders($value->shop_id);                   
             \Log::debug('Ta rodando: '.print_r($res,1));
             if ($res) {
                 foreach ($res as $i => $v) {
                     \Log::debug('v: '.print_r($v,1));
                     $acknowledgment = $polling->getAcknowledgment($value->shop_id, $v);
-                
-                    if ($acknowledgment) {
-                        $polling->getOrderDetails($value->id, $value->orderId);
+                    \Log::debug('acknowledgment Polling: '.print_r($acknowledgment,1));
+                    if ($res) {
+                        $polling->getOrderDetails($value->shop_id, $v->orderId);
                     }
                     
                 } 
