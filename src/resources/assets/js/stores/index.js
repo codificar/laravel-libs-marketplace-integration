@@ -440,7 +440,7 @@ const store = new Vuex.Store({
               showConfirmButton: false,
               timer: 1500
             });
-            this.dispatch('getOrders', res.data.id);
+            // this.dispatch('getOrders', res.data.id);
           } else if (res.data.code == 401) {
             Vue.swal.fire({
               title: 'Atenção!',

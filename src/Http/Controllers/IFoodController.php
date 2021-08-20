@@ -23,7 +23,7 @@ class IFoodController extends Controller
         $api = new IFoodApi;
         $res = json_decode($api->auth($client_id['client_id'], $client_secret['client_secret']));
         \Log::debug("auth: ". print_r($res, 1));
-        MarketConfig::where('shop_id', $id)->update([
+        Shops::find($id)->update([
             'token'         => $res->accessToken,
             'expiry_token'  => Carbon::now()->addHours(6)
         ]);

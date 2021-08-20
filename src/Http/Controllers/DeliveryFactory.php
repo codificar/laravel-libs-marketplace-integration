@@ -5,6 +5,7 @@ namespace Codificar\MarketplaceIntegration\Http\Controllers;
 use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Carbon\Carbon;
+use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Http\Request;
 
     class DeliveryFactory
@@ -77,9 +78,7 @@ use Illuminate\Http\Request;
             \Log::debug("Params: ".$params);
             $className = self::selectClass($params);
             $method = __FUNCTION__;
-            $data = $className::$method($params);
-            // \Log::debug("Data: ".print_r($data, 1));
-            return $data;
+            return $className::$method($params);
         }
 
         /**
@@ -153,20 +152,26 @@ use Illuminate\Http\Request;
 
         public function selectClass($id)
         {
-            $market = MarketConfig::where('shop_id', $id)->first();
-            \Log::debug("Now: ".Carbon::now());
-            \Log::debug("expiry_token: ".Carbon::parse($market->expiry_token));
-            switch ($market['market']) {
-                case 'ifood':
-                    return new IFoodController();
-                break;
-                case 'rappi':
-                    \Log::debug('rappi');
-                break;
-                default:
-                    \Log::debug('default');
-                break;
-            }
-            
+            $shop = Shops::find($id);
+            \Log::debug('shop');
+            if ($shop) {
+                switch ($shop['market']) {
+                    case 'ifood':
+                        return new IFoodController();
+                    break;
+                    case 'rappi':
+                        \Log::debug('rappi');
+                    break;
+                    default:
+                        \Log::debug('default');
+                    break;
+                }
+            } else {
+                \Log::debug("Not Found");
+                return [
+                    'code'      => 404,
+                    'message'   => 'Sem Merchant ID cadastrados. Cadastre um novo merchant ID!' 
+                ];
+            }            
         }
     }

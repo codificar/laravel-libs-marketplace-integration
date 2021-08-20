@@ -33,6 +33,12 @@ class MarketplaceServiceProvider extends ServiceProvider
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
 
+        // Load seeds
+        $this->publishes([
+            __DIR__.'/Database/Seeds' => database_path('seeds')
+        ], 'public_vuejs_libs');
+
+
         // // Publish the VueJS files inside public folder of main project (Copia os arquivos do vue minificados dessa biblioteca para pasta public do projeto que instalar essa lib)
         $this->publishes([
             __DIR__.'/../public/js' => public_path('vendor/codificar/marketplace-integration'),

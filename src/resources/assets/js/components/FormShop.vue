@@ -17,38 +17,39 @@
           lazy-validation
         >
           <v-text-field
-            v-if="$store.state.modalContent != 'add_marketPlace' && $store.state.modalContent != 'edit_marketPlace'"
+            v-if="$store.state.modalContent == 'addShop'"
             v-model="form.name"
             :rules="nameRules"
             label="Nome da Loja"
             required
           ></v-text-field>
-          <v-select
-            v-model="form.select"
-            :items="items"
-            item-value="id"
-            item-text="name"
-            :rules="[v => !!v || 'Item é obrigatório']"
-            label="Marketplace"
-            @change="checkAnswer"
-            required
-          ></v-select>
           <v-text-field
-            v-if="form.select"
-            v-model="form.merchant_id"
-            label="MERCHANT_ID"
-            required
-          ></v-text-field>
-          <v-text-field
-            v-if="form.select"
+            v-if="$store.state.modalContent == 'addShop'"
             v-model="form.client_id"
             label="CLIENT_ID"
             required
           ></v-text-field>
           <v-text-field
-            v-if="form.select"
+            v-if="$store.state.modalContent == 'addShop'"
             v-model="form.client_secret"
             label="CLIENT_SECRET"
+            required
+          ></v-text-field>
+            <v-select
+              v-if="$store.state.modalContent == 'add_marketPlace'"
+              v-model="form.select"
+              :items="items"
+              item-value="id"
+              item-text="name"
+              :rules="[v => !!v || 'Item é obrigatório']"
+              label="Marketplace"
+              @change="checkAnswer"
+              required
+            ></v-select>
+          <v-text-field
+            v-if="form.select"
+            v-model="form.merchant_id"
+            label="MERCHANT_ID"
             required
           ></v-text-field>
           <v-btn
@@ -125,15 +126,6 @@ export default {
         
       } else if (this.$store.state.modalContent == 'add_marketPlace') {
         this.form.id = this.data.data.id;
-        // this.form.name = this.data.data.name;        
-        // this.items.forEach(element => {
-        //   if (element.name.toLowerCase() == this.data.data.market) {
-        //     this.form.select = element
-        //   }
-        // });
-        // this.form.client_id = this.data.data.client_id;
-        // this.form.client_secret = this.data.data.client_secret;
-        // this.form.merchant_id = this.data.data.merchant_id;
       }
     },
     methods: {
