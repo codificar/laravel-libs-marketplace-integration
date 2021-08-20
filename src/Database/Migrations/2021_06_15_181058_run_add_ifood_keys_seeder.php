@@ -13,7 +13,7 @@ class RunAddIfoodKeysSeeder extends Migration
      */
     public function up()
     {
-        \Artisan::call('db:seed', array('--class' => 'AddChatSettingsMenuSeeder', '--force' => null));
+        \Artisan::call('db:seed', array('--class' => 'AddIfoodKeysSeeder', '--force' => null));
     }
 
     /**
