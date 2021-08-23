@@ -139,6 +139,7 @@ class IFoodController extends Controller
 
     public function getOrdersDataBase($id = NULL)
     {
+        // $market = MarketConfig::where('merchant')
         $query = OrderDetails::where('code', 'DSP')
                             // ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
@@ -304,15 +305,15 @@ class IFoodController extends Controller
         // \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
-    public function getMerchantDetails($id)
+    public function getMerchantDetails($request)
     {
-        \Log::debug("id merchantDetails: ".$id);
-        $market = Shops::where('id', $id)->first();
-        $market->refresh();
-        \Log::debug("MArket merchant_id: ".json_encode($market->merchant_id));
+        \Log::debug("id merchantDetails: ".print_r($request->all(),1));
+        $shop = Shops::find($request->id);
+        \Log::debug("Shop MerchantDetails: ".print_r($shop->token,1));
         $res = new IFoodApi;
-        $response = $res->getMerchantDetails($market->token, $market->merchant_id);
-        // \Log::debug("MerchantDetails: ".print_r($response,1));
+        $response = $res->getMerchantDetails($shop['token'], $request->merchant_id);
+        \Log::debug("MerchantDetails: ".print_r($response,1));
+        
         return $response;
     }
 

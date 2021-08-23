@@ -13,9 +13,15 @@ class AlterColumnNullable extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('market_config', 'market')) {
+            Schema::table('market_config', function (Blueprint $table) {
+                $table->dropColumn('market');
+            });
+        }
         Schema::table('market_config', function (Blueprint $table) {
             $table->string('client_id')->nullable(true)->change();
             $table->string('client_secret')->nullable(true)->change();
+            $table->enum('market',['ifood', 'rappi']);
         });
     }
 

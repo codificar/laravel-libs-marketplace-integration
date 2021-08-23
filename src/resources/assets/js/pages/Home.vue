@@ -1,35 +1,11 @@
 <template>
     <div class="col-lg-12">
         <v-col cols="4" class="d-inline-flex">
-            <v-select
-                :items="$store.state.shops"
-                v-model="$store.state.selectedShop"
-                item-value="id"
-                item-text="name"
-                label="Lojas"
-                dense
-                outlined
-                >
-                    <template v-slot:prepend-item>
-                        <v-list-item
-                            ripple
-                        >
-                            
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                {{ item.name }}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-divider class="mt-2"></v-divider>
-                    </template>
-                    <template slot='selection' slot-scope='{ item }'>
-                        {{ item.name }} 
-                    </template>
-                    <template slot='item' slot-scope='{ item }'>
-                        {{ item.name }} 
-                    </template>
-                </v-select>
+            <select class="ma-5 col-lg-10 col-md-10 align-center justify-center" name="shops" id="shops">
+                <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
+                    <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.merchant_id}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
+                </optgroup>
+            </select>
                 <v-btn
                     class="ma-1"
                     small

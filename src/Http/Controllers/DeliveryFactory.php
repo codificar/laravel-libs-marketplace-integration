@@ -142,17 +142,17 @@ use Illuminate\Http\Request;
          *
          * @return object $merchant
          */
-        public function getMerchantDetails($params)
+        public function getMerchantDetails($id, $params)
         {
             \Log::debug("Função: ".__FUNCTION__);
-            $className = self::selectClass($params);
+            $className = self::selectClass($id);
             $method = __FUNCTION__;
             return $className::$method($params);
         }
 
         public function selectClass($id)
         {
-            $shop = Shops::find($id);
+            $shop = MarketConfig::where('shop_id', $id)->first();
             \Log::debug('shop');
             if ($shop) {
                 switch ($shop['market']) {

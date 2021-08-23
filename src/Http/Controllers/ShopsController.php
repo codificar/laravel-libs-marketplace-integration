@@ -20,7 +20,7 @@ class ShopsController extends Controller
             if ($value->getConfig) {
                 foreach ($value->getConfig as $key => $v) {
                     $res = new DeliveryFactory();
-                    $response = $res->getMerchantDetails($v->shop_id);
+                    $response = $res->getMerchantDetails($v->shop_id, $v);
                     \Log::debug("Status: ".print_r($response,1));
                     $v->status = isset($response->status) ? $response->status : "UNAVIABLE";
                 }
@@ -73,20 +73,18 @@ class ShopsController extends Controller
     public function storeMarketConfig(Request $request)
     {
         \Log::debug("storeMarketConfig".print_r($request->all(),1));
-        
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
-            'market'        => $request->market
+            'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
         ]);
-        \Log::debug('marketConfig: '.print_r($marketConfig,1));
-        $address = new IFoodApi;
-        $address = $address->getMerchantDetails($request->merchant_id);
-        \Log::debug('Address: '.print_r($address,1));
-        if (!isset($address['code'])) {
+        $res = new DeliveryFactory();
+        $response = $res->getMerchantDetails($request->id, $request);
+        if (is_object($response) && !isset($response->code)) {
+            \Log::debug('response: '.print_r($response['code'],1));
             return $marketConfig;
-        } else {
-            return $address;
+        } else if ($response['code'] == 403 || $response['code'] == 401) {
+            return $response;
         }
         
     }
@@ -100,8 +98,6 @@ class ShopsController extends Controller
         $marketConfig = MarketConfig::where('id', $request->id)->update([
             'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
             'merchant_id'   => $request->merchant_id,
-            'client_id'     => $request->client_id,
-            'client_secret' => $request->client_secret,
             'address'       => json_encode($address->address)
         ]);
 
