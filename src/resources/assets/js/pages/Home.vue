@@ -10,11 +10,24 @@
                 dense
                 outlined
                 >
+                    <template v-slot:prepend-item>
+                        <v-list-item
+                            ripple
+                        >
+                            
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                {{ item.name }}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-divider class="mt-2"></v-divider>
+                    </template>
                     <template slot='selection' slot-scope='{ item }'>
-                        {{ item.name }} - {{ item.get_config[0].status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}
+                        {{ item.name }} 
                     </template>
                     <template slot='item' slot-scope='{ item }'>
-                        {{ item.name }} - {{ item.get_config[0].status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}
+                        {{ item.name }} 
                     </template>
                 </v-select>
                 <v-btn

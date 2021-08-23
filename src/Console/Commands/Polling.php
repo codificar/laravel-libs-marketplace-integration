@@ -42,22 +42,23 @@ class Polling extends Command
      */
     public function handle()
     {
-        $stores = MarketConfig::get();
+        $stores = Shops::get();
         foreach ($stores as $key => $value) {
+            \Log::debug("Entrou: ".print_r($value->expiry_token));
             $polling = new DeliveryFactory();
             if ($value->expiry_token == NULL || Carbon::parse($value->expiry_token) < Carbon::now()) {
                 \Log::debug("Entrou ");
-                $polling->auth($value->shop_id);
+                $polling->auth($value->id);
             }
-            $res = $polling->getOrders($value->shop_id);                   
+            $res = $polling->getOrders($value->id);                   
             \Log::debug('Ta rodando: '.print_r($res,1));
             if ($res) {
                 foreach ($res as $i => $v) {
                     \Log::debug('v: '.print_r($v,1));
-                    $acknowledgment = $polling->getAcknowledgment($value->shop_id, $v);
+                    $acknowledgment = $polling->getAcknowledgment($value->id, $v);
                     \Log::debug('acknowledgment Polling: '.print_r($acknowledgment,1));
                     if ($res) {
-                        $polling->getOrderDetails($value->shop_id, $v->orderId);
+                        $polling->getOrderDetails($value->id, $v->orderId);
                     }
                     
                 } 

@@ -16,23 +16,24 @@ class IFoodController extends Controller
 {
     public function auth($id)
     {
-        $client_id     = MarketConfig::select('client_id')->where('shop_id', $id)->first();
-        $client_secret     = MarketConfig::select('client_secret')->where('shop_id', $id)->first();
-        \Log::debug("client_id: ". print_r($client_id['client_id'], 1));
-        \Log::debug("client_secret: ". print_r($client_secret['client_secret'], 1));
+        $client_id          = \Settings::where('key', 'ifood_client_id')->first();
+        $client_secret      = \Settings::where('key', 'ifood_client_secret')->first();
+        \Log::debug("client_id: ". print_r($client_id['value'], 1));
+        \Log::debug("client_secret: ". print_r($client_secret['value'], 1));
         $api = new IFoodApi;
-        $res = json_decode($api->auth($client_id['client_id'], $client_secret['client_secret']));
-        \Log::debug("auth: ". print_r($res, 1));
-        Shops::find($id)->update([
+        $res = json_decode($api->auth($client_id['value'], $client_secret['value']));
+        \Log::debug("auth: ". print_r($res->accessToken, 1));
+        $shop = Shops::find($id)->update([
             'token'         => $res->accessToken,
             'expiry_token'  => Carbon::now()->addHours(6)
         ]);
+        \Log::debug('Salvo'.print_r($shop, 1));
     }
 
     public function getOrders($id)
     {
         \Log::debug('ID: '. $id);
-        $market     = MarketConfig::where('shop_id', $id)->first();
+        $market     = Shops::where('id', $id)->first();
         $res        = new IFoodApi;
         $response   = json_decode($res->getOrders($market->token));
         // \Log::debug('getOrders: '.print_r($response,1));
@@ -64,7 +65,7 @@ class IFoodController extends Controller
     {
         \Log::debug('MarketID: '. $order_id);
         
-        $marketConfig     = MarketConfig::where('shop_id',$id)->first();
+        $marketConfig     = Shops::where('id',$id)->first();
         \Log::debug('marketConfig: '. print_r($marketConfig, 1));
         $res        = new IFoodApi;
         $response   = json_decode($res->getOrderDetails($order_id, $marketConfig->token));
@@ -130,7 +131,7 @@ class IFoodController extends Controller
 
     public function getAcknowledgment($id, $data)
     {
-        $market     = MarketConfig::where('shop_id', $id)->first();
+        $market     = Shops::where('id', $id)->first();
         $res        = new IFoodApi;
         \Log::debug('acknowledgment: '.print_r($res,1));
         $acknowledgment = $res->getAcknowledgment($market->token, $data);
@@ -155,7 +156,7 @@ class IFoodController extends Controller
     public function confirmOrder(Request $request)
     {
         try {
-            $market     = MarketConfig::where('shop_id', $request->id)->first();
+            $market     = Shops::where('id', $request->id)->first();
             \Log::debug('s_id: '.$request->s_id);
             \Log::debug('id: '.$request->id);
             $res        = new IFoodApi;
@@ -259,7 +260,7 @@ class IFoodController extends Controller
         \Log::debug('s_id: '.$request->s_id);
         \Log::debug('id: '.$request->id);
         try {
-            $market     = MarketConfig::where('shop_id', $request->id)->first();
+            $market     = Sgops::where('id', $request->id)->first();
             $res = new IFoodApi;
             $response = $res->rtpOrder($request->s_id, $market->token);
             \Log::debug('Controller 1: '.print_r($response,1));
@@ -306,7 +307,7 @@ class IFoodController extends Controller
     public function getMerchantDetails($id)
     {
         \Log::debug("id merchantDetails: ".$id);
-        $market = MarketConfig::where('shop_id', $id)->first();
+        $market = Shops::where('id', $id)->first();
         $market->refresh();
         \Log::debug("MArket merchant_id: ".json_encode($market->merchant_id));
         $res = new IFoodApi;

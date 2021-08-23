@@ -625,6 +625,14 @@ const store = new Vuex.Store({
         if (res.status == 200 && res.data.length > 0) {
           res.data.forEach(element => {
             this.dispatch('getOrders', element.id);
+            // if (element.get_config.length == 0) {
+            //   Vue.swal.fire({
+            //     title: 'Atenção!',
+            //     text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
+            //     icon: 'warning',
+            //     confirmButtonText: 'OK'
+            //   });
+            // }
           });
           // Vue.swal.fire({
           //   title: 'Sucesso!',

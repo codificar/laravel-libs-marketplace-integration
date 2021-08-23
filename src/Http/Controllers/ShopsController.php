@@ -22,6 +22,7 @@ class ShopsController extends Controller
                 foreach ($value->getConfig as $key => $v) {
                     $res = new DeliveryFactory();
                     $response = $res->getMerchantDetails($v->shop_id);
+                    \Log::debug("Status: ".print_r($response,1));
                     $v->status = isset($response->status) ? $response->status : "UNAVIABLE";
                 }
             }
@@ -81,7 +82,6 @@ class ShopsController extends Controller
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
-            'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
             'client_id'     => $request->client_id,
             'client_secret' => $request->client_secret,
         ]);
