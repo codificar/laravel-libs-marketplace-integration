@@ -17,7 +17,6 @@ class ShopsController extends Controller
     {
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         foreach ($shops as $key => $value) {
-            $value->getConfig;
             if ($value->getConfig) {
                 foreach ($value->getConfig as $key => $v) {
                     $res = new DeliveryFactory();
@@ -37,12 +36,8 @@ class ShopsController extends Controller
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
             'status_reload' => $request->status_reload ? $request->status_reload : 0,
-            'client_id'     => $request->client_id,
-            'client_secret' => $request->client_secret
         ]);
-
-        $res = new DeliveryFactory();
-        $token = $res->auth($shop->id);
+        \Log::debug("shop: ".json_encode($shop->id,1));
 
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         \Log::debug("shops: ".json_encode($shops,1));
@@ -77,13 +72,12 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        \Log::debug("storeMarketConfig".print_r($request->id,1));
+        \Log::debug("storeMarketConfig".print_r($request->all(),1));
         
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
-            'client_id'     => $request->client_id,
-            'client_secret' => $request->client_secret,
+            'market'        => $request->market
         ]);
         \Log::debug('marketConfig: '.print_r($marketConfig,1));
         $address = new IFoodApi;
