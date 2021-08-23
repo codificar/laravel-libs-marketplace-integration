@@ -23,7 +23,7 @@
             label="Nome da Loja"
             required
           ></v-text-field>
-          <v-text-field
+          <!-- <v-text-field
             v-if="$store.state.modalContent == 'addShop'"
             v-model="form.client_id"
             label="CLIENT_ID"
@@ -34,7 +34,7 @@
             v-model="form.client_secret"
             label="CLIENT_SECRET"
             required
-          ></v-text-field>
+          ></v-text-field> -->
             <v-select
               v-if="$store.state.modalContent == 'add_marketPlace'"
               v-model="form.select"

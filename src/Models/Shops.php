@@ -11,7 +11,9 @@ class Shops extends Model
         'id',
         'name', 
         'institution_id',
-        'status_reload'
+        'status_reload',
+        'token',
+        'expiry_token'
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
