@@ -175,7 +175,7 @@ class IFoodApi
       // \Log::debug('Message: '. $e->getResponse());
       return [
         'code'      => $e->getCode(),
-        'message'   => 'Sua loja não foi salva, verifique as informações e tente novamente.'
+        'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='http://entregas:8003/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
       ];
     }
   }

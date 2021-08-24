@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Echo from 'laravel-echo';
 
 Vue.use(Vuex);
 
@@ -524,7 +523,7 @@ const store = new Vuex.Store({
           } else {
             Vue.swal.fire({
               title: 'Atenção!',
-              text: res.data.message,
+              html: res.data.message,
               icon: 'warning',
               confirmButtonText: 'OK'
             });

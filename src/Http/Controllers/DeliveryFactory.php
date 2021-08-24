@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
             \Log::debug("ID: ".$id);
             \Log::debug("Função: ".__FUNCTION__);
             $className = self::selectClass($id);
-            // \Log::debug("Classe: ".$className);
+            \Log::debug("Classe: ".print_r($className, 1));
             $method = __FUNCTION__;
             return $className::$method($id);
         }
@@ -152,8 +152,9 @@ use Illuminate\Http\Request;
 
         public function selectClass($id)
         {
+            \Log::debug('id class: '.print_r($id, 1));
             $shop = MarketConfig::where('shop_id', $id)->first();
-            \Log::debug('shop');
+            \Log::debug('shop class: '.print_r($shop, 1));
             if ($shop) {
                 switch ($shop['market']) {
                     case 'ifood':

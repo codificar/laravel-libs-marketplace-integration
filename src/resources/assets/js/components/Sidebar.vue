@@ -41,7 +41,7 @@ export default {
       items: [
         { title: 'Dashboard', icon: 'mdi-view-dashboard', link: '/' },
         { title: 'Configurações', icon: 'mdi-cogs', link: '/settings' },
-        { title: 'About', icon: 'mdi-help-box', link: '/about' },
+        { title: 'Credentials', icon: 'mdi-help-box', link: '/credentials' },
       ],
     }
   },

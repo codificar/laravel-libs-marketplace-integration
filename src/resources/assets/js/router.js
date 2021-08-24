@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from "vue-router";
 
 import Home from "./pages/Home";
-import About from "./pages/About";
+import Credentials from "./pages/Credentials";
 import Settings from './pages/Settings';
 
 Vue.use(VueRouter);
@@ -16,9 +16,9 @@ const router = new VueRouter({
             component: Home
         },
         {
-            path: '/about',
-            name: 'about',
-            component: About
+            path: '/admin/settings/credentials',
+            name: 'credentials',
+            component: Credentials
         },
         {
             path: '/corp/marketplace/settings',

@@ -20,7 +20,8 @@ class ShopsController extends Controller
             if ($value->getConfig) {
                 foreach ($value->getConfig as $key => $v) {
                     $res = new DeliveryFactory();
-                    $response = $res->getMerchantDetails($v->shop_id, $v);
+                    \Log::debug('$v: '.print_r($v,1));
+                    $response = $res->getMerchantDetails($value->id, (object)['merchant_id' => $v->merchant_id, 'id' => $v->shop_id]);
                     \Log::debug("Status: ".print_r($response,1));
                     $v->status = isset($response->status) ? $response->status : "UNAVIABLE";
                 }
@@ -73,17 +74,34 @@ class ShopsController extends Controller
     public function storeMarketConfig(Request $request)
     {
         \Log::debug("storeMarketConfig".print_r($request->all(),1));
+        \DB::beginTransaction();
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
             'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
         ]);
+        $shop = Shops::find($request->id);
         $res = new DeliveryFactory();
+        if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
+            \Log::debug("Entrou: ".print_r($shop->expiry_token, 1));
+            \Log::debug("Entrou: ".Carbon::now());
+            $res->auth($shop->id);
+        }
         $response = $res->getMerchantDetails($request->id, $request);
-        if (is_object($response) && !isset($response->code)) {
-            \Log::debug('response: '.print_r($response['code'],1));
+        
+        if (is_object($response) && !isset($response['code'])) {
+            \Log::debug('response: '.print_r($response,1));
+            $marketConfig = MarketConfig::where(['merchant_id'       => $request->merchant_id])
+                                    ->update([
+                                        'latitude'      => $response->address->latitude,
+                                        'longitude'     => $response->address->longitude,
+                                        'address'       => json_encode($response->address),
+                                    ]);
+            \DB::commit();
             return $marketConfig;
         } else if ($response['code'] == 403 || $response['code'] == 401) {
+            \Log::debug('response: '.print_r($response,1));
+            \DB::rollBack();
             return $response;
         }
         
@@ -121,9 +139,7 @@ class ShopsController extends Controller
 
     public function delete($id)
     {
-        $data = Shops::where([
-            ['id', $id],
-        ])->first();
+        $data = Shops::find($id);
 
         if (is_object($data))
         {

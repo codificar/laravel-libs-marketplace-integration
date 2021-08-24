@@ -41,13 +41,12 @@ class IFoodController extends Controller
             foreach ($response as $key => $value) {
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
-                \Log::debug('value: '.print_r($value->orderId, 1));
+                \Log::debug('value: '.print_r($value, 1));
                 $order = OrderDetails::updateOrCreate([
                         'order_id'       => $value->orderId,
                     ],
                     [
                         'shop_id'           => $id,
-                        'merchant_id'       => '',
                         'order_id'          => $value->orderId,
                         'code'              => $value->code,
                         'full_code'         => $value->fullCode,
@@ -65,18 +64,19 @@ class IFoodController extends Controller
     {
         \Log::debug('MarketID: '. $order_id);
         
-        $marketConfig     = Shops::where('id',$id)->first();
-        \Log::debug('marketConfig: '. print_r($marketConfig, 1));
+        $shop     = Shops::where('id',$id)->first();
+        \Log::debug('shop: '. print_r($shop, 1));
         $res        = new IFoodApi;
-        $response   = json_decode($res->getOrderDetails($order_id, $marketConfig->token));
+        $response   = json_decode($res->getOrderDetails($order_id, $shop->token));
         if ($response) {
             \Log::debug('Details 0: '.print_r($response,1));
+            $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->first();
             
-            // \Log::debug("DISTANCE: ".print_r($diffDistance[0]->diffDistance,1));
             if (isset($response->delivery)) {
                 $diffDistance = \DB::select( \DB::raw(
                     "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
                 ));
+                \Log::debug("DISTANCE: ".print_r($diffDistance,1));
                 $address = DeliveryAddress::updateOrCreate([
                     'order_id'                      => $response->id
                 ],[
@@ -307,9 +307,9 @@ class IFoodController extends Controller
 
     public function getMerchantDetails($request)
     {
-        \Log::debug("id merchantDetails: ".print_r($request->all(),1));
+        // \Log::debug("id merchantDetails: ".print_r($request->all(),1));
         $shop = Shops::find($request->id);
-        \Log::debug("Shop MerchantDetails: ".print_r($shop->token,1));
+        \Log::debug("Shop MerchantDetails: ".print_r($shop,1));
         $res = new IFoodApi;
         $response = $res->getMerchantDetails($shop['token'], $request->merchant_id);
         \Log::debug("MerchantDetails: ".print_r($response,1));

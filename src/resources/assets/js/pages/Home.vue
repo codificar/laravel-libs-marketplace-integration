@@ -1,7 +1,7 @@
 <template>
     <div class="col-lg-12">
         <v-col cols="4" class="d-inline-flex">
-            <select class="ma-5 col-lg-10 col-md-10 align-center justify-center" name="shops" id="shops">
+            <select class="custom-select custom-select-lg mb-3" name="shops" id="shops">
                 <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
                     <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.merchant_id}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
                 </optgroup>

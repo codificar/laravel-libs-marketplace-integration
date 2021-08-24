@@ -18,9 +18,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
 });
 
-// Route::group([
-//     'domain' => config('app.url'), // don't call `env` outside of configs
-//     'namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers',
-// ], function () {
-//     $this->loadRoutesFrom(__DIR__.'/web.php');
-// });
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
+    Route::get('/settings/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
+});

@@ -1,4 +1,13 @@
-<?php  $layout = '.corp.master'; ?>
+<?php  
+    $link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $layout = '';    
+    if (stripos($link, 'admin') !== FALSE) {
+        $layout = '.master'; 
+    } else if (stripos($link, 'corp') !== FALSE) {
+        $layout = '.corp.master'; 
+    }
+?>
+
 @extends('layout'.$layout)
 @section('head')
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
