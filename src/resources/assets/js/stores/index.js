@@ -657,6 +657,20 @@ const store = new Vuex.Store({
           confirmButtonText: 'OK'
         })
       })
+    },
+    saveCredentials({commit}, data){
+      console.log("Credentials: ", data);
+      axios.post('rota', data)
+      .then(res =>{
+
+      }).catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      });
     }
   },
   getters: {

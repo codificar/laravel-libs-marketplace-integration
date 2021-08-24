@@ -13,12 +13,12 @@
                             lazy-validation
                         >
                             <v-text-field
-                                v-model="form.client_id"
+                                v-model="form.ifood_client_id"
                                 label="CLIENT_ID"
                                 required
                             ></v-text-field>
                             <v-text-field
-                                v-model="form.client_secret"
+                                v-model="form.ifood_client_secret"
                                 label="CLIENT_SECRET"
                                 required
                             ></v-text-field>
@@ -26,7 +26,7 @@
                                 :disabled="!valid"
                                 color="success"
                                 class="mr-0"
-                                @click="saveShop"
+                                @click="saveCredentials"
                             >
                                 Salvar
                             </v-btn>
@@ -46,18 +46,14 @@
         data: () => ({
             valid: true,
             form: {
-                id: '',
-                name: '',
-                select: null,
-                client_id: '',
-                client_secret: '',
-                merchant_id: ''
+                ifood_client_id: '',
+                ifood_client_secret: '',
             },
         }),
-        methods: ()=>({
+        methods:{
             saveCredentials(){
-                
+                this.$store.dispatch('saveCredentials', this.form);
             }
-        })
+        }
     }
 </script>
