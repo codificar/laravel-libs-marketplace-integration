@@ -34,7 +34,6 @@ class IFoodApi
     \Log::debug("body: ". print_r($body,1));
     $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
     \Log::debug("Code: ". $response->getStatusCode());
-    // \Log::debug("Response: ". $response->getBody()->getContents());
     return $response->getBody()->getContents();
   }
 
@@ -161,21 +160,29 @@ class IFoodApi
 
   public function getMerchantDetails($token, $id)
   {    
-    // \Log::debug("ID Merchant: ".$id);
+    \Log::debug("ID Merchant: ".$id);
     // \Log::debug("Token Merchant: ".$token);
     $headers = [
       'accept' => 'application/json',
       'Authorization' => 'Bearer '.$token
     ];
     try {
-      return json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
+      $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
+      if (is_object($res)) {
+        return $res;
+      } else {
+        return [
+          'code'    => 401,
+          'message' =>  "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
+        ];
+      }
     } catch (ClientException $e) {
       \Log::debug("Erro: ".$e->getCode());
       \Log::debug("Erro Content: ".$e->getMessage());
       // \Log::debug('Message: '. $e->getResponse());
       return [
         'code'      => $e->getCode(),
-        'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='http://entregas:8003/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
+        'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
       ];
     }
   }

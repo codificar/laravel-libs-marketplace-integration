@@ -83,14 +83,13 @@ class ShopsController extends Controller
         $shop = Shops::find($request->id);
         $res = new DeliveryFactory();
         if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
-            \Log::debug("Entrou: ".print_r($shop->expiry_token, 1));
             \Log::debug("Entrou: ".Carbon::now());
             $res->auth($shop->id);
         }
         $response = $res->getMerchantDetails($request->id, $request);
-        
-        if (is_object($response) && !isset($response['code'])) {
-            \Log::debug('response: '.print_r($response,1));
+        \Log::debug('response: '.print_r($response,1));
+        if (is_object($response)) {
+            
             $marketConfig = MarketConfig::where(['merchant_id'       => $request->merchant_id])
                                     ->update([
                                         'latitude'      => $response->address->latitude,
@@ -99,7 +98,7 @@ class ShopsController extends Controller
                                     ]);
             \DB::commit();
             return $marketConfig;
-        } else if ($response['code'] == 403 || $response['code'] == 401) {
+        } else if (is_array($response)) {
             \Log::debug('response: '.print_r($response,1));
             \DB::rollBack();
             return $response;

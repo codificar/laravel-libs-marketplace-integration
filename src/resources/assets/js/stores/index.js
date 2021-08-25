@@ -526,7 +526,7 @@ const store = new Vuex.Store({
               timer: 1500
             });
             commit('showDetails', data.key);
-            window.location.reload();
+            // window.location.reload();
           } else {
             Vue.swal.fire({
               title: 'Atenção!',
