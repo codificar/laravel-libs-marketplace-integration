@@ -660,9 +660,23 @@ const store = new Vuex.Store({
     },
     saveCredentials({commit}, data){
       console.log("Credentials: ", data);
-      axios.post('rota', data)
+      axios.post('/admin/settings/credentials/save', data)
       .then(res =>{
-
+        if (res.status == 200) {
+          Vue.swal.fire({
+            title: 'Sucesso!',
+            text: res.data.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+        } else {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            html: res.data.message,
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          });
+        }
       }).catch(err => {
         Vue.swal.fire({
           title: 'Error!',

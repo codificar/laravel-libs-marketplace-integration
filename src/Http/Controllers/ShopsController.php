@@ -149,4 +149,29 @@ class ShopsController extends Controller
             return false;
         }
     }
+
+    public function iFoodCredentials(Request $request)
+    {
+        \Log::debug('Credentials: '.print_r($request->all(), 1));
+        $client_id          = \Settings::updateOrCreate([
+            'key'   =>  'ifood_client_id'],[
+            'value' => $request->ifood_client_id
+        ]);
+        $client_secret      = \Settings::updateOrCreate([
+            'key'   =>  'ifood_client_secret'],[
+            'value' => $request->ifood_client_secret
+        ]);
+
+        if ($client_id && $client_secret) {
+            return [
+                'code'      => 200,
+                'message'   => 'Salvo com sucesso!'
+            ];
+        } else {
+            return [
+                'code'      => 401,
+                'message'   => 'Erro ao salvar as credenciais!'
+            ];
+        }
+    }
 }
