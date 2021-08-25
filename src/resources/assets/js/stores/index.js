@@ -24,7 +24,9 @@ const store = new Vuex.Store({
     dataShop: '',
     dataOrder: '',
     requestStatus: false,
-    alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+    alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"],
+    ifood_client_id: '',
+    ifood_client_secret: ''
   },
   mutations: {
     toggleDrawer (state) {
@@ -32,6 +34,11 @@ const store = new Vuex.Store({
     },
     statusReload (state, status) {
       state.status_reload = status;
+    },
+    credentials (state, credentials) {
+      console.log("Entrou", credentials);
+      state.ifood_client_id = credentials.ifood_client_id;
+      state.ifood_client_secret = credentials.ifood_client_secret;
     },
     showDetails (state, key) {
       state.sheet = !state.sheet;
@@ -667,14 +674,16 @@ const store = new Vuex.Store({
             title: 'Sucesso!',
             text: res.data.message,
             icon: 'success',
-            confirmButtonText: 'OK'
+            showConfirmButton: false,
+            timer: 1500
           });
         } else {
           Vue.swal.fire({
             title: 'Atenção!',
             html: res.data.message,
             icon: 'warning',
-            confirmButtonText: 'OK'
+            showConfirmButton: false,
+            timer: 1500
           });
         }
       }).catch(err => {
@@ -683,6 +692,38 @@ const store = new Vuex.Store({
           text: err,
           icon: 'error',
           confirmButtonText: 'OK'
+        })
+      });
+    },
+    getCredentials({commit}){
+      console.log("Entrou getCredentials");
+      axios.post('/admin/settings/get/credentials/')
+      .then(res =>{
+        if (res.status == 200) {
+          console.log("ifood_client_id", res.data.ifood_client_id.value);
+          commit('credentials', {'ifood_client_id': res.data.ifood_client_id.value, 'ifood_client_secret' : res.data.ifood_client_secret.value});
+          // Vue.swal.fire({
+          //   title: 'Sucesso!',
+          //   text: res.data.message,
+          //   icon: 'success',
+          //   confirmButtonText: 'OK'
+          // });
+        } else {
+          Vue.swal.fire({
+            title: 'Atenção!',
+            html: res.data.message,
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      }).catch(err => {
+        Vue.swal.fire({
+          title: 'Error!',
+          text: err,
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 1500
         })
       });
     }

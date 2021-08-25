@@ -174,4 +174,22 @@ class ShopsController extends Controller
             ];
         }
     }
+
+    public function getIfoodCredentials()
+    {
+        $client_id          = \Settings::where('key', 'ifood_client_id')->first();
+        $client_secret      = \Settings::where('key', 'ifood_client_secret')->first();
+        if ($client_secret && $client_id) {
+            return [
+                'ifood_client_id'       => $client_id,
+                'ifood_client_secret'   => $client_secret
+            ];
+        } else {
+            return [
+                'code'      => 404,
+                'message'   => 'Cadastre as cerdenciais iFood!'
+            ];
+        }
+        
+    }
 }

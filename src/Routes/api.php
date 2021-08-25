@@ -32,5 +32,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
     Route::post('/settings/credentials/save', array('as' => 'admin', 'uses' => 'ShopsController@iFoodCredentials'));
+    Route::post('/settings/get/credentials', array('as' => 'admin', 'uses' => 'ShopsController@getIfoodCredentials'));
 });
 

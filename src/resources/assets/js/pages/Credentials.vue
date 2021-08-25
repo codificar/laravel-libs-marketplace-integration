@@ -13,12 +13,12 @@
                             lazy-validation
                         >
                             <v-text-field
-                                v-model="form.ifood_client_id"
+                                v-model="$store.state.ifood_client_id"
                                 label="CLIENT_ID"
                                 required
                             ></v-text-field>
                             <v-text-field
-                                v-model="form.ifood_client_secret"
+                                v-model="$store.state.ifood_client_secret"
                                 label="CLIENT_SECRET"
                                 required
                             ></v-text-field>
@@ -41,7 +41,9 @@
 <script>
     export default {
         mounted() {
-            console.log('Component mounted.')
+            console.log('Component mounted.');
+            this.getCredentials();
+            this.setForm();
         },
         data: () => ({
             valid: true,
@@ -52,7 +54,21 @@
         }),
         methods:{
             saveCredentials(){
+                this.form.ifood_client_id = this.$store.state.ifood_client_id;
+                this.form.ifood_client_secret = this.$store.state.ifood_client_secret;
                 this.$store.dispatch('saveCredentials', this.form);
+            },
+            getCredentials(){
+                this.$store.dispatch('getCredentials');
+            },
+            setForm(){
+                console.log("SetForm");
+                if (this.$store.state.ifood_client_id) {
+                    this.form.ifood_client_id = this.$store.state.ifood_client_id;
+                }
+                if (this.$store.state.ifood_client_secret) {
+                    this.form.ifood_client_secret = this.$store.state.ifood_client_secret;
+                }
             }
         }
     }

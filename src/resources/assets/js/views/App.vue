@@ -11,6 +11,7 @@
             <template v-slot:activator>
               <v-btn
                 v-model="fab"
+                v-if="$route.name != 'credentials'"
                 color="success darken-2"
                 dark
                 fab
@@ -21,7 +22,6 @@
                 <v-icon>
                   mdi-cart-variant
                 </v-icon>
-                
               </v-btn>
             </template>
         </v-speed-dial>
