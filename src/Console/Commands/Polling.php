@@ -42,21 +42,30 @@ class Polling extends Command
      */
     public function handle()
     {
+        $this->polling();
+        sleep(30);
+        $this->polling();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function polling()
+    {
+        \Log::notice(__FUNCTION__);
         $stores = Shops::get();
         foreach ($stores as $key => $value) {
-            \Log::debug("Entrou: ".print_r($value->expiry_token));
             $polling = new DeliveryFactory();
             if ($value->expiry_token == NULL || Carbon::parse($value->expiry_token) < Carbon::now()) {
-                \Log::debug("Entrou ");
                 $polling->auth($value->id);
             }
             $res = $polling->getOrders($value->id);                   
-            \Log::debug('Ta rodando: '.print_r($res,1));
+            
             if ($res) {
                 foreach ($res as $i => $v) {
-                    \Log::debug('v: '.print_r($v,1));
                     $acknowledgment = $polling->getAcknowledgment($value->id, $v);
-                    \Log::debug('acknowledgment Polling: '.print_r($acknowledgment,1));
                     if ($res) {
                         $polling->getOrderDetails($value->id, $v->orderId);
                     }
