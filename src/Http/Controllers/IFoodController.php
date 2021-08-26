@@ -320,35 +320,38 @@ class IFoodController extends Controller
     {
         \Log::debug("is_cancelled TRUE: ".$is_cancelled);
         \Log::debug("point BLA: ".print_r($point, 1));
-        $request_status='';
-        $code='';
-        $full_code='';
-        if (!$is_cancelled) {
-            \Log::debug("IF ");
-            if ($point->start_time != NULL) {
-                $request_status = 0;
-                $code = "DSP";
-                $full_code = "DISPATCHED";
-            }
-            if ($point->finish_time) {
-                $request_status = 0;
-                $code = "CON";
-                $full_code = "CONCLUDED";
-            }
-        } else {
-            \Log::debug("ELSE");
-            $request_status = 1;
-            $code = "CAN";
-            $full_code = "CANCELLED";
-        }
-        
         $order = OrderDetails::where('request_id', '=', $point->request_id)
                                 ->where('display_id', '=', $point->action)
-                                ->update([
-                                    'request_status'    => $request_status,
-                                    'code'              => $code,
-                                    'full_code'         => $full_code
-                                ]);
-
+                                ->first();
+        if ($order) {
+            $request_status='';
+            $code='';
+            $full_code='';
+            if (!$is_cancelled) {
+                \Log::debug("IF ");
+                if ($point->start_time != NULL) {
+                    $request_status = 0;
+                    $code = "DSP";
+                    $full_code = "DISPATCHED";
+                }
+                if ($point->finish_time) {
+                    $request_status = 0;
+                    $code = "CON";
+                    $full_code = "CONCLUDED";
+                }
+            } else {
+                \Log::debug("ELSE");
+                $request_status = 1;
+                $code = "CAN";
+                $full_code = "CANCELLED";
+            }
+            if ($request_status != '' && $code != '') {
+                $order->update([
+                    'request_status'    => $request_status,
+                    'code'              => $code,
+                    'full_code'         => $full_code
+                ]);
+            }
+        }
     }
 }
