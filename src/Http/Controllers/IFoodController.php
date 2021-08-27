@@ -72,7 +72,7 @@ class IFoodController extends Controller
             \Log::debug('Details 0: '.print_r($response,1));
             $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->first();
             
-            if (isset($response->delivery)) {
+            if (isset($response->delivery) && $marketConfig) {
                 $diffDistance = \DB::select( \DB::raw(
                     "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
                 ));
