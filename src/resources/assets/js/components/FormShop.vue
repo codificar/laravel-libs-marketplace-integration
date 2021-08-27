@@ -24,7 +24,7 @@
             required
           ></v-text-field>
             <v-select
-              v-if="$store.state.modalContent == 'add_marketPlace' && $store.state.modalContent == 'edit_marketPlace'"
+              v-if="$store.state.modalContent == 'add_marketPlace' || $store.state.modalContent == 'edit_marketPlace'"
               v-model="form.select"
               :items="items"
               item-value="id"
