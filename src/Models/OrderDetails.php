@@ -24,7 +24,6 @@ class OrderDetails extends Model
         'display_id',
         'createdAt',
         'preparation_start_date_time',
-        'merchant_id',
         'customer_id',
         'subtotal',
         'delivery_fee',

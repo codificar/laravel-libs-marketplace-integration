@@ -109,7 +109,6 @@ class IFoodController extends Controller
                         'order_type'                    => $response->orderType,
                         'display_id'                    => $response->displayId,
                         'preparation_start_date_time'   => $preparationStartDateTime,
-                        'merchant_id'                   => $response->merchant->id,
                         'customer_id'                   => $response->customer->id,
                         'sub_total'                     => $response->total->subTotal,
                         'delivery_fee'                  => $response->total->deliveryFee,
@@ -126,7 +125,6 @@ class IFoodController extends Controller
                 $order->getAddress;
             }
         }
-        $order = OrderDetails::where('order_id',$response->id)->first();
     }
 
     public function getAcknowledgment($id, $data)
@@ -140,7 +138,7 @@ class IFoodController extends Controller
     public function getOrdersDataBase($id = NULL)
     {
         // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::where('code', 'CFM')
+        $query = OrderDetails::whereIn('code', ['CFM', 'RDA'])
                             // ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {

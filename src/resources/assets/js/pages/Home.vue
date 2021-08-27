@@ -103,7 +103,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{order.full_code == 'DISPATCHED' ? 'PARA ENTREGA' : order.full_code}}
+                                    Status: {{(order.full_code == 'RDA' || order.full_code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
@@ -154,7 +154,7 @@
                                     >
                                         <v-checkbox
                                             v-model="selected"
-                                            v-if="order.request_id == null && order.code == 'CFM'"
+                                            v-if="order.request_id == null && order.code == 'CFM' || order.code == 'RDA'"
                                             label="Adicionar a entrega"
                                             class="ma-2 mt-1"
                                             :value="order"
