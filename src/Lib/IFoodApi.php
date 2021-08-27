@@ -67,7 +67,7 @@ class IFoodApi
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$token
     ];
-    return $this->send('GET','order/v1.0/events:polling?groups=DELIVERY', $headers);
+    return $this->send('GET','order/v1.0/events:polling', $headers);
     
   }
 
