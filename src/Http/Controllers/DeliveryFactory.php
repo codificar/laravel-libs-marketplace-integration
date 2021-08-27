@@ -99,7 +99,7 @@ use Illuminate\Http\Request;
          *
          * @return object $orders
          */
-        public function rtpOrder(Request $request)
+        public function dspOrder(Request $request)
         {
             \Log::debug("Função: ".__FUNCTION__);
             \Log::debug("Request: ".print_r($request->all(), 1));

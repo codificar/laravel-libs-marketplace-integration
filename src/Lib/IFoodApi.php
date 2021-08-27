@@ -67,7 +67,7 @@ class IFoodApi
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$token
     ];
-    return $this->send('GET','order/v1.0/events:polling', $headers);
+    return $this->send('GET','order/v1.0/events:polling?groups=DELIVERY', $headers);
     
   }
 
@@ -141,7 +141,7 @@ class IFoodApi
     }
   }
 
-  public function rtpOrder($id, $token)
+  public function dspOrder($id, $token)
   {
     try {
       $headers    = [

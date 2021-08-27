@@ -154,7 +154,7 @@
                                     >
                                         <v-checkbox
                                             v-model="selected"
-                                            v-if="order.request_id == null && order.code == 'DSP'"
+                                            v-if="order.request_id == null && order.code == 'CFM'"
                                             label="Adicionar a entrega"
                                             class="ma-2 mt-1"
                                             :value="order"

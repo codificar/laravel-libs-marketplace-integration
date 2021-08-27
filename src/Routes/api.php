@@ -23,7 +23,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/ifood/events', 'DeliveryFactory@getOrders');
     Route::post('/orders/{id}', 'DeliveryFactory@getOrdersDataBase');
     Route::post('/order/cancel', 'DeliveryFactory@cancelOrder');
-    Route::post('/order/readyToPickup', 'DeliveryFactory@rtpOrder');
+    Route::post('/order/readyToPickup', 'DeliveryFactory@dspOrder');
     Route::post('/order/{id}/confirm', 'DeliveryFactory@confirmOrder');
     Route::post('/order/update', 'DeliveryFactory@updateOrderRequest');
     Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');

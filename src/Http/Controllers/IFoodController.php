@@ -140,7 +140,7 @@ class IFoodController extends Controller
     public function getOrdersDataBase($id = NULL)
     {
         // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::where('code', 'DSP')
+        $query = OrderDetails::where('code', 'CFM')
                             // ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
@@ -248,22 +248,30 @@ class IFoodController extends Controller
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
+                'code'                      => 'DSP',
+                'full_code'                 => 'DISPATCHED',
                 'request_id'                => $request->request_id,
                 'point_id'                  => $request->id,
                 'tracking_route'            => $request->tracking_route,
         ]);
+        
+        // despacha via ifood api
+        $res = new IFoodApi;
+        $shop     = Shops::where('id',$order->shop_id)->first();
+        $response = $res->dspOrder($request->order_id, $shop->token);
+
         return $order;
     }
 
-    public function rtpOrder(Request $request)
+    public function dspOrder(Request $request)
     {
         \Log::debug("readyToPickup: ".print_r($request->all(),1));
         \Log::debug('s_id: '.$request->s_id);
         \Log::debug('id: '.$request->id);
         try {
-            $market     = Sgops::where('id', $request->id)->first();
+            $market     = Shops::where('id', $request->id)->first();
             $res = new IFoodApi;
-            $response = $res->rtpOrder($request->s_id, $market->token);
+            $response = $res->dspOrder($request->s_id, $market->token);
             \Log::debug('Controller 1: '.print_r($response,1));
             // if ($response) {
                 $ifoodData = json_decode($res->getOrderDetails($request->s_id, $market->token));
