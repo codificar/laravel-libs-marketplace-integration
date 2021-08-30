@@ -44,7 +44,6 @@ class IFoodController extends Controller
                         'order_id'       => $value->orderId,
                     ],
                     [
-                        'shop_id'           => $id,
                         'order_id'          => $value->orderId,
                         'code'              => $value->code,
                         'full_code'         => $value->fullCode,
