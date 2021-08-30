@@ -32,7 +32,7 @@ class RunAddIfoodOtherKeysSeeder extends Migration
             $table->string('value', 2000)->change();
         });
 
-        Schema::table('order_details', function (Blueprint $table) {  
+        Schema::table('order_detail', function (Blueprint $table) {  
             $table->integer('shop_id')->nullable()->change();
         });
     }
