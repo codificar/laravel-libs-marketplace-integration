@@ -163,12 +163,12 @@ class IFoodController extends Controller
             \Log::debug('s_id: '.$request->s_id);
             \Log::debug('id: '.$request->id);
             $res        = new IFoodApi;
-            $response   = $res->confirmOrderApi($request->s_id, $market->token);
+            $response   = $res->confirmOrderApi($request->s_id, \Settings::findByKey('ifood_auth_token'));
             
             // $order = '';
             // if ($response) {
                 \Log::debug('Controller 1: '.print_r($response,1));
-                $ifoodData = json_decode($res->getOrderDetails($request->s_id, $market->token));
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id, \Settings::findByKey('ifood_auth_token')));
                 \Log::debug('entrou 1: '.print_r($ifoodData->createdAt,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
@@ -260,7 +260,7 @@ class IFoodController extends Controller
         // despacha via ifood api
         $res = new IFoodApi;
         $shop     = Shops::where('id',$order->shop_id)->first();
-        $response = $res->dspOrder($request->order_id, $shop->token);
+        $response = $res->dspOrder($request->order_id, \Settings::findByKey('ifood_auth_token'));
 
         return $order;
     }
@@ -273,10 +273,10 @@ class IFoodController extends Controller
         try {
             $market     = Shops::where('id', $request->id)->first();
             $res = new IFoodApi;
-            $response = $res->dspOrder($request->s_id, $market->token);
+            $response = $res->dspOrder($request->s_id, \Settings::findByKey('ifood_auth_token'));
             \Log::debug('Controller 1: '.print_r($response,1));
             // if ($response) {
-                $ifoodData = json_decode($res->getOrderDetails($request->s_id, $market->token));
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id, \Settings::findByKey('ifood_auth_token')));
                 \Log::debug('entrou 1: '.print_r($ifoodData,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
