@@ -35,6 +35,26 @@ class IFoodController extends Controller
         $res        = new IFoodApi;
         $response   = json_decode($res->getOrders(\Settings::findByKey('ifood_auth_token')));
 
+        if ($response) {
+            foreach ($response as $key => $value) {
+                $timestamp = strtotime($value->createdAt);
+                $createdAt = date('Y-m-d H:i:s', $timestamp);
+                
+                $order = OrderDetails::updateOrCreate([
+                        'order_id'       => $value->orderId,
+                    ],
+                    [
+                        'shop_id'           => $id,
+                        'order_id'          => $value->orderId,
+                        'code'              => $value->code,
+                        'full_code'         => $value->fullCode,
+                        'ifood_id'          => $value->id,
+                        'created_at_ifood'  => $createdAt
+                    ]
+                );
+            }
+        }
+
         return $response;
     }
 
