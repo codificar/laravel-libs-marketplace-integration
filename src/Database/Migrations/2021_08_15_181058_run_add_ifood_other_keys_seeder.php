@@ -14,7 +14,7 @@ class RunAddIfoodOtherKeysSeeder extends Migration
      */
     public function up()
     {
-        \Settings::updateOrCreate(array('key' => 'ifood_auth_token', 'value' => null));
+        \Settings::updateOrCreate(array('key' => 'ifood_auth_token', 'value' => 'n/a'));
         \Settings::updateOrCreate(array('key' => 'ifood_expiry_token', 'value' => Carbon::now()->addHours(-6)));
     }
 
