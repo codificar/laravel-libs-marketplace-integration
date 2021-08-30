@@ -17,9 +17,8 @@ use Illuminate\Http\Request;
          * @param integer $id
          * @return string $access_token
          */
-        public function auth($id)
+        public function auth($id = null)
         {
-            \Log::debug("ID: ".$id);
             \Log::debug("Função: ".__FUNCTION__);
             $className = self::selectClass($id);
             \Log::debug("Classe: ".print_r($className, 1));
@@ -150,7 +149,7 @@ use Illuminate\Http\Request;
             return $className::$method($params);
         }
 
-        public function selectClass($id)
+        public function selectClass($id = null)
         {
             \Log::debug('id class: '.print_r($id, 1));
             $shop = MarketConfig::where('shop_id', $id)->first();

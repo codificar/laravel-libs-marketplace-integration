@@ -2,7 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
+use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Console\Command;
@@ -55,23 +55,25 @@ class Polling extends Command
     public function polling()
     {
         \Log::notice(__FUNCTION__);
-        $stores = Shops::get();
-        foreach ($stores as $key => $value) {
-            $polling = new DeliveryFactory();
-            if ($value->expiry_token == NULL || Carbon::parse($value->expiry_token) < Carbon::now()) {
-                $polling->auth($value->id);
-            }
-            $res = $polling->getOrders($value->id);                   
-            
-            if ($res) {
-                foreach ($res as $i => $v) {
-                    $acknowledgment = $polling->getAcknowledgment($value->id, $v);
-                    if ($res) {
-                        $polling->getOrderDetails($value->id, $v->orderId);
-                    }
-                    
-                } 
-            }
+    
+        $factory = new IFoodController();
+        
+        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
+        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
+            $factory->auth();
         }
+
+        $res = $factory->getOrders();                   
+        
+        if ($res) {
+            foreach ($res as $i => $v) {
+                $acknowledgment = $factory->getAcknowledgment($v);
+                if ($res) {
+                    $factory->getOrderDetails($v->orderId);
+                }
+                
+            }
+        } 
+        
     }
 }
