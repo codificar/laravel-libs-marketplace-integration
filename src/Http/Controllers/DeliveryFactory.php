@@ -151,27 +151,6 @@ use Illuminate\Http\Request;
 
         public function selectClass($id = null)
         {
-            \Log::debug('id class: '.print_r($id, 1));
-            $shop = MarketConfig::where('shop_id', $id)->first();
-            \Log::debug('shop class: '.print_r($shop, 1));
-            if ($shop) {
-                switch ($shop['market']) {
-                    case 'ifood':
-                        return new IFoodController();
-                    break;
-                    case 'rappi':
-                        \Log::debug('rappi');
-                    break;
-                    default:
-                        \Log::debug('default');
-                    break;
-                }
-            } else {
-                \Log::debug("Not Found");
-                return [
-                    'code'      => 404,
-                    'message'   => 'Sem Merchant ID cadastrados. Cadastre um novo merchant ID!' 
-                ];
-            }            
+            return new IFoodController();      
         }
     }
