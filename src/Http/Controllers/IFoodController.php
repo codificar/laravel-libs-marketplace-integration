@@ -317,10 +317,9 @@ class IFoodController extends Controller
 
     public function getMerchantDetails($request)
     {
-        $shop = Shops::find($request->id);
-        \Log::debug("Shop MerchantDetails: ".print_r($shop,1));
+        
         $res = new IFoodApi;
-        $response = $res->getMerchantDetails($shop['token'], $request->merchant_id);
+        $response = $res->getMerchantDetails(\Settings::findByKey('ifood_auth_token'), $request->merchant_id);
         \Log::debug("MerchantDetails: ".print_r($response,1));
         
         return $response;
