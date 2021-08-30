@@ -27,6 +27,10 @@ class RunAddIfoodOtherKeysSeeder extends Migration
         catch(Exception $ex){
 
         }
+
+        Schema::table('settings', function (Blueprint $table) {  
+            $table->string('value', 2000)->change();
+        });
     }
 
     /**
