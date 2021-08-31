@@ -88,7 +88,7 @@
                                     :key="i"
                                 >
                                     <v-expansion-panel-header>
-                                        {{item.market.toUpperCase()}}
+                                        {{ `${item.market_name} - ${item.market}`.toUpperCase()}}
                                     </v-expansion-panel-header>
                                     <v-expansion-panel-content>
                                         <div class="font-weight-black">

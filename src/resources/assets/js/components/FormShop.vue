@@ -40,6 +40,12 @@
             label="MERCHANT_ID"
             required
           ></v-text-field>
+          <v-text-field
+            v-if="form.select || $store.state.modalContent == 'edit_marketPlace'"
+            v-model="form.merchant_name"
+            label="Nome"
+            required
+          ></v-text-field>
           <v-btn
             :disabled="!valid"
             color="success"
@@ -83,7 +89,8 @@ export default {
         select: null,
         client_id: '',
         client_secret: '',
-        merchant_id: ''
+        merchant_id: '',
+        merchant_name: ''
       },
     }),
     mounted(){
@@ -99,6 +106,7 @@ export default {
         this.form.client_id = this.data.data.get_config[0].client_id;
         this.form.client_secret = this.data.data.get_config[0].client_secret;
         this.form.merchant_id = this.data.data.get_config[0].merchant_id;
+        this.form.merchant_name = this.data.data.get_config[0].merchant_name;
         
       } else if (this.$store.state.modalContent == 'edit_marketPlace') {
         this.form.id = this.data.data.id;
@@ -111,6 +119,7 @@ export default {
         this.form.client_id = this.data.data.client_id;
         this.form.client_secret = this.data.data.client_secret;
         this.form.merchant_id = this.data.data.merchant_id;
+        this.form.merchant_name = this.data.data.merchant_name;
         
       } else if (this.$store.state.modalContent == 'add_marketPlace') {
         this.form.id = this.data.data.id;
