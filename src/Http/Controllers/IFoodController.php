@@ -255,6 +255,10 @@ class IFoodController extends Controller
                 'request_id'                => $request->request_id,
                 'point_id'                  => $request->id,
                 'tracking_route'            => $request->tracking_route,
+        ]);
+
+        $order = OrderDetails::where([
+            'order_id'                       => $request->order_id
         ])->first();
         
         // despacha via ifood api
