@@ -255,12 +255,12 @@ class IFoodController extends Controller
                 'request_id'                => $request->request_id,
                 'point_id'                  => $request->id,
                 'tracking_route'            => $request->tracking_route,
-        ]);
+        ])->first();
         
         // despacha via ifood api
-        $res = new IFoodApi;
-        $shop     = Shops::where('id',$order->shop_id)->first();
-        $response = $res->dspOrder($request->order_id, \Settings::findByKey('ifood_auth_token'));
+        $res        = new IFoodApi;
+        $shop       = Shops::where('id',$order->shop_id)->first();
+        $response   = $res->dspOrder($request->order_id, \Settings::findByKey('ifood_auth_token'));
 
         return $order;
     }
