@@ -9,6 +9,8 @@ use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
 use Illuminate\Http\Request;
+use Codificar\MarketplaceIntegration\Lib\IFoodApi;
+
 use Carbon\Carbon;
 
 class ShopsController extends Controller
@@ -16,14 +18,17 @@ class ShopsController extends Controller
     public function index()
     {
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
-        foreach ($shops as $key => $value) {
-            if ($value->getConfig) {
-                foreach ($value->getConfig as $key => $v) {
-                    $res = new DeliveryFactory();
-                    \Log::debug('$v: '.print_r($v,1));
-                    $response = $res->getMerchantDetails($value->id, (object)['merchant_id' => $v->merchant_id, 'id' => $v->shop_id]);
-                    \Log::debug("Status: ".print_r($response,1));
-                    $v->status = isset($response->status) ? $response->status : "UNAVIABLE";
+        foreach ($shops as $key => $value) 
+        {
+            if ($value->getConfig) 
+            {
+                foreach ($value->getConfig as $key => $item) 
+                {
+                    $deliveryFactory = new DeliveryFactory();
+                    \Log::debug('$v: '.print_r($item,1));
+                    $res = $deliveryFactory->getMerchantDetails($value->id, (object)['merchant_id' => $item->merchant_id, 'id' => $item->shop_id]);
+                    \Log::debug("Status: ".print_r($res,1));
+                    $item->status = isset($res->status) ? $res->status : "UNAVIABLE";
                 }
             }
         }
@@ -74,12 +79,16 @@ class ShopsController extends Controller
     public function storeMarketConfig(Request $request)
     {
         \Log::debug("storeMarketConfig".print_r($request->all(),1));
+
         \DB::beginTransaction();
+
         $marketConfig = MarketConfig::create([
             'shop_id'       => $request->id,
             'merchant_id'   => $request->merchant_id,
+            'name'          => $request->merchant_name,
             'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
         ]);
+
         $shop = Shops::find($request->id);
         $res = new DeliveryFactory();
         if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
@@ -100,6 +109,7 @@ class ShopsController extends Controller
             return $marketConfig;
         } else if (is_array($response)) {
             \Log::debug('response: '.print_r($response,1));
+            
             \DB::rollBack();
             return $response;
         }
@@ -108,14 +118,14 @@ class ShopsController extends Controller
 
     public function updateMarketConfig(Request $request)
     {
-        $address = new IFoodApi;
-        $address = $address->getMerchantDetails($request->merchant_id);
-        // \Log::debug("updateMarketConfig". json_encode($address->address));
+        $api = new IFoodApi;
+        $api = $api->getMerchantDetails($request->merchant_id);
+        // \Log::debug("updateMarketConfig". json_encode($api->address));
 
         $marketConfig = MarketConfig::where('id', $request->id)->update([
             'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
             'merchant_id'   => $request->merchant_id,
-            'address'       => json_encode($address->address)
+            'address'       => json_encode($api->address)
         ]);
 
         return new ShopResource($request);
