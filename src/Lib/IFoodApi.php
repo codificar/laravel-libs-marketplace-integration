@@ -158,6 +158,9 @@ class IFoodApi
     }
   }
 
+  /**
+   * getMerchantDetails
+   */
   public function getMerchantDetails($token, $id)
   {    
     \Log::debug("ID Merchant: ".$id);
