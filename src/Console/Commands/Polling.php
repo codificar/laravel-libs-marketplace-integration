@@ -58,6 +58,7 @@ class Polling extends Command
     
         $factory = new IFoodController();
         
+        
         $expiryToken  = \Settings::findByKey('ifood_expiry_token');
         if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
             $factory->auth();
