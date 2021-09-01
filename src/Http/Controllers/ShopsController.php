@@ -119,7 +119,7 @@ class ShopsController extends Controller
     public function updateMarketConfig(Request $request)
     {
         $api = new IFoodApi;
-        $api = $api->getMerchantDetails($request->merchant_id);
+        $api = $api->getMerchantDetails(\Settings::findByKey('ifood_auth_token'), $request->merchant_id);
         // \Log::debug("updateMarketConfig". json_encode($api->address));
 
         $marketConfig = MarketConfig::where('id', $request->id)->update([
