@@ -14,6 +14,19 @@ use Carbon\Carbon;
 
 class IFoodController extends Controller
 {
+    // protected static $api;
+
+    /**
+     * Instantiate a new IFoodController instance. But the delivery factory call 
+     * iFoodController functions with static methods so this namespace won't woker
+     */
+    public function __construct()
+    {
+        // $this->api = new IFoodApi;
+        \Log::error('Im here');
+
+    }
+
     public function auth($id = null)
     {
         $clientId          = \Settings::findByKey('ifood_client_id');
@@ -261,13 +274,14 @@ class IFoodController extends Controller
         ]);
 
         $order = OrderDetails::where([
-            'order_id'                       => $request->order_id
+            'order_id' => $request->order_id
         ])->first();
-        
-        // despacha via ifood api
-        $res        = new IFoodApi;
-        $shop       = Shops::where('id',$order->shop_id)->first();
-        $response   = $res->dspOrder($request->order_id, \Settings::findByKey('ifood_auth_token'));
+        \Log::debug('OrderDetails => '.print_r($order, 1));
+
+        // $shop       = Shops::where('id',$order->shop_id)->first(); //Shop isn't used
+        //I added teh token to iFoodApi construct
+        $api = new IFoodApi;
+        $response   = $api->dspOrder($request->order_id, "\Settings::findByKey('ifood_auth_token')");
 
         return $order;
     }

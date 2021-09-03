@@ -864,7 +864,7 @@ function createPoints(data, shops , type='')
       };
 
       point={
-        order_id: element.id,
+        order_id: element.order_id,
         address: element.formatted_address,
         formatted_address: element.formatted_address,
         title: alphabet[index+1].toLocaleUpperCase(),
