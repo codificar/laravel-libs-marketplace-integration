@@ -14,16 +14,31 @@ class IFoodApi
   protected $clientSecret;
   protected $baseUrl;
   protected $access_token;
+  protected $headers;
   protected $client;
 
   #status
-  
+
+  /**
+   * Instantiate a new iFoodApi instance with common variables and configuration.
+   */
   function __construct()
   {
     $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
     $this->client       = new Client([
       'base_uri'  => $this->baseUrl
     ]);    
+    //get the marketplace toe=ken
+    $key = \Settings::getMarketPlaceToken('ifood_auth_token');
+
+    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
+    //initialize a common variable
+    $this->access_token = $key;
+    //initialize a common variable
+    $this->headers    = [
+      'Content-Type' => 'application/json',
+      'Authorization' => 'Bearer '.$key
+    ];
   }
 
   public function send($requestType, $route, $headers, $body = NULL)
@@ -37,6 +52,9 @@ class IFoodApi
     return $response->getBody()->getContents();
   }
 
+  /**
+   * Authenticate and save updated keys
+   */
   public function auth($clientId, $clientSecret)
   {
     \Log::debug('clientId:'.print_r($clientId,1));
@@ -50,7 +68,17 @@ class IFoodApi
           'clientSecret'  => $clientSecret,
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
-      // \Log::debug("Res: ". print_r($res,1));
+      $this->access_token = $res->accessToken;
+      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
+      \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
+
+      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+      \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
+
+      
+
+
+
       return $res;
     }
     catch (\Exception $e)
@@ -140,31 +168,44 @@ class IFoodApi
       return FALSE;
     }
   }
-
+  /**
+   * Dispatch a order status to ifood
+   * 
+   * @param id
+   * 
+   */
   public function dspOrder($id, $token)
   {
     try {
-      $headers    = [
-        'Content-Type' => 'application/x-www-form-urlencoded',
-        'Authorization' => 'Bearer '.$token
-      ];
-      $body       = [
-          'id'     => $id,
-        ];
-      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, $body);      
+      $headers = $this->headers;
+      $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
+      // $headers = [
+      //   'Content-Type' => 'application/x-www-form-urlencoded',
+      //   'Authorization' => 'Bearer '.$this->access_token
+      // // ];
+      //[
+      //     'id'     => $id,
+      //   ];
+      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
+
     }catch (\Exception $e){
       // \Log::debug($e->getMessage());
       return FALSE;
     }
   }
 
+  /**
+   * getMerchantDetails
+   * Use a protected or private variable to store token instead of pass by params
+   * 
+   */
   public function getMerchantDetails($token, $id)
   {    
     \Log::debug("ID Merchant: ".$id);
-    // \Log::debug("Token Merchant: ".$token);
+    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->access_token);
     $headers = [
       'accept' => 'application/json',
-      'Authorization' => 'Bearer '.$token
+      'Authorization' => 'Bearer '.$this->access_token
     ];
     try {
       $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));

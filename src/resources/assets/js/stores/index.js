@@ -128,6 +128,7 @@ const store = new Vuex.Store({
       var shop;
       data.forEach((element, index) => {
         console.log("Index: ", index);
+        //Aparrentely test to capture the point A
         if (index == 0) {
           shop = this.state.shops.filter(function(item) {
             if (item.id == element.shop_id) {
@@ -137,6 +138,7 @@ const store = new Vuex.Store({
             }
           });
           var address = JSON.parse(shop[0].get_config[0].address);
+          //add collect point, point a
           request.points.push({
             address: address.street,
             formatted_address: address.street,
@@ -159,6 +161,7 @@ const store = new Vuex.Store({
           });
         }
         console.log('Shop: ', shop);
+        //add delivery points, point B,C, D and so on
         request.points.push({
           address: element.formatted_address,
           formatted_address: element.formatted_address,
@@ -184,7 +187,9 @@ const store = new Vuex.Store({
           request.return_to_start = true;
         }
       });
+
       console.log("points ", request);
+      //call creat corp request
       axios.post(`/api/v1/corp/request/create`, request)
         .then(res => {
           console.log("Res: ", res.data);
@@ -238,6 +243,19 @@ const store = new Vuex.Store({
           console.log("Erro: ", err);
         });
     },
+    makeManualRequest({commit}, data)
+    {
+      let points = createPoints(data, this.state.shops, 'makeManualRequest');
+      console.log("POints created:=> ", points);
+      post(`/corp/request/add`,  points );
+
+    },
+
+
+
+
+
+
     updateOrder({commit}, data) {
       console.log("UpdateOrder: ", data);
       axios.post('/corp/api/order/update', data)
@@ -587,6 +605,41 @@ const store = new Vuex.Store({
         })
       })
     },
+    deleteMarketConfig({commit}, data) {
+      // data.status_reload = this.state.status_reload
+      console.log("Entrou deleteMarketConfig", data);
+      // console.log("Status", this.state.status_reload);
+      axios.post('/corp/api/market/delete', data)
+        .then(res => {
+          console.log('deleteMarketConfig reponse data ',res.data);
+          console.log(res);
+          if (res.status == 200 && res.data.success) {
+            Vue.swal.fire({
+              title: 'Sucesso!',
+              text: "Salvo com sucesso!",
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            commit('showDetails', data.key);
+            window.location.reload();
+          } else if (res.data) {
+            Vue.swal.fire({
+              title: 'Atenção!',
+              text: res.data.errors,
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            })
+          }
+        }).catch(err => {
+          Vue.swal.fire({
+            title: 'Error!',
+            text: err,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          })
+        })
+    },
     saveRealodStatus({commit}, data){
       this.state.selectedShop['status_reload'] = data;
       console.log("Sleected: ", this.state.selectedShop['status_reload']);
@@ -740,5 +793,138 @@ const store = new Vuex.Store({
     }
   }
 })
+
+/**
+ * Function to create points, might be used on mount manual race in new request or create a request to call the provider
+ * After, is important improve the js code in this file like tnhction and oter portions
+ *  
+ * @param {*} data 
+ * @param {*} shops 
+ * @returns 
+ */
+function createPoints(data, shops , type='')
+{
+  let alphabet =  ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+  // commit('STATUS_REQUEST');
+  console.log('DATA =:> ', data);
+
+  let points=[];
+
+  let shop = shops.filter(function(item) {
+    if (item.id == data[0].shop_id) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  let address = JSON.parse(shop[0].get_config[0].address);
+
+  let point = {
+      address: address.street,
+      formatted_address: address.street,
+      title: alphabet[0].toLocaleUpperCase(),
+      action:shop[0].name,
+      action_type:4,
+      complement:"",
+      collect_value:'',
+      change:null,
+      form_of_receipt:null,
+      collect_pictures:1,
+      collect_signature:1,
+      address_instructions: shop[0].name
+    };
+
+  let location = {
+      lat:  shop[0].get_config[0].latitude,
+      lng: shop[0].get_config[0].longitude,
+    };
+
+    if(type == 'makeManualRequest')
+    {
+      point['latitude']  = location.lat;
+      point['longitude'] = location.lng;
+    } else {
+      point['geometry'] = {
+        location:{
+          lat: location.lat,
+          lng: location.lng
+        }
+      }
+    }
+  
+  points.push(point);
+
+//only delivery orders
+  data.forEach((element, index) => {
+
+      location={
+        lat: element.latitude,
+        lng: element.longitude,
+      };
+
+      point={
+        order_id: element.order_id,
+        address: element.formatted_address,
+        formatted_address: element.formatted_address,
+        title: alphabet[index+1].toLocaleUpperCase(),
+        action:element.display_id,
+        action_type:2,
+        complement:"",
+        collect_value: element.prepaid ? '' : element.order_amount,
+        change: element.prepaid ? '' : element.change_for,
+        form_of_receipt: element.method_payment,
+        collect_pictures:1,
+        collect_signature:1,
+        address_instructions: element.display_id
+      };
+      //define if thje location attr is to mount request or call provider
+      if(type == 'makeManualRequest')
+      {
+        point['latitude']  = location.lat;
+        point['longitude'] = location.lng;
+      } else {
+        point['geometry'] = {
+          location:{
+            lat: location.lat,
+            lng: location.lng
+          }
+        }
+      }
+
+    console.log("createPoint => ", point);
+    points.push(point);
+    console.log('Shop: ', shop);
+    //add delivery points, point B,C, D and so on
+    // points.push()
+  });
+  console.log('POints generated =:> ', points);
+  return points;
+
+}
+
+/**
+ * sends a request to the specified url from a form. this will change the window location.
+ * @param {string} path the path to send the post request to
+ * @param {object} params the parameters to add to the url
+ * @param {string} [method=post] the method to use on the form
+ */
+ function post(path, params, method='post') 
+ {
+  // The rest of this code assumes you are not using a library.
+  // It can be made less verbose if you use one.
+  const form = document.createElement('form');
+  form.method = method;
+  form.action = path;
+
+  const hiddenField = document.createElement('input');
+  hiddenField.type = 'hidden';
+  hiddenField.name = 'points';
+  hiddenField.value = JSON.stringify(params);
+
+  form.appendChild(hiddenField);
+  document.body.appendChild(form);
+  form.submit();
+}
 
 export default store;
