@@ -88,22 +88,12 @@
                                     :key="i"
                                 >
                                     <v-expansion-panel-header>
-                                        {{ `${item.market_name} - ${item.market}`.toUpperCase()}}
+                                        {{ `${item.name} - ${item.market}`.toUpperCase()}}
                                     </v-expansion-panel-header>
                                     <v-expansion-panel-content>
                                         <div class="font-weight-black">
                                             <div class="font-weight-medium">
                                                 MERCHANT_ID: {{item.merchant_id}}
-                                            </div>
-                                        </div>
-                                        <div class="font-weight-black">
-                                            <div class="font-weight-medium">
-                                                CLIENT_ID: {{item.client_id}}
-                                            </div>
-                                        </div>
-                                        <div class="font-weight-black">
-                                            <div class="font-weight-medium">
-                                                CLIENT_SECRET: {{item.client_secret}}
                                             </div>
                                         </div>
                                         <div class="font-weight-white">
@@ -185,8 +175,9 @@ import ModalComponent from "../components/Modal.vue";
                 console.log("Data z:", data);
                 this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
             },
-            deleteShop(id){
-                this.$store.dispatch('deleteShop', id);
+            deleteShop(key, id){
+                console.log('deleteMarketConfig ', {key: key, market_id: id});
+                this.$store.dispatch('deleteMarketConfig', {key: key, id: id});
             }
         }
     }

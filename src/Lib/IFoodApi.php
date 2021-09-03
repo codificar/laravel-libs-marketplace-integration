@@ -24,6 +24,9 @@ class IFoodApi
     $this->client       = new Client([
       'base_uri'  => $this->baseUrl
     ]);    
+    $key = \Settings::getMarketPlaceToken('ifood_auth_token');
+    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
+    $this->access_token = $key;
   }
 
   public function send($requestType, $route, $headers, $body = NULL)
@@ -37,6 +40,9 @@ class IFoodApi
     return $response->getBody()->getContents();
   }
 
+  /**
+   * Authenticate and save updated keys
+   */
   public function auth($clientId, $clientSecret)
   {
     \Log::debug('clientId:'.print_r($clientId,1));
@@ -50,7 +56,17 @@ class IFoodApi
           'clientSecret'  => $clientSecret,
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
-      // \Log::debug("Res: ". print_r($res,1));
+      $this->access_token = $res->accessToken;
+      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
+      \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
+
+      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+      \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
+
+      
+
+
+
       return $res;
     }
     catch (\Exception $e)
@@ -160,14 +176,16 @@ class IFoodApi
 
   /**
    * getMerchantDetails
+   * Use a protected or private variable to store token instead of pass by params
+   * 
    */
   public function getMerchantDetails($token, $id)
   {    
     \Log::debug("ID Merchant: ".$id);
-    // \Log::debug("Token Merchant: ".$token);
+    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->access_token);
     $headers = [
       'accept' => 'application/json',
-      'Authorization' => 'Bearer '.$token
+      'Authorization' => 'Bearer '.$this->access_token
     ];
     try {
       $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));

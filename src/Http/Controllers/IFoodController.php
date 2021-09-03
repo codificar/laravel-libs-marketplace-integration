@@ -18,15 +18,15 @@ class IFoodController extends Controller
     {
         $clientId          = \Settings::findByKey('ifood_client_id');
         $clientSecret      = \Settings::findByKey('ifood_client_secret');
-        \Log::debug("client_id: ". print_r($clientId, 1));
-        \Log::debug("client_secret: ". print_r($clientSecret, 1));
+        \Log::debug("IFoodController::auth -> client_id: ". print_r($clientId, 1));
+        \Log::debug("IFoodController::auth -> client_secret: ". print_r($clientSecret, 1));
 
         $api = new IFoodApi;
         $res = json_decode($api->auth($clientId, $clientSecret));
-        \Log::debug("auth: ". print_r($res->accessToken, 1));
+        // \Log::debug("auth: ". print_r($res->accessToken, 1));
         
-        \Settings::updateOrCreateByKey('ifood_auth_token', $res->accessToken);
-        \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+        // \Settings::updateOrCreateByKey('ifood_auth_token', $res->accessToken);
+        // \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
     
     }
 
@@ -244,6 +244,9 @@ class IFoodController extends Controller
         }
     }
 
+    /**
+     * Update a single order on our DB and to iFoodApi
+     */
     public function updateOrderRequest(Request $request)
     {
         \Log::debug('Request Update: '.print_r($request->all(), 1));

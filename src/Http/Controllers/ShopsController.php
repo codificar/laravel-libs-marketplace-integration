@@ -18,6 +18,8 @@ class ShopsController extends Controller
     public function index()
     {
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
+        \Log::debug(__CLASS__.__FUNCTION__.'$shops:=>  '.print_r($shops,1));
+
         foreach ($shops as $key => $value) 
         {
             if ($value->getConfig) 
@@ -78,33 +80,43 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        \Log::debug("storeMarketConfig".print_r($request->all(),1));
+        // \Log::debug(__CLASS__.__FUNCTION__."request=>".print_r($request->all(),1));
 
         \DB::beginTransaction();
 
-        $marketConfig = MarketConfig::create([
-            'shop_id'       => $request->id,
-            'merchant_id'   => $request->merchant_id,
-            'name'          => $request->merchant_name,
-            'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
-        ]);
+        // $marketConfig = MarketConfig::create([
+        //     'shop_id'       => $request->id,
+        //     'merchant_id'   => $request->merchant_id,
+        //     'name'          => $request->merchant_name,
+        //     'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
+        // ]);
+        // // \Log::debug(__CLASS__.__FUNCTION__."marketConfig =>".print_r($marketConfig ,1));
 
         $shop = Shops::find($request->id);
         $res = new DeliveryFactory();
         if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
-            \Log::debug("Entrou: ".Carbon::now());
+            \Log::debug(__CLASS__.__FUNCTION__."Entrou: ".Carbon::now());
             $res->auth($shop->id);
         }
         $response = $res->getMerchantDetails($request->id, $request);
-        \Log::debug('response: '.print_r($response,1));
-        if (is_object($response)) {
+        \Log::debug('response: getMerchantDetails=> '.print_r($response,1));
+        if (is_object($response)) 
+        {
+            \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($request->merchant_name ,1));
+
             
-            $marketConfig = MarketConfig::where(['merchant_id'       => $request->merchant_id])
-                                    ->update([
-                                        'latitude'      => $response->address->latitude,
-                                        'longitude'     => $response->address->longitude,
-                                        'address'       => json_encode($response->address),
-                                    ]);
+            $marketConfig = MarketConfig::create([
+                'shop_id'       => $request->id,
+                'merchant_id'   => $request->merchant_id,
+                'name'          => $request->merchant_name,
+                'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
+                'latitude'      => $response->address->latitude,
+                'longitude'     => $response->address->longitude,
+                'address'       => json_encode($response->address),
+            ]);
+
+            // \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($marketConfig ,1));
+
             \DB::commit();
             return $marketConfig;
         } else if (is_array($response)) {
@@ -116,34 +128,54 @@ class ShopsController extends Controller
         
     }
 
+    /**
+     * 
+     * Update market configuration
+     * 
+     * @return ShopResource
+     */
     public function updateMarketConfig(Request $request)
     {
         $api = new IFoodApi;
-        $api = $api->getMerchantDetails($request->merchant_id);
-        // \Log::debug("updateMarketConfig". json_encode($api->address));
+        $api = json_encode($api->getMerchantDetails('',$request->merchant_id));
 
-        $marketConfig = MarketConfig::where('id', $request->id)->update([
-            'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
-            'merchant_id'   => $request->merchant_id,
-            'address'       => json_encode($api->address)
-        ]);
+        \Log::debug("  request -> ". print_r($request->all(),1));
+
+        if(property_exists($api,'address'))
+        {
+            \Log::info("save address from ifood too");
+            MarketConfig::where('id', $request->id)->update([
+                'name'          => $request->merchant_name,
+                'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
+                'merchant_id'   => $request->merchant_id,
+                'address'       => json_encode($api->address) 
+            ]);
+        } else {
+            MarketConfig::where('id', $request->id)->update([
+                'name'          => $request->merchant_name,
+                'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
+                'merchant_id'   => $request->merchant_id
+            ]);
+        }
+
 
         return new ShopResource($request);
     }
 
-    public function deleteMarketConfig($id)
+    public function deleteMarketConfig(Request $request)
     {
-        $data = MarketConfig::where([
-            ['id', $id],
-        ])->first();
+        \Log::debug('deleteMarketConfig=>SHOPS: '.print_r($request->all(), 1));
+        $response = ['success' => false];
+
+        $data = MarketConfig::find($request->id);
 
         if (is_object($data))
         {
             $data->delete();
-            return true;
-        } else {
-            return false;
+            $response['success'] = true;
         }
+
+        return new ShopResource($response);
     }
 
     public function delete($id)

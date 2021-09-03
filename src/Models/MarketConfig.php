@@ -9,6 +9,7 @@ class MarketConfig extends Model
     protected $table = 'market_config';
     protected $fillable = [
         'shop_id',
+        'name',
         'merchant_id',
         'market',
         'client_id',
