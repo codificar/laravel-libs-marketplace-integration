@@ -23,7 +23,7 @@ class IFoodController extends Controller
     public function __construct()
     {
         // $this->api = new IFoodApi;
-        \Log::error('Im here');
+        // \Log::error('Im here');
 
     }
 
