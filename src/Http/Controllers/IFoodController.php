@@ -35,7 +35,7 @@ class IFoodController extends Controller
         \Log::debug("IFoodController::auth -> client_secret: ". print_r($clientSecret, 1));
 
         $api = new IFoodApi;
-        $res = json_decode($api->auth($clientId, $clientSecret));
+        $res = $api->auth($clientId, $clientSecret);
         // \Log::debug("auth: ". print_r($res->accessToken, 1));
         
         // \Settings::updateOrCreateByKey('ifood_auth_token', $res->accessToken);
