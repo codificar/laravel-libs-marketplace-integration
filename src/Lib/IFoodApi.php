@@ -7,6 +7,7 @@ use Codificar\MarketplaceIntegration\Models\Shops;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
+use Carbon\Carbon;
 
 class IFoodApi
 {
@@ -68,6 +69,7 @@ class IFoodApi
           'clientSecret'  => $clientSecret,
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
+      $res=json_decode($res);
       $this->access_token = $res->accessToken;
       $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
@@ -75,15 +77,11 @@ class IFoodApi
       $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
       \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
 
-      
-
-
-
       return $res;
     }
     catch (\Exception $e)
     {
-      // \Log::debug($e->getMessage());
+      //  \Log::error($e->getMessage());
       return $e;
     }
   }
