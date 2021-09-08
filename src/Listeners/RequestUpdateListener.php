@@ -48,7 +48,9 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function shouldQueue(RequestUpdate $request)
     {
-        $order = OrderDetails::where('request_id', '=', $request->request->id)->get();
+        \Log::debug("shouldQueue Request: ".json_encode($request,1));
+
+        $order = OrderDetails::where('request_id', '=', $request->request_id)->get();
         // \Log::debug("Order: ".print_r($order, 1));
         if (!$order->isEmpty()) {
             // \Log::debug("TRUE");
