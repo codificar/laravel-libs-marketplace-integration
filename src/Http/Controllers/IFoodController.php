@@ -360,11 +360,15 @@ class IFoodController extends Controller
             if (!$is_cancelled) {
                 \Log::debug("IF ");
                 if ($point->start_time != NULL) {
+                    \Log::debug("IF point->start_time".$point->start_time);
+
                     $request_status = 0;
                     $code = "DSP";
                     $full_code = "DISPATCHED";
                 }
                 if ($point->finish_time) {
+                    \Log::debug("IF point->finish_time". $point->finish_time);
+
                     $request_status = 0;
                     $code = "CON";
                     $full_code = "CONCLUDED";
