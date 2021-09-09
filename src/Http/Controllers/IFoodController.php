@@ -269,13 +269,14 @@ class IFoodController extends Controller
     public function updateOrderRequest(Request $request)
     {
         \Log::debug('Request Update: '.print_r($request->all(), 1));
+        
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
                 'code'                      => 'DSP',
                 'full_code'                 => 'DISPATCHED',
                 'request_id'                => $request->request_id,
-                'point_id'                  => $request->id,
+                'point_id'                  => $request->point_id,
                 'tracking_route'            => $request->tracking_route,
         ]);
 

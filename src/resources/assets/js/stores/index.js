@@ -195,6 +195,7 @@ const store = new Vuex.Store({
                 console.log("data displayId: ", e);
                 if (element.action.includes(e.display_id)) {
                   console.log("Order request: ", e);
+                  e['point_id']       = element.id
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
                   commit('UPDATE_ORDER', e);
