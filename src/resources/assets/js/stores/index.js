@@ -9,11 +9,6 @@ const store = new Vuex.Store({
     themeDark: true,
     shops: [],
     orders: [],
-    socket: {
-      isConnected: false,
-      message: '',
-      reconnectError: false,
-    },
     sheet: false,
     order: '',
     modalContent: null,
@@ -155,8 +150,8 @@ const store = new Vuex.Store({
             collect_value:'',
             change:null,
             form_of_receipt:null,
-            collect_pictures:1,
-            collect_signature:1,
+            collect_pictures:0,
+            collect_signature:0,
             address_instructions: shop[0].name
           });
         }
@@ -172,15 +167,15 @@ const store = new Vuex.Store({
             }
           },
           title: this.state.alphabet[index+1].toLocaleUpperCase(),
-          action:element.display_id,
+          action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
           action_type:2,
-          complement:"",
+          complement: `Cliente ${element.client_name}: ${element.complement}`,
           collect_value: element.prepaid ? '' : element.order_amount,
           change: element.prepaid ? '' : element.change_for,
           form_of_receipt: element.method_payment,
-          collect_pictures:1,
-          collect_signature:1,
-          address_instructions: element.display_id
+          collect_pictures:0,
+          collect_signature:0,
+          address_instructions: `Entregar pedido número ${element.display_id} para ${element.client_name}`
         })
         request.institution_id = shop[0].institution_id
         if (!element.prepaid) {
@@ -198,7 +193,7 @@ const store = new Vuex.Store({
               console.log("Elementy: ", element);
               data.forEach((e, i) => {
                 console.log("data displayId: ", e);
-                if (e.display_id == element.action) {
+                if (element.action.includes(e.display_id)) {
                   console.log("Order request: ", e);
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
@@ -245,6 +240,7 @@ const store = new Vuex.Store({
     },
     makeManualRequest({commit}, data)
     {
+      commit('STATUS_REQUEST');
       let points = createPoints(data, this.state.shops, 'makeManualRequest');
       console.log("POints created:=> ", points);
       post(`/corp/request/add`,  points );
@@ -830,8 +826,8 @@ function createPoints(data, shops , type='')
       collect_value:'',
       change:null,
       form_of_receipt:null,
-      collect_pictures:1,
-      collect_signature:1,
+      collect_pictures: 0,
+      collect_signature: 0,
       address_instructions: shop[0].name
     };
 
@@ -868,15 +864,15 @@ function createPoints(data, shops , type='')
         address: element.formatted_address,
         formatted_address: element.formatted_address,
         title: alphabet[index+1].toLocaleUpperCase(),
-        action:element.display_id,
+        action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
         action_type:2,
-        complement:"",
+        complement: `Cliente ${element.client_name}: ${element.complement}`,
         collect_value: element.prepaid ? '' : element.order_amount,
         change: element.prepaid ? '' : element.change_for,
         form_of_receipt: element.method_payment,
-        collect_pictures:1,
-        collect_signature:1,
-        address_instructions: element.display_id
+        collect_pictures:0,
+        collect_signature:0,
+        address_instructions: `Entregar pedido número ${element.display_id} para ${element.client_name}`
       };
       //define if thje location attr is to mount request or call provider
       if(type == 'makeManualRequest')

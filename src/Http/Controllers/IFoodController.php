@@ -88,12 +88,14 @@ class IFoodController extends Controller
             \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
+            \Log::debug('Name:: '.print_r($response->customer->name, 1));
 
             $order = OrderDetails::updateOrCreate([
                     'order_id'                      => $response->id
                 ],[
                     'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
                     'order_id'                      => $response->id,
+                    'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_ifood'              => $createdAt,
                     'order_type'                    => $response->orderType,
@@ -132,6 +134,7 @@ class IFoodController extends Controller
                     'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
                     'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
                     'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
+                    'complement'                    => $response->delivery->deliveryAddress->complement,
                     'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
                     'city'                          => $response->delivery->deliveryAddress->city,
                     'state'                         => $response->delivery->deliveryAddress->state,
@@ -155,17 +158,20 @@ class IFoodController extends Controller
     public function getOrdersDataBase($id = NULL)
     {
         // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::whereIn('code', ['CFM', 'RDA'])
+        $query = OrderDetails::whereIn('code', ['CFM', 'RDA','DSP'])
                             // ->where('code', '!=', 'CAN')
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
             \Log::debug('SHOP ID: '.$id);
             $query = $query->where('shop_id', $id);
         }
-        $orders =           $query->orderBy('distance', 'DESC')
-                            ->orderBy('order_detail.created_at', 'DESC')
-                            ->limit(10)
-                            ->get();
+        $orders =   $query->orderBy('order_detail.point_id', 'ASC')//order by points to show first the orders without points id, so orders without dispatched
+                        ->orderBy('delivery_address.neighborhood', 'ASC')
+                        ->orderBy('order_detail.display_id', 'ASC')
+                        ->orderBy('distance', 'DESC')
+                        ->orderBy('order_detail.client_name', 'ASC')
+                        ->limit(10)
+                        ->get();
         return $orders;
     }
 
@@ -351,21 +357,24 @@ class IFoodController extends Controller
         \Log::debug("is_cancelled TRUE: ".$is_cancelled);
         \Log::debug("point BLA: ".print_r($point, 1));
         $order = OrderDetails::where('request_id', '=', $point->request_id)
-                                ->where('display_id', '=', $point->action)
+                                ->where('point_id', '=', $point->id)
                                 ->first();
-        if ($order) {
+
+        \Log::debug("ORDER GET BY POINT_ID BLA: ".print_r($order, 1));
+        if ($order) 
+        {
             $request_status='';
             $code='';
             $full_code='';
             if (!$is_cancelled) {
                 \Log::debug("IF ");
-                if ($point->start_time != NULL) {
-                    \Log::debug("IF point->start_time".$point->start_time);
+                // if ($point->start_time != NULL) {
+                //     \Log::debug("IF point->start_time".$point->start_time);
 
-                    $request_status = 0;
-                    $code = "DSP";
-                    $full_code = "DISPATCHED";
-                }
+                //     $request_status = 0;
+                //     $code = "DSP";
+                //     $full_code = "DISPATCHED";
+                // }
                 if ($point->finish_time) {
                     \Log::debug("IF point->finish_time". $point->finish_time);
 
@@ -380,6 +389,7 @@ class IFoodController extends Controller
                 $full_code = "CANCELLED";
             }
             if ($request_status != '' && $code != '') {
+                \Log::debug("IF UPDATEO RDER");
                 $order->update([
                     'request_status'    => $request_status,
                     'code'              => $code,

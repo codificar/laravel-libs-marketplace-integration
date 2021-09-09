@@ -14,6 +14,7 @@ class OrderDetails extends Model
         'request_id',
         'tracking_route',
         'request_status',
+        'client_name',
         'shop_id',
         'merchant_id',
         'order_id',
