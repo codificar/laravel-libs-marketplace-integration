@@ -6,21 +6,7 @@
                     <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
                 </optgroup>
             </select>
-                <!-- <v-btn
-                    class="ma-1"
-                    small
-                    depressed
-                    color="success"
-                    @click="addShop"
-                    style="width:100px;"
-                >
-                    <v-icon 
-                        color="white"
-                        left
-                    >mdi-plus
-                    </v-icon>
-                    <span class="font-weight-white white--text"> Loja</span>
-                </v-btn>    -->
+
         </v-col>
         <div class="col-lg-12 w-100 h-50 card card-outline-info">
             <div class="card-header">
@@ -113,12 +99,21 @@
                                     Pedido: {{order.display_id}}
                                 </div>
                                 <div class="font-weight-medium">
+                                    Cliente: {{order.client_name}}
+                                </div>
+                                <div class="font-weight-bold">
+                                    Bairro: {{order.neighborhood}}
+                                </div>
+                                <div class="font-weight-medium">
                                     Endereço: {{order.formatted_address}}
+                                </div>
+                                <div class="font-weight-medium" v-if="order.complement != ''">
+                                    Complemento: {{order.complement}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{(order.full_code == 'RDA' || order.full_code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
+                                    Status: {{(order.code == 'RDA' || order.code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
