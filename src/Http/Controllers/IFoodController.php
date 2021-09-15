@@ -114,7 +114,8 @@ class IFoodController extends Controller
                 ]
             );
             
-            if (isset($response->delivery)) {
+            if (isset($response->delivery)) 
+            {
 
                 $calculatedDistance = 0 ;
 
@@ -126,6 +127,12 @@ class IFoodController extends Controller
                     $calculatedDistance = $diffDistance[0]->diffDistance ;
                 }
 
+                $complement = property_exists($response->delivery->deliveryAddress,'complement') ? $response->delivery->deliveryAddress->complement : null;
+                if(!$complement && property_exists($response->delivery->deliveryAddress,'reference')) 
+                    $complement = $response->delivery->deliveryAddress->reference;
+                elseif($complement && property_exists($response->delivery->deliveryAddress,'reference'))
+                    $complement = $complement . ' - ' . $response->delivery->deliveryAddress->reference;
+
                 $address = DeliveryAddress::updateOrCreate([
                     'order_id'                      => $response->id
                 ],[
@@ -134,7 +141,7 @@ class IFoodController extends Controller
                     'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
                     'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
                     'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                    'complement'                    => $response->delivery->deliveryAddress->complement,
+                    'complement'                    => $complement,
                     'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
                     'city'                          => $response->delivery->deliveryAddress->city,
                     'state'                         => $response->delivery->deliveryAddress->state,
@@ -143,8 +150,13 @@ class IFoodController extends Controller
                     'longitude'                     => $response->delivery->deliveryAddress->coordinates->longitude,
                     'distance'                      => $calculatedDistance,
                 ]);
+                if(!$address)
+                    \Log::error(__FUNCTION__.'::Error to save Delivery Address: getOrderDetails response => '.print_r($response));
+
 
                 
+            } else {
+                \Log::error(__FUNCTION__.'::Error to save Delivery Address: getOrderDetails without delivery data, see response => '.print_r($response));
             }
         }
     }
