@@ -158,17 +158,19 @@ class IFoodController extends Controller
     public function getOrdersDataBase($id = NULL)
     {
         // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::whereIn('code', ['CFM', 'RDA','DSP'])
-                            // ->where('code', '!=', 'CAN')
+        $query = OrderDetails::where('order_detail.code','DSP')//order to exclud DSP orders withou request id
+                            ->where('order_detail.request_id','>',1)
+                            ->orWhereIn('code', ['CFM', 'RDA'])
                             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
         if (isset($id) && $id != null) {
             \Log::debug('SHOP ID: '.$id);
             $query = $query->where('shop_id', $id);
         }
-        $orders =   $query->orderBy('order_detail.point_id', 'ASC')//order by points to show first the orders without points id, so orders without dispatched
+        $orders =   $query
+                        ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
                         ->orderBy('delivery_address.neighborhood', 'ASC')
-                        ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('distance', 'DESC')
+                        ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
                         ->limit(10)
                         ->get();
