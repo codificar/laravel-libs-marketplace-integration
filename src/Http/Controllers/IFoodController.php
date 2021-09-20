@@ -169,22 +169,28 @@ class IFoodController extends Controller
 
     public function getOrdersDataBase($id = NULL)
     {
-        // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::where('order_detail.code','DSP')//order to exclud DSP orders withou request id
-                            ->where('order_detail.request_id','>',1)
-                            ->orWhereIn('code', ['CFM', 'RDA'])
-                            ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+        $query = OrderDetails::query();
+
         if (isset($id) && $id != null) {
-            \Log::debug('SHOP ID: '.$id);
-            $query = $query->where('shop_id', $id);
+            $query->where('shop_id', $id);
         }
+
+        $query->where(function($queryCode){
+                $queryCode->whereIn('code', ['CFM', 'RDA'])
+                ->orWhere(function($queryInner) {
+                        $queryInner->where('order_detail.code','DSP')
+                        ->where('order_detail.request_id','>',1);
+                });
+        })
+        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+
         $orders =   $query
                         ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
                         ->orderBy('delivery_address.neighborhood', 'ASC')
                         ->orderBy('distance', 'DESC')
                         ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
-                        ->limit(10)
+                        ->limit(100)
                         ->get();
         return $orders;
     }
@@ -383,13 +389,13 @@ class IFoodController extends Controller
             $full_code='';
             if (!$is_cancelled) {
                 \Log::debug("IF ");
-                // if ($point->start_time != NULL) {
-                //     \Log::debug("IF point->start_time".$point->start_time);
+                if ($point->start_time != NULL) {
+                    \Log::debug("IF point->start_time".$point->start_time);
 
-                //     $request_status = 0;
-                //     $code = "DSP";
-                //     $full_code = "DISPATCHED";
-                // }
+                    $request_status = 0;
+                    $code = "DSP";
+                    $full_code = "DISPATCHED";
+                }
                 if ($point->finish_time) {
                     \Log::debug("IF point->finish_time". $point->finish_time);
 
