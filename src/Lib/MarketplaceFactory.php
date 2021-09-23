@@ -24,6 +24,9 @@ class MarketplaceFactory
             case self::UBEREATS:
                 return '(new UberEatsApi());';
                 break;
+            case self::RAPPI:
+                return '(new RappiApi());';
+                break;
             default:
                 return (new IFoodApi());
         }
