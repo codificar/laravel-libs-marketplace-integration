@@ -3,15 +3,17 @@
 namespace Codificar\MarketplaceIntegration\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class MarketConfig extends Model
+class MerchantDetails extends Model
 {
-    protected $table = 'market_config';
+    use SoftDeletes;
+    protected $table = 'merchant_details';
     protected $fillable = [
         'shop_id',
         'name',
         'merchant_id',
-        'market',
+        'type',
         'client_id',
         'client_secret',
         'latitude',

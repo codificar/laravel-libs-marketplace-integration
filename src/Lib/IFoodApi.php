@@ -2,19 +2,16 @@
 
 namespace Codificar\MarketplaceIntegration\Lib;
 
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
 use Carbon\Carbon;
 
-class IFoodApi
+class IFoodApi implements IMarketplace
 {
   protected $clientId;
   protected $clientSecret;
   protected $baseUrl;
-  protected $access_token;
+  protected $accessToken;
   protected $headers;
   protected $client;
 
@@ -34,7 +31,7 @@ class IFoodApi
 
     \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
     //initialize a common variable
-    $this->access_token = $key;
+    $this->accessToken = $key;
     //initialize a common variable
     $this->headers    = [
       'Content-Type' => 'application/json',
@@ -56,22 +53,22 @@ class IFoodApi
   /**
    * Authenticate and save updated keys
    */
-  public function auth($clientId, $clientSecret)
+  public function auth($credentials)
   {
-    \Log::debug('clientId:'.print_r($clientId,1));
-    \Log::debug('clientSecret:'.print_r($clientSecret,1));
+    \Log::debug('clientId:'.print_r($credentials->clientId,1));
+    \Log::debug('clientSecret:'.print_r($credentials->clientSecret,1));
     try
     {
       $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
       $body       = [
           'grantType'     => 'client_credentials',
-          'clientId'      => $clientId,
-          'clientSecret'  => $clientSecret,
+          'clientId'      => $credentials->clientId,
+          'clientSecret'  => $credentials->clientSecret,
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
       $res=json_decode($res);
-      $this->access_token = $res->accessToken;
-      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
+      $this->accessToken = $res->access_token;
+      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
 
       $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
@@ -86,7 +83,7 @@ class IFoodApi
     }
   }
 
-  public function getOrders($token)
+  public function getOrder($token)
   {
     \Log::debug('TOKEN: '. $token);
     $headers = [
@@ -152,7 +149,7 @@ class IFoodApi
     $headers = [
       'headers'   => [
         'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
+        'Authorization' => 'Bearer '.$this->accessToken
       ]
     ];
     $object = array(
@@ -166,30 +163,11 @@ class IFoodApi
       return FALSE;
     }
   }
-  /**
-   * Dispatch a order status to ifood
-   * 
-   * @param id
-   * 
-   */
-  public function dspOrder($id, $token)
-  {
-    try {
-      $headers = $this->headers;
-      $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
-      // $headers = [
-      //   'Content-Type' => 'application/x-www-form-urlencoded',
-      //   'Authorization' => 'Bearer '.$this->access_token
-      // // ];
-      //[
-      //     'id'     => $id,
-      //   ];
-      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
+  
 
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
-      return FALSE;
-    }
+  public function getMerchant($merchantId, $token)
+  {
+    # code...
   }
 
   /**
@@ -200,10 +178,10 @@ class IFoodApi
   public function getMerchantDetails($token, $id)
   {    
     \Log::debug("ID Merchant: ".$id);
-    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->access_token);
+    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->accessToken);
     $headers = [
       'accept' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$this->accessToken
     ];
     try {
       $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
@@ -224,5 +202,67 @@ class IFoodApi
         'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
       ];
     }
+  }
+
+  /**
+   * Dispatch a order status to ifood
+   * 
+   * @param id
+   * 
+   */
+  public function dispatchOrder($id, $token)
+  {
+    try {
+      $headers = $this->headers;
+      $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
+      // $headers = [
+      //   'Content-Type' => 'application/x-www-form-urlencoded',
+      //   'Authorization' => 'Bearer '.$this->accessToken
+      // // ];
+      //[
+      //     'id'     => $id,
+      //   ];
+      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
+
+    }catch (\Exception $e){
+      // \Log::debug($e->getMessage());
+      return FALSE;
+    }
+  }
+
+  /**
+   * Dispatch a order status to ifood
+   * 
+   * @param id
+   * 
+   */
+  public function finishOrder($id, $token)
+  {
+    try {
+      $headers = $this->headers;
+      $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
+      // $headers = [
+      //   'Content-Type' => 'application/x-www-form-urlencoded',
+      //   'Authorization' => 'Bearer '.$this->accessToken
+      // // ];
+      //[
+      //     'id'     => $id,
+      //   ];
+      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
+
+    }catch (\Exception $e){
+      // \Log::debug($e->getMessage());
+      return FALSE;
+    }
+  }
+
+  public function polling($token)
+  {
+    # code...
+  }
+
+  public function webhook($token)
+  {
+    # code...
   }
 }

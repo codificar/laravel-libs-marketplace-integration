@@ -3,8 +3,6 @@
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
 use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
