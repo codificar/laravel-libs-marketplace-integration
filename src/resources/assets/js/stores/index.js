@@ -8,7 +8,7 @@ const store = new Vuex.Store({
     drawer: true,
     themeDark: true,
     shops: [],
-    orders: [],
+    orders: {},
     sheet: false,
     order: '',
     modalContent: null,
@@ -71,13 +71,13 @@ const store = new Vuex.Store({
       state.shops.splice(index, 1);
     },
     CREATE_ORDER(state, order) {
-      state.orders.push(order);
+      state.orders = order;
     },
     FETCH_ORDERS(state, orders) {
       return state.orders = orders;
     },
     CLEAR_ORDERS(state) {
-      return state.orders = [];
+      return state.orders = {};
     },
     REQUEST_ORDERS(state, orders) {
       return state.selectedOrders = orders;
@@ -199,7 +199,7 @@ const store = new Vuex.Store({
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
                   commit('UPDATE_ORDER', e);
-                  this.dispatch('updateOrder', e);
+                  // this.dispatch('updateOrder', e);
                 }
               });
             });
@@ -241,7 +241,7 @@ const store = new Vuex.Store({
     },
     makeManualRequest({commit}, data)
     {
-      commit('STATUS_REQUEST');
+      // commit('STATUS_REQUEST');
       let points = createPoints(data, this.state.shops, 'makeManualRequest');
       console.log("POints created:=> ", points);
       post(`/corp/request/add`,  points );
@@ -403,18 +403,23 @@ const store = new Vuex.Store({
         })
       })
     },
-    getOrders({commit}, id){
+    getOrders({commit}, id, page = 1){
       console.log("Entrou getOrders", id);
       commit('CLEAR_ORDERS')
       var status = this.state.selectedShop.status_reload == 1 ? true : false;
       console.log("Data 2: ", status);
       commit('statusReload', status);
-      axios.post('/corp/api/orders/'+id, id)
+      axios.post('/corp/api/orders/'+id+'?page='+page, {
+				pagination: {
+					actual : page,
+					itensPerPage : 200
+				}
+			})
         .then(res => {
-          console.log("Orders", res.data);
-          res.data.forEach(element => {
-            commit('CREATE_ORDER', element);
-          });
+          console.log("Orders Hari", res.data);
+          // res.data.data.forEach(element => {
+            commit('CREATE_ORDER', res.data);
+          // });
           if (res.status == 200) {
             // Vue.swal.fire({
             //   title: 'Sucesso!',
@@ -854,7 +859,7 @@ function createPoints(data, shops , type='')
 
 //only delivery orders
   data.forEach((element, index) => {
-
+      console.log("Point "+index+": ", element);
       location={
         lat: element.latitude,
         lng: element.longitude,
@@ -865,15 +870,15 @@ function createPoints(data, shops , type='')
         address: element.formatted_address,
         formatted_address: element.formatted_address,
         title: alphabet[index+1].toLocaleUpperCase(),
-        action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
+        action: `Entregar pedido número ${element.display_id} para cliente ${element.client_name}: ${element.complement}`,
         action_type:2,
-        complement: `Cliente ${element.client_name}: ${element.complement}`,
+        complement: element.complement,
         collect_value: element.prepaid ? '' : element.order_amount,
         change: element.prepaid ? '' : element.change_for,
         form_of_receipt: element.method_payment,
         collect_pictures:0,
         collect_signature:0,
-        address_instructions: `Entregar pedido número ${element.display_id} para ${element.client_name}`
+        address_instructions: `Entregar pedido número ${element.display_id} para cliente ${element.client_name}: ${element.complement}`
       };
       //define if thje location attr is to mount request or call provider
       if(type == 'makeManualRequest')
@@ -913,6 +918,7 @@ function createPoints(data, shops , type='')
   const form = document.createElement('form');
   form.method = method;
   form.action = path;
+  form.target = "_blank"
 
   const hiddenField = document.createElement('input');
   hiddenField.type = 'hidden';

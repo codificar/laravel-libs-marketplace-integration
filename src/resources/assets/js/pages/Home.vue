@@ -1,58 +1,68 @@
 <template>
-    <div class="col-lg-12">
-        <v-col cols="4" class="d-inline-flex" v-if="$store.state.shops.length > 0">
-            <select class="custom-select custom-select-lg mb-3" name="shops" id="shops">
-                <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
-                    <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
-                </optgroup>
-            </select>
-
-        </v-col>
-        <div class="col-lg-12 w-100 h-50 card card-outline-info">
-            <div class="card-header">
-                <div class="row justify-space-between"> 
-                    <div class="ma-5 align-center justify-start">
-                        <h4 class="m-b-0 text-white"> Pedidos </h4>
-                    </div>
-                    <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
-                        <refresh-screen
-                            v-if="$store.state.shops.length > 0"
-                            :isEnable="$store.state.status_reload"
-                        />
-                    </div>
-                    <div class="ma-5 align-center ">
-                        <div class="row col-md-12 justify-end"> 
-                            <v-btn
-                                class="ma-lg-2 justify-end"
-                                v-if="selected.length > 0"
-                                :loading="$store.state.requestStatus"
-                                :disabled="$store.state.requestStatus"
-                                color="success"
-                                @click="makeRequest('makeManualRequest')"
-                                small
-                            >
-                                <i class="mdi mdi-google-maps"></i>
-                                    Montar Corrida Manualmente
-                            </v-btn>
-                            <v-btn
-                                class=" ma-lg-2 justify-end"
-                                v-if="selected.length > 0"
-                                :loading="$store.state.requestStatus"
-                                :disabled="$store.state.requestStatus"
-                                color="success"
-                                @click="makeRequest()"
-                                small
-                            >
-                                <i class="mdi mdi-motorbike"></i>
-                                    Solicitar Prestador
-                            </v-btn>
-                        </div>
+    <div class="col-lg-12 card card-outline-info">
+        <div class="card-header">
+            <div class="row justify-space-between"> 
+                <div class="ma-5 align-center justify-start">
+                    <h4 class="m-b-0 text-white"> Pedidos </h4>
+                </div>
+                <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
+                    <refresh-screen
+                        v-if="$store.state.shops.length > 0"
+                        :isEnable="$store.state.status_reload"
+                    />
+                </div>
+                <div class="ma-5 align-center ">
+                    <div class="row col-md-12 justify-end"> 
+                        <v-btn
+                            class="ma-lg-2 justify-end"
+                            v-if="selected.length > 0"
+                            :loading="$store.state.requestStatus"
+                            :disabled="$store.state.requestStatus"
+                            color="success"
+                            @click="makeRequest('makeManualRequest')"
+                            small
+                        >
+                            <i class="mdi mdi-google-maps"></i>
+                                Montar Corrida Manualmente
+                        </v-btn>
+                        <v-btn
+                            class=" ma-lg-2 justify-end"
+                            v-if="selected.length > 0"
+                            :loading="$store.state.requestStatus"
+                            :disabled="$store.state.requestStatus"
+                            color="success"
+                            @click="makeRequest()"
+                            small
+                        >
+                            <i class="mdi mdi-motorbike"></i>
+                                Solicitar Prestador
+                        </v-btn>
                     </div>
                 </div>
             </div>
-            <v-card-text v-if="$store.state.requestStatus">
+        </div>
+        <v-row class="col-sm-12 col-md-12 col-lg-12">
+            <v-col cols="3" class="d-inline-flex ma-5" v-if="$store.state.shops.length > 0">
+                <select class="custom-select custom-select-lg col-sm-12" name="shops" id="shops">
+                    <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
+                        <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
+                    </optgroup>
+                </select>
+            </v-col>
+            <v-col cols="3" class="d-inline-flex ma-5" >
+            </v-col>
+            <v-col cols="3" class="d-inline-flex" v-if="$store.state.orders">
+                <div class="search-wrapper panel-heading col-sm-12">
+                    <input class="form-control" type="text" v-model="searchQuery" placeholder="Buscar por Pedido, Nome do Cliente ou Bairro" />
+                </div>
+            </v-col>
+        </v-row>
+        
+        <div class="col-lg-12 w-100 h-50">
+            
+            <!-- <v-card-text v-if="$store.state.requestStatus">
                 <v-sheet
-                    v-for="index in 10"
+                    v-for="index in 11"
                     :key="index"
                 >
                     <v-skeleton-loader
@@ -63,137 +73,149 @@
                         type="list-item-avatar-three-line, card-heading, actions"
                     ></v-skeleton-loader>
                 </v-sheet>
-            </v-card-text>
-            <v-card-text v-if="!loading && $store.state.orders.length == 0">
+            </v-card-text> -->
+            <v-card-text v-if="!loading && !$store.state.orders">
                 <div class="card-body">                   
                     Não existe ordens para entrega!
                 </div>
             </v-card-text>
-            <v-card-text v-if="!loading && $store.state.orders.length > 0">
-                <v-card 
-                    class="pa-md-4 mx-lg-auto mb-2"
-                    elevation="2"
-                    v-for="order in $store.state.orders"
-                    :key="order.order_id"
-                >
-                    <div class="card-body">                   
-                        <div class="d-flex justify-space-between caption">
-                            <div class="font-weight-black mr-3">
-                                <div class="font-weight-medium">
-                                    <v-avatar
-                                        size="64"
-                                        class="mr-5"
-                                    >
-                                        <v-img
-                                            :src="require('../images/ifood.jpg')"
-                                            alt="iFood"
-                                        />
-                                    </v-avatar>
-                                </div>
-                                <div class="font-weight-medium">
-                                    {{$store.state.shops.filter(element => element.id == order.shop_id)[0].name}}
-                                </div>
-                            </div>
-                            <div class="font-weight-black">
-                                <div class="font-weight-medium">
-                                    Pedido: {{order.display_id}}
-                                </div>
-                                <div class="font-weight-medium">
-                                    Cliente: {{order.client_name}}
-                                </div>
-                                <div class="font-weight-bold">
-                                    Bairro: {{order.neighborhood}}
-                                </div>
-                                <div class="font-weight-medium">
-                                    Endereço: {{order.formatted_address}}
-                                </div>
-                                <div class="font-weight-medium" v-if="order.complement != ''">
-                                    Complemento: {{order.complement}}
-                                </div>
-                            </div>
-                            <div class="font-weight-black">
-                                <div class="font-weight-medium">
-                                    Status: {{(order.code == 'RDA' || order.code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
-                                </div>
-                                <div class="font-weight-medium">
-                                    Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
-                                </div>
-                            </div>
-                            <div class="font-weight-black">
-                                <div class="font-weight-medium">
-                                    Valor: {{order.order_amount ? formatCurrency(order.order_amount) : '-'}}
-                                </div>
-                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
-                                    Pagamento: DINHEIRO
-                                </div>
-                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
-                                    Troco para: {{formatCurrency(order.change_for)}}
-                                </div>
-                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CREDIT'">
-                                    Pagamento: MÁQUINA
-                                </div>
-                                <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment == 'CREDIT'">
-                                    Bandeira: {{order.card_brand}}
-                                </div>
-                                <div class="font-weight-medium" v-if="order.prepaid">
-                                    Pagamento: ONLINE
-                                </div>
-                            </div>
-                            <div class="font-weight-black">
-                                <div class="font-weight-medium">
-                                    <v-btn
-                                        class="ma-1"
-                                        small
-                                        depressed
-                                        color="primary"
-                                        @click="showDetails(order)"
-                                        style="width:150px;"
-                                    >
-                                        <v-icon 
-                                            color="white"
-                                            left
-                                        >mdi-clipboard-text</v-icon>
-                                            <span class="font-weight-white white--text"> Detalhes</span>
-                                    </v-btn>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="grey--text text-darken-1 ma-2 mt-6">
-                                    <div
-                                        class="font-weight-white"
-                                    >
-                                        <v-checkbox
-                                            v-model="selected"
-                                            v-if="order.request_id == null && order.code == 'CFM' || order.code == 'RDA'"
-                                            label="Adicionar a entrega"
-                                            class="ma-2 mt-1"
-                                            :value="order"
-                                            :id="order.order_id"
-                                        ></v-checkbox>
+            <div v-if="!loading && $store.state.orders" class="card-body">
+                <table class="table">
+                    <th>Loja</th>
+                    <th>Pedido</th>
+                    <th>Status</th>
+                    <th>Pagamento</th>
+                    <th>Detalhes</th>
+                    <th>Seleção</th>
+                    <tbody>
+                        <tr v-for="order in resultQuery()"
+                            :key="order.order_id"
+                        >
+                            <!-- <div class="d-flex justify-space-between caption"> -->
+                                <td class="font-weight-black mr-3">
+                                    <div class="font-weight-medium">
+                                        <v-avatar
+                                            size="64"
+                                            class="mr-5"
+                                        >
+                                            <v-img
+                                                :src="require('../images/ifood.jpg')"
+                                                alt="iFood"
+                                            />
+                                        </v-avatar>
                                     </div>
-                                    <v-btn
-                                        class="ma-1"
-                                        small
-                                        depressed
-                                        v-if="order.request_id"
-                                        color="primary"
-                                        style="width:150px;"
-                                        v-bind="attrs"
-                                        :href="'/corp/request/tracking/'+order.tracking_route"
-                                    >
-                                        <v-icon 
-                                            color="white"
-                                            left
-                                        >mdi-map</v-icon>
-                                        ACOMPANHAR
-                                    </v-btn>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </v-card>
-            </v-card-text>
+                                    <div class="font-weight-medium ml-5">
+                                        {{$store.state.shops.filter(element => element.id == order.shop_id)[0].name}}
+                                    </div>
+                                </td>
+                                <td class="font-weight-black">
+                                    <div class="font-weight-medium">
+                                        Pedido: {{order.display_id}}
+                                    </div>
+                                    <div class="font-weight-medium">
+                                        Cliente: {{order.client_name}}
+                                    </div>
+                                    <div class="font-weight-medium">
+                                        Bairro: {{order.neighborhood}}
+                                    </div>
+                                    <div class="font-weight-medium">
+                                        Endereço: {{order.formatted_address}}
+                                    </div>
+                                    <div class="font-weight-medium" v-if="order.complement != ''">
+                                        Complemento: {{order.complement}}
+                                    </div>
+                                </td>
+                                <td class="font-weight-black">
+                                    <div class="font-weight-medium">
+                                        Status: {{(order.code == 'RDA' || order.code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
+                                    </div>
+                                    <div class="font-weight-medium">
+                                        Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
+                                    </div>
+                                </td>
+                                <td class="font-weight-black">
+                                    <div class="font-weight-medium">
+                                        Valor: {{order.order_amount ? formatCurrency(order.order_amount) : '-'}}
+                                    </div>
+                                    <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
+                                        Pagamento: DINHEIRO
+                                    </div>
+                                    <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CASH'">
+                                        Troco para: {{formatCurrency(order.change_for)}}
+                                    </div>
+                                    <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment === 'CREDIT'">
+                                        Pagamento: MÁQUINA
+                                    </div>
+                                    <div class="font-weight-medium" v-if="!order.prepaid && order.method_payment == 'CREDIT'">
+                                        Bandeira: {{order.card_brand}}
+                                    </div>
+                                    <div class="font-weight-medium" v-if="order.prepaid">
+                                        Pagamento: ONLINE
+                                    </div>
+                                </td>
+                                <td class="font-weight-black">
+                                    <div class="font-weight-medium">
+                                        <v-btn
+                                            class="ma-1"
+                                            small
+                                            depressed
+                                            color="primary"
+                                            @click="showDetails(order)"
+                                            style="width:150px;"
+                                        >
+                                            <v-icon 
+                                                color="white"
+                                                left
+                                            >mdi-clipboard-text</v-icon>
+                                                <span class="font-weight-white white--text"> Detalhes</span>
+                                        </v-btn>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="grey--text text-darken-1 ma-2 mt-6">
+                                        <div
+                                            class="font-weight-white"
+                                        >
+                                            <v-checkbox
+                                                v-model="selected"
+                                                v-if="order.request_id == null && order.code == 'CFM' || order.code == 'RDA'"
+                                                label="Adicionar a entrega"
+                                                class="ma-2 mt-1"
+                                                :value="order"
+                                                :id="order.order_id"
+                                            ></v-checkbox>
+                                        </div>
+                                        <v-btn
+                                            class="ma-1"
+                                            small
+                                            depressed
+                                            v-if="order.request_id"
+                                            color="primary"
+                                            style="width:150px;"
+                                            v-bind="attrs"
+                                            :href="'/corp/request/tracking/'+order.tracking_route"
+                                        >
+                                            <v-icon 
+                                                color="white"
+                                                left
+                                            >mdi-map</v-icon>
+                                            ACOMPANHAR
+                                        </v-btn>
+                                    </div>
+                                </td>
+                            <!-- </div> -->
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
         </div>
+        <pagination
+            :data="$store.state.orders"
+            @pagination-change-page="fetch"
+            align="right"
+        >
+        </pagination>
         <modal-component v-if="$store.state.sheet"/>
     </div>
 </template>
@@ -207,6 +229,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             RefreshScreen
         },
         data: () => ({
+            searchQuery: null,
             loading: true,
             loader: null,
             attrs: {
@@ -222,15 +245,58 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 type: [Boolean, String],
                 default: true
             },
+            objectData: {}
         }),
         created(){
             this.getShop();
         },
         mounted() {
             console.log('Component mounted.');
-            this.getOrders();            
+            this.getOrders();
+            this.resultQuery();
         },
         methods: {
+            returnString(){
+                return JSON.stringify(this.$store.state.orders);
+            },
+            fetch(page = 1) {
+                console.log("Log in fetch");
+                var component = this;
+                // fazemos isso porque as datas são pegas como objetos
+                // então transformamos elas em string pra enviar ao backend
+                this.$store.commit('CLEAR_ORDERS');
+                axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, {
+                    pagination: {
+                        actual : page,
+                        itensPerPage : 200
+                    },
+                })
+                .then(
+                    response => {
+                        console.log('sucesso');
+                        console.log(response.data);
+                        component.$store.commit('CREATE_ORDER', response.data);
+                    },
+                    response => {
+                        //console.log(response.data);
+                    // error callback
+                    }
+                );
+                this.$nextTick();
+            },
+            resultQuery(){
+                if(this.searchQuery){
+                    console.log("filter");
+                    return this.$store.state.orders.data.filter((item)=>{
+                        return this.searchQuery.toLowerCase().split(' ').every(v => item.display_id.toLowerCase().includes(v))
+                        || this.searchQuery.toLowerCase().split(' ').every(v => item.neighborhood.toLowerCase().includes(v)) 
+                        || this.searchQuery.toLowerCase().split(' ').every(v => item.client_name.toLowerCase().includes(v))
+                    });
+                }else{
+                    console.log("filter else");
+                    return this.$store.state.orders.data;
+                }
+            },
             formatNumber(number)
             {
                 number = number.toFixed(2) + '';
@@ -258,6 +324,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 if (this.$store.state.orders.length == 0) {
                     console.log("Vazio");
                 }
+
             },
             formatCurrency(value){
                 return (value).toLocaleString('pt-BR', {
@@ -266,7 +333,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 });
             }, 
             makeRequest(type = 'makeRequest'){
-                this.loading = true;
+                // this.loading = true;
                 this.$store.dispatch(type, this.selected)
             },
             showDetails(order) {

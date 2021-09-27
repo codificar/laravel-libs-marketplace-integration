@@ -17,6 +17,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 
 Vue.use(VueSweetalert2);
 Vue.use(Vuex)
+Vue.component("pagination", require("laravel-vue-pagination"));
 
 const opts = {}
 

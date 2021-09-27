@@ -2,7 +2,6 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
@@ -10,7 +9,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Codificar\MarketplaceIntegration\Http\Resources\OrdersResource;
 
 class IFoodController extends Controller
 {
@@ -190,8 +189,7 @@ class IFoodController extends Controller
                         ->orderBy('distance', 'DESC')
                         ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
-                        ->limit(100)
-                        ->get();
+                        ->paginate(200);
         return $orders;
     }
 
