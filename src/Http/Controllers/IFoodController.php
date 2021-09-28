@@ -168,8 +168,8 @@ class IFoodController extends Controller
 
     public function getOrdersDataBase($id = NULL)
     {
+        
         $query = OrderDetails::query();
-
         if (isset($id) && $id != null) {
             $query->where('shop_id', $id);
         }
@@ -190,7 +190,8 @@ class IFoodController extends Controller
                         ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
                         ->paginate(200);
-        return $orders;
+
+        return new OrdersResource($orders);
     }
 
     public function confirmOrder(Request $request)
@@ -378,6 +379,7 @@ class IFoodController extends Controller
         $order = OrderDetails::where('request_id', '=', $point->request_id)
                                 ->where('point_id', '=', $point->id)
                                 ->first();
+        $shop = Shops::find($order->shop_id);
 
         \Log::debug("ORDER GET BY POINT_ID BLA: ".print_r($order, 1));
         if ($order) 
@@ -389,14 +391,14 @@ class IFoodController extends Controller
                 \Log::debug("IF ");
                 if ($point->start_time != NULL) {
                     \Log::debug("IF point->start_time".$point->start_time);
-
+                    $ifood = new IFoodApi;
+                    $res = $ifood->dspOrder($order->order_id,\Settings::findByKey('ifood_auth_token'));
                     $request_status = 0;
                     $code = "DSP";
                     $full_code = "DISPATCHED";
                 }
                 if ($point->finish_time) {
                     \Log::debug("IF point->finish_time". $point->finish_time);
-
                     $request_status = 0;
                     $code = "CON";
                     $full_code = "CONCLUDED";

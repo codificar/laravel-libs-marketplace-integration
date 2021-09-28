@@ -42,16 +42,18 @@
             </div>
         </div>
         <v-row class="col-sm-12 col-md-12 col-lg-12">
-            <v-col cols="3" class="d-inline-flex ma-5" v-if="$store.state.shops.length > 0">
-                <select class="custom-select custom-select-lg col-sm-12" name="shops" id="shops">
+            <v-col cols="4" class="d-inline-flex float-left" v-if="$store.state.shops.length > 0">
+                <div class="search-wrapper panel-heading col-sm-12">
+                <select class="custom-select custom-select-lg col-sm-12 pa-2" name="shops" id="shops">
                     <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
                         <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
                     </optgroup>
                 </select>
+                </div>
             </v-col>
-            <v-col cols="3" class="d-inline-flex ma-5" >
+            <v-col cols="4" class="d-inline-flex" >
             </v-col>
-            <v-col cols="3" class="d-inline-flex" v-if="$store.state.orders">
+            <v-col cols="4" class="d-inline-flex float-right" v-if="$store.state.orders">
                 <div class="search-wrapper panel-heading col-sm-12">
                     <input class="form-control" type="text" v-model="searchQuery" placeholder="Buscar por Pedido, Nome do Cliente ou Bairro" />
                 </div>
@@ -266,11 +268,19 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 // então transformamos elas em string pra enviar ao backend
                 this.$store.commit('CLEAR_ORDERS');
                 axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, {
-                    pagination: {
-                        actual : page,
-                        itensPerPage : 200
-                    },
-                })
+                        pagination: {
+                            actual : page,
+                            itensPerPage : 10
+                        },
+                        filters: {
+                            institution: '',
+                            ItensPerPage: 10
+                        },
+                        order: {
+                            field: '',
+                            direction: ''
+                        }
+                    })
                 .then(
                     response => {
                         console.log('sucesso');

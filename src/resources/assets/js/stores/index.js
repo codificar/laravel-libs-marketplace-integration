@@ -170,7 +170,7 @@ const store = new Vuex.Store({
           action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
           action_type:2,
           complement: `Cliente ${element.client_name}: ${element.complement}`,
-          collect_value: element.prepaid ? '' : element.order_amount,
+          collect_value: element.prepaid ? null : element.order_amount,
           change: element.prepaid ? '' : element.change_for,
           form_of_receipt: element.method_payment,
           collect_pictures:0,
@@ -242,17 +242,11 @@ const store = new Vuex.Store({
     makeManualRequest({commit}, data)
     {
       // commit('STATUS_REQUEST');
-      let points = createPoints(data, this.state.shops, 'makeManualRequest');
-      console.log("POints created:=> ", points);
-      post(`/corp/request/add`,  points );
+      let response = createPoints(data, this.state.shops, 'makeManualRequest');
+      console.log("POints created:=> ", response);
+      post(`/corp/request/add`,  response );
 
     },
-
-
-
-
-
-
     updateOrder({commit}, data) {
       console.log("UpdateOrder: ", data);
       axios.post('/corp/api/order/update', data)
@@ -411,9 +405,17 @@ const store = new Vuex.Store({
       commit('statusReload', status);
       axios.post('/corp/api/orders/'+id+'?page='+page, {
 				pagination: {
-					actual : page,
-					itensPerPage : 200
-				}
+            actual : page,
+            itensPerPage : 10
+        },
+        filters: {
+            institution: '',
+            ItensPerPage: 10
+        },
+        order: {
+            field: '',
+            direction: ''
+        }
 			})
         .then(res => {
           console.log("Orders Hari", res.data);
@@ -811,6 +813,7 @@ function createPoints(data, shops , type='')
   console.log('DATA =:> ', data);
 
   let points=[];
+  let returnToStart = false;
 
   let shop = shops.filter(function(item) {
     if (item.id == data[0].shop_id) {
@@ -829,7 +832,7 @@ function createPoints(data, shops , type='')
       action:shop[0].name,
       action_type:4,
       complement:"",
-      collect_value:'',
+      collect_value:null,
       change:null,
       form_of_receipt:null,
       collect_pictures: 0,
@@ -873,9 +876,9 @@ function createPoints(data, shops , type='')
         action: `Entregar pedido número ${element.display_id} para cliente ${element.client_name}: ${element.complement}`,
         action_type:2,
         complement: element.complement,
-        collect_value: element.prepaid ? '' : element.order_amount,
+        collect_value: element.prepaid == 0 ? null : element.order_amount,
         change: element.prepaid ? '' : element.change_for,
-        form_of_receipt: element.method_payment,
+        form_of_receipt: element.prepaid == 0 ? null : element.method_payment,
         collect_pictures:0,
         collect_signature:0,
         address_instructions: `Entregar pedido número ${element.display_id} para cliente ${element.client_name}: ${element.complement}`
@@ -899,9 +902,14 @@ function createPoints(data, shops , type='')
     console.log('Shop: ', shop);
     //add delivery points, point B,C, D and so on
     // points.push()
+    if (element.prepaid && !returnToStart) {
+      returnToStart = true;
+    }
   });
   console.log('POints generated =:> ', points);
-  return points;
+
+  let dataRequest = {'points': points, 'returnToStart': returnToStart}
+  return dataRequest;
 
 }
 
@@ -919,13 +927,20 @@ function createPoints(data, shops , type='')
   form.method = method;
   form.action = path;
   form.target = "_blank"
-
+  console.log("points", params.points);
   const hiddenField = document.createElement('input');
   hiddenField.type = 'hidden';
   hiddenField.name = 'points';
-  hiddenField.value = JSON.stringify(params);
+  hiddenField.value = JSON.stringify(params.points);
+
+  console.log("returnToStart", params.returnToStart);
+  const hiddenField1 = document.createElement('input');
+  hiddenField1.type = 'hidden';
+  hiddenField1.name = 'returnToStart';
+  hiddenField1.value = JSON.stringify(params.returnToStart);
 
   form.appendChild(hiddenField);
+  form.appendChild(hiddenField1);
   document.body.appendChild(form);
   form.submit();
 }
