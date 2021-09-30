@@ -73,9 +73,6 @@ const store = new Vuex.Store({
     CREATE_ORDER(state, order) {
       state.orders = order;
     },
-    FETCH_ORDERS(state, orders) {
-      return state.orders = orders;
-    },
     CLEAR_ORDERS(state) {
       return state.orders = {};
     },
@@ -83,12 +80,12 @@ const store = new Vuex.Store({
       return state.selectedOrders = orders;
     },
     DELETE_ORDER(state, order) {
-      let index = state.orders.findIndex(item => item.id === order.id);
-      state.orders.splice(index, 1);
+      let index = state.orders.data.findIndex(item => item.id === order.id);
+      state.orders.data.splice(index, 1);
     },
     UPDATE_ORDER(state, order){
-      state.orders = [
-        ...state.orders.filter(element => element.id !== order.id),
+      state.orders.data = [
+        ...state.orders.data.filter(element => element.id !== order.id),
         order
       ]      
     }
@@ -199,7 +196,7 @@ const store = new Vuex.Store({
                   e['request_id']     = res.data.request_id;
                   e['tracking_route'] = res.data.request_id;
                   commit('UPDATE_ORDER', e);
-                  // this.dispatch('updateOrder', e);
+                  this.dispatch('updateOrder', e);
                 }
               });
             });
