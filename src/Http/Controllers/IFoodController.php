@@ -410,12 +410,11 @@ class IFoodController extends Controller
                 $full_code = "CANCELLED";
             }
             if ($request_status != '' && $code != '') {
-                \Log::debug("IF UPDATEO RDER");
-                $order->update([
-                    'request_status'    => $request_status,
-                    'code'              => $code,
-                    'full_code'         => $full_code
-                ]);
+                \Log::debug("IF UPDATE ORDER");
+                $order->request_status    = $request_status;
+                $order->code              = $code;
+                $order->full_code         = $full_code;
+                $order->update();
             }
         }
     }
