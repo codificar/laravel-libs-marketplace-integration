@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 
 use Carbon\Carbon;
-use Codificar\MarketplaceIntegration\Models\MerchantDetails;
 
 class ShopsController extends Controller
 {

@@ -5,7 +5,9 @@
     "require": {
     },
     "require-dev": {
+        "php":"^7.1",
         "phpunit/phpunit": "7.5",
+        "johnkary/phpunit-speedtrap": "^4.0",
         "guzzlehttp/guzzle": "~6.0"
     },
     "license": "Codificar Sistemas LTDA",

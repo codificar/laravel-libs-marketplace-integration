@@ -6,7 +6,6 @@
 
 import './bootstrap';
 import Vue from 'vue';
-import vuetify from './plugins/vuetify';
 import Vuex from 'vuex'
 import store from './stores/index.js'
 import Route from './router.js';
@@ -22,7 +21,6 @@ const opts = {}
 
 const app = new Vue({
     el: '#app',
-    vuetify,
     VueSweetalert2,
     store: store,
     router: Route,

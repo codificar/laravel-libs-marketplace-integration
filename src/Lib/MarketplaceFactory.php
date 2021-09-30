@@ -3,6 +3,7 @@
 namespace Codificar\MarketplaceIntegration\Lib;
 
 use Codificar\MarketplaceIntegration\Models\MerchantDetails;
+use Exception;
 
 class MarketplaceFactory
 {
@@ -15,10 +16,14 @@ class MarketplaceFactory
 
     /**
      * Instantiate object according to marketplace
+     * 
+     * @param MerchantDetails $merchant
+     * 
+     * @return mixed
      */
-    public function createMarketplace(MerchantDetails $merchant)
+    public static function createMarketplace($type)
     {
-        switch ($merchant->type) {
+        switch ($type) {
             case self::IFOOD:
                 return (new IFoodApi());
             case self::UBEREATS:
@@ -28,7 +33,7 @@ class MarketplaceFactory
                 return '(new RappiApi());';
                 break;
             default:
-                return (new IFoodApi());
+                throw(new Exception("Marketplace not yet implemented with type $type",417));
         }
     }
 }

@@ -1,5 +1,4 @@
 <?php
-use Illuminate\Http\Request;
 
 
 /*
@@ -35,4 +34,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/settings/credentials/save', array('as' => 'admin', 'uses' => 'ShopsController@iFoodCredentials'));
     Route::post('/settings/get/credentials', array('as' => 'admin', 'uses' => 'ShopsController@getIfoodCredentials'));
 });
+
+Route::post('store/merchant', 'Codificar\MarketplaceIntegration\Http\Controllers\MarketplaceController@storeMerchant');
 

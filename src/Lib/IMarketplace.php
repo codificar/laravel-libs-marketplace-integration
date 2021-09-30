@@ -4,83 +4,95 @@ namespace Codificar\MarketplaceIntegration\Lib;
 
 interface IMarketplace
 {
-
+    
     /**
-     * Make authentication method
-     * 
-     * @param Array $credentials
-     * @return Object $reponse 
-     */
+    * Make authentication method
+    * 
+    * @param Object $credentials
+    *
+    * @return Object $reponse 
+    */
     public function auth($cretendials);
+    
+    /**
+    * Get Orders in marketplace API
+    * 
+    * @return OrderDetils $object
+    */
+    public function getOrder();
 
     /**
-     * Get Orders in marketplace API
+     * Get Acknowledgment in marketplace API
      * 
-     * @param String $token
-     * @return OrderDetils $object
+     * @param Object $data
+     * 
+     * @return Object $response
      */
-    public function getOrder($token);
+    public function getAcknowledgment($data);
+    
+    /**
+    * Get order details in marketplace API
+    * 
+    * @param String $orderId
+    * 
+    * @return OrderDetail
+    */
+    public function getOrderDetails($orderId);
+    
+    /**
+    * Get Merchant in marketplace API
+    * 
+    * @param String $merchantId
+    * 
+    * @return Merchant $object
+    */
+    public function getMerchant($merchantId);
+    
+    /**
+    * Get Merchant details in marketplace API
+    * 
+    * @param String $merchantId
+    * 
+    * @return Merchant $object
+    */
+    public function getMerchantDetails($merchantId);
+    
+    /**
+    * Dispatch order to delivery
+    * 
+    * @param String $orderId
+    * 
+    * @return void
+    */
+    public function dispatchOrder($orderId);
+    
+    /**
+    * Finish order in marketplace API
+    * 
+    * @param String $orderId
+    * 
+    * @return void
+    */
+    public function finishOrder($orderId);
+    
+    /**
+    * Pooling in marketplace API
+    * 
+    * @return OrderDetails $object
+    */
+    public function polling();
+    
+    /**
+    * Webhook to access marketplace API
+    * 
+    * @return OrderDetails $object
+    */
+    public function webhook();
 
     /**
-     * Get order details in marketplace API
+     * Check validity of token in marketplace API
      * 
-     * @param String $orderId, $token
-     * 
-     * @return OrderDetail
+     * @return Object $object
      */
-    public function getOrderDetails($orderId, $token);
-
-    /**
-     * Get Merchant in marketplace API
-     * 
-     * @param String $merchantId, $token
-     * 
-     * @return Merchant $object
-     */
-    public function getMerchant($merchantId, $token);
-
-    /**
-     * Get Merchant details in marketplace API
-     * 
-     * @param String $merchantId, $token
-     * 
-     * @return Merchant $object
-     */
-    public function getMerchantDetails($merchantId, $token);
-
-    /**
-     * Dispatch order to delivery
-     * 
-     * @param String $orderId, $token
-     * 
-     * @return void
-     */
-    public function dispatchOrder($orderId, $token);
-
-    /**
-     * Finish order in marketplace API
-     * 
-     * @param String $orderId, $token
-     * 
-     * @return void
-     */
-    public function finishOrder($orderId, $token);
-
-    /**
-     * Pooling in marketplace API
-     * 
-     * @param String $token
-     * 
-     * @return OrderDetails $object
-     */
-    public function polling($token);
-
-    /**
-     * Webhook to access marketplace API
-     * 
-     * @param String $token
-     * 
-     * @return OrderDetails $object
-     */
-    public function webhook($token);
+    public function checkTokenValidity();
 }

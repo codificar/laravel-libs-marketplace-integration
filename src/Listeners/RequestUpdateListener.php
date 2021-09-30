@@ -18,7 +18,6 @@ class RequestUpdateListener implements ShouldQueue
     public function handle(RequestUpdate $request)
     {
         $data = $request->broadcastWith();
-
         $order = new MarketplaceController();
         foreach ($data['points'] as $key => $value) {
             $res = $order->updateOrderRequestListener($value, $request->request->is_cancelled);
