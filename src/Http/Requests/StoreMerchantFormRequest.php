@@ -28,6 +28,7 @@ class StoreMerchantFormRequest extends FormRequest
      */
     public function authorize()
     {
+        // dd(request()->merchant_id);
         return true;
     }
 

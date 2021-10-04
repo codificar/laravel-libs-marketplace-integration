@@ -2,13 +2,12 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
+use Codificar\MarketplaceIntegration\Http\Repositories\MerchantRepository;
 use Codificar\MarketplaceIntegration\Http\Requests\StoreMerchantFormRequest;
-use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
-use Codificar\MarketplaceIntegration\Models\MerchantDetails;
-use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Codificar\MarketplaceIntegration\Http\Resources\MerchantDetailsResource;
 
-class MarketplaceController extends Controller
+class MarketplaceController extends \BaseController
 {
     
     #TODO comentar e criar a função de atualização com todos os status locais
@@ -26,8 +25,13 @@ class MarketplaceController extends Controller
 
     // salvar / atualizar merchant
 
-    public function storeMerchant(StoreMerchantFormRequest $storeMerchantFormRequest){
-        \Log::debug("StoreMerchantFormRequest: ".print_r($storeMerchantFormRequest->all(),1));
+    public static function storeMerchant(StoreMerchantFormRequest $storeMerchantFormRequest)
+    {
+        // \Log::debug("StoreMerchantFormRequest: ".json_encode($storeMerchantFormRequest));
+        // echo "StoreMerchantFormRequest: ".json_encode($storeMerchantFormRequest->all());
+        $merchant = MerchantRepository::updateOrCreateMerchant($storeMerchantFormRequest);
+
+        return new MerchantDetailsResource($merchant);
     }
 
     // deletar merchant

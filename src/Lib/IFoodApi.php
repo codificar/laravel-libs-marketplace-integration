@@ -66,7 +66,6 @@ class IFoodApi implements IMarketplace
     public function auth($credentials)
     {
         try{
-            
             $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
             $body       = [
                 'grantType'     => 'client_credentials',
@@ -75,7 +74,7 @@ class IFoodApi implements IMarketplace
             ];
             $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
             $res=json_decode($res);
-            return $res;
+            return $res->accessToken;
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
             dd("API: ".$e->getMessage());

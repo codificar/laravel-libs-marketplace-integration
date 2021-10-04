@@ -18,10 +18,12 @@ class CheckExistsInMarketplace implements Rule
 
     public function passes($attribute, $value) {
         try {
-            $this->marketplaceApi = MarketplaceFactory::createMarketplace($this->request->type)->getMerchantDetails($value);
+            $factory = MarketplaceFactory::createMarketplace($this->request->type);
+            $this->marketplaceApi = $factory->getMerchantDetails($value);
+            $this->request->merge(['merchantDetails' => $this->marketplaceApi]);
             return true;
-        } catch (\Throwable $th) {
-            $this->errorMessage = $th->getMessage();
+        } catch (\Exception $e) {
+            $this->errorMessage = $e->getMessage();
             return false;
         }
     }

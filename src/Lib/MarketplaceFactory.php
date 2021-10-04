@@ -25,12 +25,12 @@ class MarketplaceFactory
     {
         switch ($type) {
             case self::IFOOD:
-                return (new IFoodApi());
+                return new IFoodApi();
             case self::UBEREATS:
-                return '(new UberEatsApi());';
+                return null;
                 break;
             case self::RAPPI:
-                return '(new RappiApi());';
+                return null;
                 break;
             default:
                 throw(new Exception("Marketplace not yet implemented with type $type",417));
