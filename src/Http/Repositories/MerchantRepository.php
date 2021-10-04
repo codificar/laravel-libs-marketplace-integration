@@ -6,12 +6,18 @@ use Codificar\MarketplaceIntegration\Models\MerchantDetails;
 
 class MerchantRepository
 {
+    /**
+     * Update or create Mechant details on database
+     * 
+     * @author Diogo C. Coutinho
+     * 
+     * @param Object $merchantData
+     * 
+     * @return MerchantDetailsResource $merchant
+     */
     public static function updateOrCreateMerchant($merchantData)
-    {
-        // $data  = json_encode($merchantData->all());
-        // dd($merchantData->merchantDetails->address);
-        
-        $res = MerchantDetails::updateOrCreate([
+    {        
+        return MerchantDetails::updateOrCreate([
             'id'            => $merchantData->id
         ],[
             'merchant_id'   => $merchantData->merchant_id,
@@ -22,7 +28,5 @@ class MerchantRepository
             'address'       => json_encode($merchantData->merchantDetails->address),
             'type'          => $merchantData->type
         ]);
-        
-
     }
 }

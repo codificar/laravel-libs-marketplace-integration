@@ -3,14 +3,12 @@
 namespace Codificar\MarketplaceIntegration\Http\Requests;
 
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
-use Codificar\MarketplaceIntegration\Rules\CheckExistsInMarketplace;
 use ReflectionClass;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
 
-class StoreMerchantFormRequest extends FormRequest
+class UpdateStatusReloadFormRequest extends FormRequest
 {
     public $merchantTypes;
     public $reflection;
@@ -28,7 +26,6 @@ class StoreMerchantFormRequest extends FormRequest
      */
     public function authorize()
     {
-        // dd(request()->merchant_id);
         return true;
     }
 
@@ -40,9 +37,7 @@ class StoreMerchantFormRequest extends FormRequest
     public function rules()
     {   
         return [
-            'merchant_id'           => ['required','string','min:5', new CheckExistsInMarketplace($this)],
-            'id'                    => 'integer|exists:mkt_merchant_details,id',
-            'type'                  => "required|in:$this->merchantTypes"
+            'status_reload'           => ['required','integer']
         ];
     }
 

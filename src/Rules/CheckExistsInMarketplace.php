@@ -12,11 +12,13 @@ class CheckExistsInMarketplace implements Rule
     private $marketplaceApi;
     private $errorMessage;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    public function passes($attribute, $value) {
+    public function passes($attribute, $value)
+    {
         try {
             $factory = MarketplaceFactory::createMarketplace($this->request->type);
             $this->marketplaceApi = $factory->getMerchantDetails($value);

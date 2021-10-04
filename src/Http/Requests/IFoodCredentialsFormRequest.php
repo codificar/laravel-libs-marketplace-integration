@@ -2,25 +2,12 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Requests;
 
-use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
-use Codificar\MarketplaceIntegration\Rules\CheckExistsInMarketplace;
-use ReflectionClass;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
 
-class StoreMerchantFormRequest extends FormRequest
+class IFoodCredentialsFormRequest extends FormRequest
 {
-    public $merchantTypes;
-    public $reflection;
-    
-    public function __construct()
-    {
-        $this->reflection = new ReflectionClass(new MarketplaceFactory());
-		$this->merchantTypes = implode(",",(array)$this->reflection->getConstants());
-    }
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,7 +15,6 @@ class StoreMerchantFormRequest extends FormRequest
      */
     public function authorize()
     {
-        // dd(request()->merchant_id);
         return true;
     }
 
@@ -38,11 +24,10 @@ class StoreMerchantFormRequest extends FormRequest
      * @return array
      */
     public function rules()
-    {   
+    {
         return [
-            'merchant_id'           => ['required','string','min:5', new CheckExistsInMarketplace($this)],
-            'id'                    => 'integer|exists:mkt_merchant_details,id',
-            'type'                  => "required|in:$this->merchantTypes"
+            'ifood_client_id'          => 'required|string',
+            'ifood_client_secret'          => 'required|string',
         ];
     }
 
