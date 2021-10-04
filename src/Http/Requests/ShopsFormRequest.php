@@ -30,7 +30,6 @@ class ShopsFormRequest extends FormRequest
         ];
     }
 
-
     /**
      * retorn a json if fail validation.
      */

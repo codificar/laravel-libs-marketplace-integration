@@ -72,5 +72,4 @@ class ShopsRepository
             'status_reload' => $statusReload ? $statusReload : 0
         ]);
     }
-    
 }

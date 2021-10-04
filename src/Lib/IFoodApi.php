@@ -27,7 +27,6 @@ class IFoodApi implements IMarketplace
 
         $expiryToken  = \Settings::findByKey('ifood_expiry_token');
         if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-            
             $this->clientId          = \Settings::findByKey('ifood_client_id');
             $this->clientSecret      = \Settings::findByKey('ifood_client_secret');
             $this->accessToken = $this->auth((object)array('clientId' => $this->clientId, 'clientSecret' => $this->clientSecret));
@@ -130,18 +129,6 @@ class IFoodApi implements IMarketplace
     public function getOrderDetails($orderId)
     {
         return $this->send('GET', 'order/v1.0/orders/'.$orderId, $this->headers);
-    }
-
-    /**
-     * Get Merchant in marketplace API
-     * 
-     * @param String $merchantId
-     * 
-     * @return Object $object
-     */
-    public function getMerchant($merchantId)
-    {
-        # TODO Criar função para pegar o merchant
     }
                 
     /**

@@ -7,7 +7,6 @@ use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
 use App\Repositories\SettingsRepository;
-use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Http\Repositories\ShopsRepository;
 use Codificar\MarketplaceIntegration\Http\Requests\IFoodCredentialsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Requests\UpdateStatusReloadFormRequest;
@@ -84,12 +83,13 @@ class ShopsController extends Controller
     public function deleteShop($id)
     {
         $data = Shops::find($id);
-
         if (is_object($data))
         {
             $data->delete();
             return true;
-        } else {
+        } 
+        else 
+        {
             return false;
         }
     }
@@ -123,7 +123,7 @@ class ShopsController extends Controller
      * Get iFood Credentials in database
      * @author Diogo C. Coutinho
      * 
-     * @return 
+     * @return SettingsResource $data
      */
     public function getIfoodCredentials()
     {

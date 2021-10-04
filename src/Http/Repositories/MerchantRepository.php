@@ -29,4 +29,17 @@ class MerchantRepository
             'type'          => $merchantData->type
         ]);
     }
+
+    /**
+     * Delete Merchant in database
+     * @author Diogo C. Coutinho
+     * 
+     * @param Integer $id
+     * 
+     * @return MarchantDetails $object
+     */
+    public static function deleteMerchant($id)
+    {
+        return MerchantDetails::find($id)->delete();
+    }
 }
