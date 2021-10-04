@@ -6,7 +6,6 @@ use App\Models\Settings;
 
 class SettingsRepository
 {
-
     /**
      * Update or create iFood credentials in database
      * @author Diogo C. Coutinho
@@ -30,4 +29,6 @@ class SettingsRepository
             'clientSecret'  => $clientSecret
         ];
     }
+
+    #TODO make a get keys and token functions
 }
