@@ -11,6 +11,7 @@ class RequestUpdateListener implements ShouldQueue
 {
     /**
      * Handle the request.
+     * @author Diogo C. Coutinho
      *
      * @param  object  $request
      * @return void
@@ -26,6 +27,7 @@ class RequestUpdateListener implements ShouldQueue
 
     /**
      * Determine whether the listener should be queued.
+     * @author Diogo C. Coutinho
      *
      * @param  \App\Events\RequestUpdate  $request
      * @return bool

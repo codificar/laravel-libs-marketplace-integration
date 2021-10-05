@@ -6,8 +6,8 @@ use Codificar\MarketplaceIntegration\Http\Requests\ShopsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
-use App\Repositories\SettingsRepository;
 use Codificar\MarketplaceIntegration\Http\Repositories\ShopsRepository;
+use Codificar\MarketplaceIntegration\Http\Repositories\SettingsRepository;
 use Codificar\MarketplaceIntegration\Http\Requests\IFoodCredentialsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Requests\UpdateStatusReloadFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\SettingsResource;
@@ -35,9 +35,9 @@ class ShopsController extends Controller
      * 
      * @return ShopResource $shop
      */
-    public function store(ShopsFormRequest $request)
+    public function updateOrCreateShop(ShopsFormRequest $request)
     {        
-        $institutionId = \Auth::guard('web_corp')->user()->AdminInstitution->institution_id;
+        $institutionId = 1;
         $shop = ShopsRepository::updateOrCreateShop($request, $institutionId);
         return new ShopResource($shop);
     }
@@ -104,12 +104,13 @@ class ShopsController extends Controller
      */
     public function updateOrCreateIFoodCredentials(IFoodCredentialsFormRequest $request)
     {   
-        $data = SettingsRepository::updateOrCreateCredentialsIFood($request->all());
+        $data = SettingsRepository::updateOrCreateCredentialsIFood($request);
 
-        if ($data['client_id'] && $data['client_secret']) {
+        if ($data['clientId'] && $data['clientSecret']) {
             return new SettingsResource([
                 'code'      => 200,
-                'message'   => 'Salvo com sucesso!'
+                'message'   => 'Salvo com sucesso!',
+                'data'      => $data
             ]);
         } else {
             return new SettingsResource([

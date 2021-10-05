@@ -23,7 +23,7 @@ class MarketplaceController extends Controller
      */
     public static function storeMerchant(StoreMerchantFormRequest $merchantData)
     {
-        $merchant = MerchantRepository::updateOrCreateMerchant($merchantData);
+        $merchant = MerchantRepository::updateOrCreateMerchant($merchantData->all());
         return new MerchantDetailsResource($merchant);
     }
 

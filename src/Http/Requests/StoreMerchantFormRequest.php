@@ -41,7 +41,8 @@ class StoreMerchantFormRequest extends FormRequest
         return [
             'merchant_id'           => ['required','string','min:5', new CheckExistsInMarketplace($this)],
             'id'                    => 'integer|exists:mkt_merchant_details,id',
-            'type'                  => "required|in:$this->merchantTypes"
+            'type'                  => "required|in:$this->merchantTypes",
+            'shop_id'               => "required|exists:mkt_shops,id"
         ];
     }
 

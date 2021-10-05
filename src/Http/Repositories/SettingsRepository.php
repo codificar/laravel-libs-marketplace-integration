@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace Codificar\MarketplaceIntegration\Http\Repositories;
 
 use App\Models\Settings;
 
@@ -16,11 +16,11 @@ class SettingsRepository
      */
     public static function updateOrCreateCredentialsIFood($credentialsData)
     {
-        $clientId          = Settings::updateOrCreate([
+        $clientId          = \Settings::updateOrCreate([
             'key'   =>  'ifood_client_id'],[
             'value' => $credentialsData->ifood_client_id
         ]);
-        $clientSecret      = Settings::updateOrCreate([
+        $clientSecret      = \Settings::updateOrCreate([
             'key'   =>  'ifood_client_secret'],[
             'value' => $credentialsData->ifood_client_secret
         ]);

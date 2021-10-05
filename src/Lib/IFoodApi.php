@@ -130,7 +130,19 @@ class IFoodApi implements IMarketplace
     {
         return $this->send('GET', 'order/v1.0/orders/'.$orderId, $this->headers);
     }
-                
+
+    /**
+     * Get Merchant in marketplace API
+     * 
+     * @param String $merchantId
+     * 
+     * @return Object $object
+     */
+    public function getMerchant($merchantId)
+    {
+        # TODO Criar função para pegar o merchant
+    }
+
     /**
      * Get merchant details in marketplace API
      * 

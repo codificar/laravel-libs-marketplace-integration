@@ -10,6 +10,7 @@ class MerchantDetails extends Model
     use SoftDeletes;
     protected $table = 'mkt_merchant_details';
     protected $fillable = [
+        'id',
         'shop_id',
         'name',
         'merchant_id',

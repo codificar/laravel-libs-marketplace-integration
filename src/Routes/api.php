@@ -36,4 +36,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 });
 
 Route::post('store/merchant', 'Codificar\MarketplaceIntegration\Http\Controllers\MarketplaceController@storeMerchant');
+Route::post('store/shop', 'Codificar\MarketplaceIntegration\Http\Controllers\ShopsController@updateOrCreateShop');
+Route::post('store/credentials', 'Codificar\MarketplaceIntegration\Http\Controllers\ShopsController@updateOrCreateIFoodCredentials');
 

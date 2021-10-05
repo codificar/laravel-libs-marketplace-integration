@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shops extends Model
 {
-    protected $table = 'shops';
+    protected $table = 'mkt_shops';
     protected $fillable = [
         'id',
         'name', 
         'institution_id',
         'status_reload',
         'token',
-        'expiry_token'
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
