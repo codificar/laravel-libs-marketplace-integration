@@ -44,7 +44,7 @@ class RequestUpdateListener implements ShouldQueue
     public function shouldQueue(RequestUpdate $request)
     {
         $data = $request->broadcastWith();
-        if (!$order->isEmpty()) {
+        if (!$data->isEmpty()) {
             return true;
         }
         return false;
