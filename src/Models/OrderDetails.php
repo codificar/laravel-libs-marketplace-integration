@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetails extends Model
 {
+    const ORDER_STATUS = ['CFM', 'RDA', 'DSP'];
+
     use SoftDeletes;
     
     protected $table = 'order_detail';

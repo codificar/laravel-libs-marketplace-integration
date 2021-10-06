@@ -57,19 +57,4 @@ class MarketplaceController extends Controller
         return new MerchantDetailsResource($merchant);
     }
 
-
-    #TODO comentar e criar a função de atualização com todos os status locais
-    public function updateOrderRequestListener($order, $status)
-    {
-        # code...
-    }
-
-    //TODO função de pegar ordens no banco de acordo com os merchants cadastrados
-    public function getOrders($getOrdersFormRequest)
-    {
-        # code...
-    }
-
-
-
 }

@@ -1,3 +1,11 @@
 {
-    "todo-tree.tree.scanMode": "workspace"
+    "todo-tree.tree.scanMode": "workspace",
+    "todo-tree.filtering.excludeGlobs": [
+        "**/node_modules",
+        "**/public"
+    ],
+    "todo-tree.filtering.excludedWorkspaces": [
+        "**/public"
+    ],
+    "todo-tree.filtering.ignoreGitSubmodules": true
 }

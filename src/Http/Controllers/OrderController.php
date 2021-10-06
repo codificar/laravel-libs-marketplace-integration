@@ -2,8 +2,9 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Codificar\MarketplaceIntegration\Http\Repositories\OrdersRepository;
+use Codificar\MarketplaceIntegration\Http\Resources\OrdersResource;
 
 class OrderController extends Controller
 {
@@ -13,31 +14,21 @@ class OrderController extends Controller
      * 
      * @return OrdersDetails $data
      */
-    public function getOrdersDatabase()
+    public function getOrdersDatabase($id = NULL)
     {
-        $query = OrderDetails::query();
-        if (isset($id) && $id != null) {
-            $query->where('shop_id', $id);
-        }
-
-        $query->where(function($queryCode){
-                $queryCode->whereIn('code', ['CFM', 'RDA'])
-                ->orWhere(function($queryInner) {
-                        $queryInner->where('order_detail.code','DSP')
-                        ->where('order_detail.request_id','>',1);
-                });
-        })
-        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
-
-        $orders =   $query
-                        ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
-                        ->orderBy('delivery_address.neighborhood', 'ASC')
-                        ->orderBy('distance', 'DESC')
-                        ->orderBy('order_detail.display_id', 'ASC')
-                        ->orderBy('order_detail.client_name', 'ASC')
-                        ->paginate(200);
+        $orders = OrdersRepository::getOrders($id);
 
         return new OrdersResource($orders);
 
+    }
+
+    #TODO update or create de ordens
+    #TODO updateOrderRequest
+    
+
+    #TODO comentar e criar a função de atualização com todos os status locais
+    public function updateOrderRequestListener($order, $status)
+    {
+        # code...
     }
 }
