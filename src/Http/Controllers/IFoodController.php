@@ -401,7 +401,7 @@ class IFoodController extends Controller
                 $code = "CAN";
                 $full_code = "CANCELLED";
             }
-            if (isset($request_status) && isset($code)) {
+            if (isset($request_status) && isset($code) && $code !='') {
                 \Log::debug("IF UPDATE ORDER");
                 $order->request_status    = $request_status;
                 $order->code              = $code;

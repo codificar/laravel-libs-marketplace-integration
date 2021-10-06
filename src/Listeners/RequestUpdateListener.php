@@ -31,7 +31,8 @@ class RequestUpdateListener implements ShouldQueue
         $data = $request->broadcastWith();
         $ifood = new IFoodController();
         foreach ($data['points'] as $key => $value) {
-            $res = $ifood->updateOrderRequestListener($value, $request->request->is_cancelled);
+            \Log::debug(__FUNCTION__.'::points in foreach');
+            $ifood->updateOrderRequestListener($value, $request->request->is_cancelled);
         }
     }
 
@@ -44,7 +45,8 @@ class RequestUpdateListener implements ShouldQueue
     public function shouldQueue(RequestUpdate $request)
     {
         $data = $request->broadcastWith();
-        if (empty($data)) {
+        if (!empty($data)) {
+            \Log::debug(__FUNCTION__.'::data inst empty');
             return true;
         }
         return false;
