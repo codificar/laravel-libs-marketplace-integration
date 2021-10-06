@@ -292,8 +292,6 @@ class IFoodController extends Controller
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
-                'code'                      => 'DSP',
-                'full_code'                 => 'DISPATCHED',
                 'request_id'                => $request->request_id,
                 'point_id'                  => $request->point_id,
                 'tracking_route'            => $request->tracking_route,
@@ -303,11 +301,6 @@ class IFoodController extends Controller
             'order_id' => $request->order_id
         ])->first();
         \Log::debug('OrderDetails => '.print_r($order, 1));
-
-        // $shop       = Shops::where('id',$order->shop_id)->first(); //Shop isn't used
-        //I added teh token to iFoodApi construct
-        $api = new IFoodApi;
-        $response   = $api->dspOrder($request->order_id, "\Settings::findByKey('ifood_auth_token')");
 
         return $order;
     }
