@@ -379,8 +379,7 @@ class IFoodController extends Controller
         $order = OrderDetails::where('request_id', '=', $point->request_id)
                                 ->where('point_id', '=', $point->id)
                                 ->first();
-        $shop = Shops::find($order->shop_id);
-
+        
         \Log::debug("ORDER GET BY POINT_ID BLA: ".print_r($order, 1));
         if ($order) 
         {
@@ -389,7 +388,7 @@ class IFoodController extends Controller
             $full_code='';
             if (!$is_cancelled) {
                 \Log::debug("IF ");
-                if ($point->start_time != NULL) {
+                if ($point->start_time != NULL && $order->code != 'DSP') {
                     \Log::debug("IF point->start_time".$point->start_time);
                     $ifood = new IFoodApi;
                     $res = $ifood->dspOrder($order->order_id,\Settings::findByKey('ifood_auth_token'));
@@ -409,7 +408,7 @@ class IFoodController extends Controller
                 $code = "CAN";
                 $full_code = "CANCELLED";
             }
-            if ($request_status != '' && $code != '') {
+            if (isset($request_status) && isset($code)) {
                 \Log::debug("IF UPDATE ORDER");
                 $order->request_status    = $request_status;
                 $order->code              = $code;
