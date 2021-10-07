@@ -166,10 +166,30 @@ class IFoodController extends Controller
         $acknowledgment = $res->getAcknowledgment(\Settings::findByKey('ifood_auth_token'), $data);
     }
 
-    public function getOrdersDataBase($id = NULL)
+    public function getOrdersDataBase(Request $request, $id = NULL)
     {
-        
+        \Log::warning("Request: ".print_r($request->all(),1));
+        $startTime = $request
+                        ['range'][0] != null ? $request
+                                                ['range'][0] : \Carbon\Carbon::now()->subDays(1);
+
+        $endTime = $request
+                        ['range'][0] != null ? $request
+                                            ['range'][0] : null;
+
+
+        \Log::warning("startTime: ".print_r($startTime,1));
+
         $query = OrderDetails::query();
+
+        // if (isset($startTime->date)) {
+        //     $query->where('order_detail.created_at', '>', $startTime->date);
+        // } else if (isset($startTime->date) && $endTime) {
+        //     $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
+        // } else {
+        //     $query->where('order_detail.created_at', '>', $startTime);
+        // }
+
         if (isset($id) && $id != null) {
             $query->where('shop_id', $id);
         }

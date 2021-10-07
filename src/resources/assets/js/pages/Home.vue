@@ -52,6 +52,14 @@
                 </div>
             </v-col>
             <v-col cols="4" class="d-inline-flex" >
+                <DatePicker
+                    v-model="data.range"
+                    lang="pt-br"
+                    format="YYYY-MM-DD"
+                    formatted="YYYY-MM-DD"
+                    placeholder="Por período"
+                    range
+                />
             </v-col>
             <v-col cols="4" class="d-inline-flex float-right" v-if="$store.state.orders">
                 <div class="search-wrapper panel-heading col-sm-12">
@@ -61,21 +69,6 @@
         </v-row>
         
         <div class="col-lg-12 w-100 h-50">
-            
-            <!-- <v-card-text v-if="$store.state.requestStatus">
-                <v-sheet
-                    v-for="index in 11"
-                    :key="index"
-                >
-                    <v-skeleton-loader
-                        class="pa-md-1 mx-lg-auto"
-                        max-width="999"
-                        max-height="100"
-                        v-bind="attrs"
-                        type="list-item-avatar-three-line, card-heading, actions"
-                    ></v-skeleton-loader>
-                </v-sheet>
-            </v-card-text> -->
             <v-card-text v-if="!loading && !$store.state.orders">
                 <div class="card-body">                   
                     Não existe ordens para entrega!
@@ -247,7 +240,25 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 type: [Boolean, String],
                 default: true
             },
-            objectData: {}
+            objectData: {},
+            data: {
+                pagination: {
+                    actual : 1,
+                    itensPerPage : 10
+                },
+                filters: {
+                    institution: '',
+                    ItensPerPage: 10
+                },
+                order: {
+                    field: '',
+                    direction: ''
+                },
+                range: [
+                    null,
+                    null
+                ]
+            }
         }),
         created(){
             this.getShop();
@@ -261,26 +272,20 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             returnString(){
                 return JSON.stringify(this.$store.state.orders);
             },
+            disabledBeforeToday(date){
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                return date < today;
+            },
             fetch(page = 1) {
                 console.log("Log in fetch");
                 var component = this;
                 // fazemos isso porque as datas são pegas como objetos
                 // então transformamos elas em string pra enviar ao backend
                 this.$store.commit('CLEAR_ORDERS');
-                axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, {
-                        pagination: {
-                            actual : page,
-                            itensPerPage : 10
-                        },
-                        filters: {
-                            institution: '',
-                            ItensPerPage: 10
-                        },
-                        order: {
-                            field: '',
-                            direction: ''
-                        }
-                    })
+                this.data.pagination.page = page;
+                axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, this.data)
                 .then(
                     response => {
                         console.log('sucesso');
@@ -380,6 +385,19 @@ import RefreshScreen from "../components/RefreshScreen.vue";
 
                 this.loader = null
             },
+            "data.range": {
+                handler: function(newVal, oldVal){
+                    console.log("OldVal: ", oldVal);
+                    console.log("newVal: ", newVal);
+                    if (newVal == undefined) {
+                        this.data.range = oldVal;
+                    } else {
+                        this.data.range = newVal;
+                    }
+                    this.fetch();
+                },
+                deep: true
+            }
         }
     }
 </script>

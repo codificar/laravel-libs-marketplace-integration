@@ -21,7 +21,27 @@ const store = new Vuex.Store({
     requestStatus: false,
     alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"],
     ifood_client_id: '',
-    ifood_client_secret: ''
+    ifood_client_secret: '',
+    data: {
+      pagination: {
+          actual : 1,
+          itensPerPage : 10
+      },
+      filters: {
+        institution: '',
+        ItensPerPage: 10,
+        startTime: null,
+        endTime: null
+      },
+      order: {
+          field: '',
+          direction: ''
+      },
+      range: [
+        null,
+        null
+      ]
+    }
   },
   mutations: {
     toggleDrawer (state) {
@@ -400,20 +420,7 @@ const store = new Vuex.Store({
       var status = this.state.selectedShop.status_reload == 1 ? true : false;
       console.log("Data 2: ", status);
       commit('statusReload', status);
-      axios.post('/corp/api/orders/'+id+'?page='+page, {
-				pagination: {
-            actual : page,
-            itensPerPage : 10
-        },
-        filters: {
-            institution: '',
-            ItensPerPage: 10
-        },
-        order: {
-            field: '',
-            direction: ''
-        }
-			})
+      axios.post('/corp/api/orders/'+id+'?page='+page, this.state.data)
         .then(res => {
           console.log("Orders Hari", res.data);
           // res.data.data.forEach(element => {
