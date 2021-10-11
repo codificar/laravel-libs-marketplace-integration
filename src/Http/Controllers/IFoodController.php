@@ -182,13 +182,13 @@ class IFoodController extends Controller
 
         $query = OrderDetails::query();
 
-        // if (isset($startTime->date)) {
-        //     $query->where('order_detail.created_at', '>', $startTime->date);
-        // } else if (isset($startTime->date) && $endTime) {
-        //     $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
-        // } else {
-        //     $query->where('order_detail.created_at', '>', $startTime);
-        // }
+        if (isset($startTime->date)) {
+            $query->where('order_detail.created_at', '>', $startTime->date);
+        } else if (isset($startTime->date) && $endTime) {
+            $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
+        } else {
+            $query->where('order_detail.created_at', '>', $startTime);
+        }
 
         if (isset($id) && $id != null) {
             $query->where('shop_id', $id);
