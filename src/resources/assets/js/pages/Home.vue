@@ -59,6 +59,7 @@
                     formatted="YYYY-MM-DD"
                     placeholder="Por período"
                     range
+                    class="ma-auto"
                 />
             </v-col>
             <v-col cols="4" class="d-inline-flex float-right" v-if="$store.state.orders">
