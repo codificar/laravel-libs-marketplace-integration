@@ -906,7 +906,7 @@ function createPoints(data, shops , type='')
     console.log('Shop: ', shop);
     //add delivery points, point B,C, D and so on
     // points.push()
-    if (element.prepaid && !returnToStart) {
+    if (!element.prepaid && !returnToStart) {
       returnToStart = true;
     }
   });
