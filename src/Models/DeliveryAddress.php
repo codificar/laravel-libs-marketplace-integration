@@ -17,6 +17,7 @@ class DeliveryAddress extends Model
         'street_number',
         'formatted_address',
         'neighborhood',
+        'complement',
         'postal_code',
         'city',
         'state',

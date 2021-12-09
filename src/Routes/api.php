@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
     Route::post('/market/store', 'ShopsController@storeMarketConfig');
+    Route::post('/market/delete', 'ShopsController@deleteMarketConfig');
     Route::put('/market/update', 'ShopsController@updateMarketConfig');
     Route::post('/shop/status', 'ShopsController@status');
     Route::get('/auth/ifood', 'DeliveryFactory@auth');

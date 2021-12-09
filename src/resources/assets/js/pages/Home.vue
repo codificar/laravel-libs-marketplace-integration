@@ -3,24 +3,10 @@
         <v-col cols="4" class="d-inline-flex" v-if="$store.state.shops.length > 0">
             <select class="custom-select custom-select-lg mb-3" name="shops" id="shops">
                 <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
-                    <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.merchant_id}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
+                    <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
                 </optgroup>
             </select>
-                <!-- <v-btn
-                    class="ma-1"
-                    small
-                    depressed
-                    color="success"
-                    @click="addShop"
-                    style="width:100px;"
-                >
-                    <v-icon 
-                        color="white"
-                        left
-                    >mdi-plus
-                    </v-icon>
-                    <span class="font-weight-white white--text"> Loja</span>
-                </v-btn>    -->
+
         </v-col>
         <div class="col-lg-12 w-100 h-50 card card-outline-info">
             <div class="card-header">
@@ -34,18 +20,33 @@
                             :isEnable="$store.state.status_reload"
                         />
                     </div>
-                    <div class="ma-5 align-center justify-end">
-                        <v-btn
-                            class="justify-end"
-                            v-if="selected.length > 0"
-                            :loading="$store.state.requestStatus"
-                            :disabled="$store.state.requestStatus"
-                            color="success"
-                            @click="makeRequest()"
-                            small
-                        >
-                            SOLICITAR ENTREGA
-                        </v-btn>
+                    <div class="ma-5 align-center ">
+                        <div class="row col-md-12 justify-end"> 
+                            <v-btn
+                                class="ma-lg-2 justify-end"
+                                v-if="selected.length > 0"
+                                :loading="$store.state.requestStatus"
+                                :disabled="$store.state.requestStatus"
+                                color="success"
+                                @click="makeRequest('makeManualRequest')"
+                                small
+                            >
+                                <i class="mdi mdi-google-maps"></i>
+                                    Montar Corrida Manualmente
+                            </v-btn>
+                            <v-btn
+                                class=" ma-lg-2 justify-end"
+                                v-if="selected.length > 0"
+                                :loading="$store.state.requestStatus"
+                                :disabled="$store.state.requestStatus"
+                                color="success"
+                                @click="makeRequest()"
+                                small
+                            >
+                                <i class="mdi mdi-motorbike"></i>
+                                    Solicitar Prestador
+                            </v-btn>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,12 +99,21 @@
                                     Pedido: {{order.display_id}}
                                 </div>
                                 <div class="font-weight-medium">
+                                    Cliente: {{order.client_name}}
+                                </div>
+                                <div class="font-weight-bold">
+                                    Bairro: {{order.neighborhood}}
+                                </div>
+                                <div class="font-weight-medium">
                                     Endereço: {{order.formatted_address}}
+                                </div>
+                                <div class="font-weight-medium" v-if="order.complement != ''">
+                                    Complemento: {{order.complement}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Status: {{(order.full_code == 'RDA' || order.full_code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
+                                    Status: {{(order.code == 'RDA' || order.code == 'CFM') ? 'PARA ENTREGA' : order.full_code}}
                                 </div>
                                 <div class="font-weight-medium">
                                     Distancia: {{parseFloat(order.distance).toFixed()/1000}} KM
@@ -255,9 +265,9 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                     currency: 'BRL',
                 });
             }, 
-            makeRequest(){
+            makeRequest(type = 'makeRequest'){
                 this.loading = true;
-                this.$store.dispatch('makeRequest', this.selected)
+                this.$store.dispatch(type, this.selected)
             },
             showDetails(order) {
                 console.log("Sheet", this.$store.state.sheet);
