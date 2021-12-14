@@ -9,21 +9,21 @@ use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
 
-class Polling extends Command
+class AutomaticDispatch extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'marketplace:polling';
+    protected $signature = 'marketplace:dispatch';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get events polling';
+    protected $description = 'Automatic dispatch rides for polling orders with status DSP';
 
     /**
      * Create a new command instance.
@@ -42,9 +42,7 @@ class Polling extends Command
      */
     public function handle()
     {
-        $this->polling();
-        sleep(30);
-        $this->polling();
+       
     }
 
     /**
@@ -54,27 +52,6 @@ class Polling extends Command
      */
     public function polling()
     {
-        \Log::notice(__FUNCTION__);
     
-        $factory = new IFoodController();
-        
-        
-        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
-        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-            $factory->auth();
-        }
-
-        $res = $factory->getOrders();                   
-        
-        if ($res) {
-            foreach ($res as $i => $v) {
-                $acknowledgment = $factory->getAcknowledgment($v);
-                if ($res) {
-                    $factory->getOrderDetails($v->orderId);
-                }
-                
-            }
-        } 
-        
     }
 }

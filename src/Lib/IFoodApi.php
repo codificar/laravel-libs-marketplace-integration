@@ -42,7 +42,7 @@ class IFoodApi
     ];
   }
 
-  public function send($requestType, $route, $headers, $body = NULL)
+  public function send($requestType, $route, $headers, $body = null, $retry = 0)
   {
     \Log::debug("requestType: ". print_r($requestType, 1));
     \Log::debug("route: ". print_r($route, 1));
@@ -50,6 +50,16 @@ class IFoodApi
     \Log::debug("body: ". print_r($body,1));
     $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
     \Log::debug("Code: ". $response->getStatusCode());
+
+    // reautenticacao caso a chave tenha dado 401 e um novo retry
+    if($response->getStatusCode() == 401 && $retry < 3){
+      $clientId          = \Settings::findByKey('ifood_client_id');
+      $clientSecret      = \Settings::findByKey('ifood_client_secret');
+      $this->auth($clientId, $clientSecret);
+
+      return $this->send($requestType, $route, $headers, $body, ++$retry);
+    }
+
     return $response->getBody()->getContents();
   }
 
@@ -74,7 +84,7 @@ class IFoodApi
       $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
 
-      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
       \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
 
       return $res;
