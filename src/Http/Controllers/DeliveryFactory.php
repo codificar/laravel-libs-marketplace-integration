@@ -71,13 +71,13 @@ use Illuminate\Http\Request;
          *
          * @return object $orders
          */
-        public function getOrdersDataBase($params)
+        public function getOrdersDataBase(Request $request, $params)
         {
             \Log::debug("Função: ".__FUNCTION__);
             \Log::debug("Params: ".$params);
             $className = self::selectClass($params);
             $method = __FUNCTION__;
-            return $className::$method($params);
+            return $className::$method($request,$params);
         }
 
         /**

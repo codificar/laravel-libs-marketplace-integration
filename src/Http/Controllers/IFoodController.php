@@ -2,7 +2,6 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use Codificar\MarketplaceIntegration\Events\OrderUpdate;
 use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
@@ -10,7 +9,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Codificar\MarketplaceIntegration\Http\Resources\OrdersResource;
 
 class IFoodController extends Controller
 {
@@ -167,26 +166,52 @@ class IFoodController extends Controller
         $acknowledgment = $res->getAcknowledgment(\Settings::findByKey('ifood_auth_token'), $data);
     }
 
-    public function getOrdersDataBase($id = NULL)
+    public function getOrdersDataBase(Request $request, $id = NULL)
     {
-        // $market = MarketConfig::where('merchant')
-        $query = OrderDetails::where('order_detail.code','DSP')//order to exclud DSP orders withou request id
-                            ->where('order_detail.request_id','>',1)
-                            ->orWhereIn('code', ['CFM', 'RDA'])
-                            ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
-        if (isset($id) && $id != null) {
-            \Log::debug('SHOP ID: '.$id);
-            $query = $query->where('shop_id', $id);
+        \Log::warning("Request: ".print_r($request->all(),1));
+        $startTime = $request
+                        ['range'][0] != null ? $request
+                                                ['range'][0] : \Carbon\Carbon::now()->subDays(1);
+
+        $endTime = $request
+                        ['range'][0] != null ? $request
+                                            ['range'][0] : null;
+
+
+        \Log::warning("startTime: ".print_r($startTime,1));
+
+        $query = OrderDetails::query();
+
+        if (isset($startTime->date)) {
+            $query->where('order_detail.created_at', '>', $startTime->date);
+        } else if (isset($startTime->date) && $endTime) {
+            $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
+        } else {
+            $query->where('order_detail.created_at', '>', $startTime);
         }
+
+        if (isset($id) && $id != null) {
+            $query->where('shop_id', $id);
+        }
+
+        $query->where(function($queryCode){
+                $queryCode->whereIn('code', ['CFM', 'RDA'])
+                ->orWhere(function($queryInner) {
+                        $queryInner->where('order_detail.code','DSP')
+                        ->where('order_detail.request_id','>',1);
+                });
+        })
+        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+
         $orders =   $query
                         ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
                         ->orderBy('delivery_address.neighborhood', 'ASC')
                         ->orderBy('distance', 'DESC')
                         ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
-                        ->limit(10)
-                        ->get();
-        return $orders;
+                        ->paginate(200);
+
+        return new OrdersResource($orders);
     }
 
     public function confirmOrder(Request $request)
@@ -287,8 +312,6 @@ class IFoodController extends Controller
         $order = OrderDetails::where([
             'order_id'                       => $request->order_id
         ])->update([
-                'code'                      => 'DSP',
-                'full_code'                 => 'DISPATCHED',
                 'request_id'                => $request->request_id,
                 'point_id'                  => $request->point_id,
                 'tracking_route'            => $request->tracking_route,
@@ -298,11 +321,6 @@ class IFoodController extends Controller
             'order_id' => $request->order_id
         ])->first();
         \Log::debug('OrderDetails => '.print_r($order, 1));
-
-        // $shop       = Shops::where('id',$order->shop_id)->first(); //Shop isn't used
-        //I added teh token to iFoodApi construct
-        $api = new IFoodApi;
-        $response   = $api->dspOrder($request->order_id, "\Settings::findByKey('ifood_auth_token')");
 
         return $order;
     }
@@ -374,7 +392,7 @@ class IFoodController extends Controller
         $order = OrderDetails::where('request_id', '=', $point->request_id)
                                 ->where('point_id', '=', $point->id)
                                 ->first();
-
+        
         \Log::debug("ORDER GET BY POINT_ID BLA: ".print_r($order, 1));
         if ($order) 
         {
@@ -383,16 +401,16 @@ class IFoodController extends Controller
             $full_code='';
             if (!$is_cancelled) {
                 \Log::debug("IF ");
-                // if ($point->start_time != NULL) {
-                //     \Log::debug("IF point->start_time".$point->start_time);
-
-                //     $request_status = 0;
-                //     $code = "DSP";
-                //     $full_code = "DISPATCHED";
-                // }
+                if ($point->start_time != NULL && $order->code != 'DSP') {
+                    \Log::debug("IF point->start_time".$point->start_time);
+                    $ifood = new IFoodApi;
+                    $res = $ifood->dspOrder($order->order_id,\Settings::findByKey('ifood_auth_token'));
+                    $request_status = 0;
+                    $code = "DSP";
+                    $full_code = "DISPATCHED";
+                }
                 if ($point->finish_time) {
                     \Log::debug("IF point->finish_time". $point->finish_time);
-
                     $request_status = 0;
                     $code = "CON";
                     $full_code = "CONCLUDED";
@@ -403,13 +421,12 @@ class IFoodController extends Controller
                 $code = "CAN";
                 $full_code = "CANCELLED";
             }
-            if ($request_status != '' && $code != '') {
-                \Log::debug("IF UPDATEO RDER");
-                $order->update([
-                    'request_status'    => $request_status,
-                    'code'              => $code,
-                    'full_code'         => $full_code
-                ]);
+            if (isset($request_status) && isset($code) && $code !='') {
+                \Log::debug("IF UPDATE ORDER");
+                $order->request_status    = $request_status;
+                $order->code              = $code;
+                $order->full_code         = $full_code;
+                $order->update();
             }
         }
     }

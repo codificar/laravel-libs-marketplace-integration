@@ -4,7 +4,6 @@ namespace Codificar\MarketplaceIntegration\Listeners;
 
 use App\Events\RequestUpdate;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
 
@@ -30,13 +29,10 @@ class RequestUpdateListener implements ShouldQueue
     public function handle(RequestUpdate $request)
     {
         $data = $request->broadcastWith();
-        \Log::debug("ID Data: ".json_encode($data,1));
-        \Log::debug("ID Request: ".json_encode($request,1));
-        \Log::debug("Data Points: ".json_encode($data['points'],1));
-        $order = new IFoodController();
+        $ifood = new IFoodController();
         foreach ($data['points'] as $key => $value) {
-            \Log::debug('Value: '.print_r($value, 1));
-            $res = $order->updateOrderRequestListener($value, $request->request->is_cancelled);
+            \Log::debug(__FUNCTION__.'::points in foreach');
+            $ifood->updateOrderRequestListener($value, $request->request->is_cancelled);
         }
     }
 
@@ -48,14 +44,11 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function shouldQueue(RequestUpdate $request)
     {
-        \Log::debug("shouldQueue Request: ".json_encode($request,1));
-
-        $order = OrderDetails::where('request_id', '=', $request->request_id)->get();
-        // \Log::debug("Order: ".print_r($order, 1));
-        if (!$order->isEmpty()) {
-            // \Log::debug("TRUE");
-            return TRUE;
+        $data = $request->broadcastWith();
+        if (!empty($data)) {
+            \Log::debug(__FUNCTION__.'::data inst empty');
+            return true;
         }
-        return FALSE;
+        return false;
     }
 }
