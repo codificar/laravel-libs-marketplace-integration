@@ -1,75 +1,67 @@
 <template>
     <div class="col-lg-12">
-        <v-col cols="4" class="d-inline-flex" v-if="$store.state.shops.length > 0">
-            <select class="custom-select custom-select-lg mb-3" name="shops" id="shops">
-                <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
-                    <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
-                </optgroup>
-            </select>
-
-        </v-col>
-        <div class="col-lg-12 w-100 h-50 card card-outline-info">
-            <div class="card-header">
-                <div class="row justify-space-between"> 
-                    <div class="ma-5 align-center justify-start">
-                        <h4 class="m-b-0 text-white"> Pedidos </h4>
-                    </div>
-                    <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
-                        <refresh-screen
-                            v-if="$store.state.shops.length > 0"
-                            :isEnable="$store.state.status_reload"
-                        />
-                    </div>
-                    <div class="ma-5 align-center ">
-                        <div class="row col-md-12 justify-end"> 
-                            <v-btn
-                                class="ma-lg-2 justify-end"
-                                v-if="selected.length > 0"
-                                :loading="$store.state.requestStatus"
-                                :disabled="$store.state.requestStatus"
-                                color="success"
-                                @click="makeRequest('makeManualRequest')"
-                                small
-                            >
-                                <i class="mdi mdi-google-maps"></i>
-                                    Montar Corrida Manualmente
-                            </v-btn>
-                            <v-btn
-                                class=" ma-lg-2 justify-end"
-                                v-if="selected.length > 0"
-                                :loading="$store.state.requestStatus"
-                                :disabled="$store.state.requestStatus"
-                                color="success"
-                                @click="makeRequest()"
-                                small
-                            >
-                                <i class="mdi mdi-motorbike"></i>
-                                    Solicitar Prestador
-                            </v-btn>
-                        </div>
+        <div class="col-lg-4 d-inline-flex" v-if="$store.state.shops.length > 0">
+            <b-form-select v-model="selected" class="mb-3">
+                <b-form-select-option v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.get_config" :value="item.get_config">
+                    {{item}}
+                    <!-- <b-form-select-option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{name}} - {{status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</b-form-select-option> -->
+                </b-form-select-option>
+            </b-form-select>
+        </div>
+        <div class="card col-lg-12 w-100 h-50 card card-outline-info">
+            <div class="card-header justify-space-between">
+                <div class="ma-5 align-center justify-start">
+                    <h4 class="m-b-0 text-white"> Pedidos </h4>
+                </div>
+                <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
+                    <refresh-screen
+                        v-if="$store.state.shops.length > 0"
+                        :isEnable="$store.state.selectedShop.status_reload"
+                    />
+                </div>
+                <div class="ma-5 align-center ">
+                    <div class="row col-md-12 justify-end"> 
+                        <b-button
+                            class="ma-lg-2 justify-end"
+                            v-if="selected.length > 0"
+                            :loading="$store.state.requestStatus"
+                            :disabled="$store.state.requestStatus"
+                            color="success"
+                            @click="makeRequest('makeManualRequest')"
+                            small
+                        >
+                            <i class="mdi mdi-google-maps"></i>
+                                Montar Corrida Manualmente
+                        </b-button>
+                        <b-button
+                            class=" ma-lg-2 justify-end"
+                            v-if="selected.length > 0"
+                            :loading="$store.state.requestStatus"
+                            :disabled="$store.state.requestStatus"
+                            color="success"
+                            @click="makeRequest()"
+                            small
+                        >
+                            <i class="mdi mdi-motorbike"></i>
+                                Solicitar Prestador
+                        </b-button>
                     </div>
                 </div>
             </div>
-            <v-card-text v-if="$store.state.requestStatus">
-                <v-sheet
+            <div class="card-body" v-if="$store.state.requestStatus">
+                <div
                     v-for="index in 10"
                     :key="index"
                 >
-                    <v-skeleton-loader
-                        class="pa-md-1 mx-lg-auto"
-                        max-width="999"
-                        max-height="100"
-                        v-bind="attrs"
-                        type="list-item-avatar-three-line, card-heading, actions"
-                    ></v-skeleton-loader>
-                </v-sheet>
-            </v-card-text>
-            <v-card-text v-if="!loading && $store.state.orders.length == 0">
-                <div class="card-body">                   
-                    Não existe ordens para entrega!
+                    <Preloader color="red" scale="0.6" />
                 </div>
-            </v-card-text>
-            <v-card-text v-if="!loading && $store.state.orders.length > 0">
+            </div>
+            <div class="card-body" v-if="!loading && $store.state.orders.length == 0">
+                <div class="card-body">                   
+                    Não existe ordens para entrega! Teste
+                </div>
+            </div>
+            <div class="card-body" v-if="!loading && $store.state.orders.length > 0">
                 <v-card 
                     class="pa-md-4 mx-lg-auto mb-2"
                     elevation="2"
@@ -141,7 +133,7 @@
                             </div>
                             <div class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    <v-btn
+                                    <b-button
                                         class="ma-1"
                                         small
                                         depressed
@@ -154,7 +146,7 @@
                                             left
                                         >mdi-clipboard-text</v-icon>
                                             <span class="font-weight-white white--text"> Detalhes</span>
-                                    </v-btn>
+                                    </b-button>
                                 </div>
                             </div>
                             <div>
@@ -162,16 +154,17 @@
                                     <div
                                         class="font-weight-white"
                                     >
-                                        <v-checkbox
+                                        <input
+                                            type="checkbox"
                                             v-model="selected"
                                             v-if="order.request_id == null && order.code == 'CFM' || order.code == 'RDA'"
                                             label="Adicionar a entrega"
                                             class="ma-2 mt-1"
                                             :value="order"
                                             :id="order.order_id"
-                                        ></v-checkbox>
+                                        />
                                     </div>
-                                    <v-btn
+                                    <b-button
                                         class="ma-1"
                                         small
                                         depressed
@@ -186,24 +179,24 @@
                                             left
                                         >mdi-map</v-icon>
                                         ACOMPANHAR
-                                    </v-btn>
+                                    </b-button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </v-card>
-            </v-card-text>
+            </div>
         </div>
-        <modal-component v-if="$store.state.sheet"/>
+        <!-- <modal-component v-if="$store.state.sheet"/> -->
     </div>
 </template>
 
 <script>
-import ModalComponent from "../components/Modal.vue";
+// import ModalComponent from "../components/Modal.vue";
 import RefreshScreen from "../components/RefreshScreen.vue";
     export default {
         components: {
-            ModalComponent,
+            // ModalComponent,
             RefreshScreen
         },
         data: () => ({

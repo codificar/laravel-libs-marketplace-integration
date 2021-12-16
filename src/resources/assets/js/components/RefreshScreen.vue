@@ -2,22 +2,16 @@
   <div class="text-center justify-end body-2">
     <h5 class="m-b-0 text-white">Atualizar Pedidos</h5>
     <h5 class="m-b-0 text-white">{{ sliderValue }}</h5>
-    <v-row>
-      <v-col cols="4" xs="4" md="4">
-      </v-col>
-      <v-col cols="6" xs="6" md="6">
-        <v-switch
-          v-model="enabled"
-          :sync="true"
-          @change="onChangeEnable"
-          class="justify-end text-white"
-        >
-          <template v-slot:label>
-            <span class="justify-end text-white">{{enabled ? 'Desabilitar' : 'Habilitar'}}</span>
-          </template>
-        </v-switch>
-      </v-col>
-    </v-row>
+    <div>
+      <div cols="4" xs="4" md="4">
+      </div>
+      <div cols="6" xs="6" md="6">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" v-model="enabled" @change="onChangeEnable(Boolean(!isEnable))" class="custom-control-input" id="customSwitch1">
+          <label class="custom-control-label" for="customSwitch1"><span class="justify-end text-white">{{enabled ? 'Desabilitar' : 'Habilitar'}}</span></label>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,7 +38,7 @@ export default {
       default: true
     },
     isEnable: {
-      type: [Boolean, String],
+      type: [Boolean, String, Number],
       default: false
     }
   },
@@ -88,7 +82,7 @@ export default {
   mounted() {
     // this.enabled = this.isEnable
     console.log("Enebled: ", this.enabled);
-    this.countTime();
+    // this.countTime();
   },
 };
 </script>

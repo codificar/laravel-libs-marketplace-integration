@@ -1,9 +1,8 @@
 <template>
-    <div class="col-lg-12 col-md-12 w-100 h-50 card card-outline-info">
-        <v-card-title class="card-header title font-weight-regular justify-space-between">
+    <div class="card col-lg-12 col-md-12 w-100 h-50 card card-outline-info">
+        <div class="card-header title font-weight-regular justify-space-between">
             <h4 class="white--text"> Configurações iFood</h4>
-        </v-card-title>
-        <v-card-text>
+        </div>
             <div class="card-body">
                 <div class="panel-body">
                     <div class="modal-body">
@@ -12,16 +11,16 @@
                             v-model="valid"
                             lazy-validation
                         >
-                            <v-text-field
+                            <input
                                 v-model="$store.state.ifood_client_id"
                                 label="CLIENT_ID"
                                 required
-                            ></v-text-field>
-                            <v-text-field
+                            />
+                            <input
                                 v-model="$store.state.ifood_client_secret"
                                 label="CLIENT_SECRET"
                                 required
-                            ></v-text-field>
+                            />
                             <v-btn
                                 :disabled="!valid"
                                 color="success"
@@ -34,7 +33,6 @@
                     </div>
                 </div>
             </div>
-        </v-card-text>
     </div>
 </template>
 

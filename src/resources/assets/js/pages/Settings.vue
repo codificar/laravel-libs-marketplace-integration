@@ -1,8 +1,8 @@
 <template>
     <div class="col-lg-12 col-md-12 w-100 h-50 card card-outline-info">
-        <v-card-title class="card-header title font-weight-regular justify-space-between">
+        <div class="card-header title font-weight-regular justify-space-between">
             <h4 class="white--text"> Configurações </h4>
-            <v-btn
+            <b-button
                 class="ma-1"
                 small
                 depressed
@@ -10,18 +10,17 @@
                 @click="addShop('addShop')"
                 style="width:100px;"
             >
-                <v-icon 
-                    color="white"
+                <b-icon 
+                    color="balck"
                     left
-                >mdi-plus
-                </v-icon>
+                    icon="plus">
+                </b-icon>
                 <span class="font-weight-white white--text"> Loja</span>
-            </v-btn>
-        </v-card-title>
-        <v-card-text>
-            <v-card 
-                class="pa-md-4 mx-lg-auto mb-2"
-                elevation="2"
+            </b-button>
+        </div>
+        <div class="card-body">
+            <div 
+                class="card pa-md-4 mx-lg-auto mb-2"
                 v-for="shop in $store.state.shops"
                 :key="shop.id"
             >
@@ -32,7 +31,7 @@
                                 Nome: {{shop.name}}
                             </h3>
                             <div class="font-weight-white">
-                                <v-btn
+                                <b-button
                                     class="ma-1"
                                     small
                                     depressed
@@ -40,16 +39,16 @@
                                     @click="addShop('add_marketPlace', shop)"
                                     style="width:150px;"
                                 >
-                                    <v-icon 
+                                    <b-icon 
                                         color="white"
                                         left
                                     >mdi-plus
-                                    </v-icon>
+                                    </b-icon>
                                     <span class="font-weight-white white--text"> Marketplace</span>
-                                </v-btn>
+                                </b-button>
                             </div>
                             <div class="font-weight-white">
-                                <v-btn
+                                <b-button
                                     class="ma-1"
                                     small
                                     depressed
@@ -57,15 +56,15 @@
                                     @click="addShop('edit_shop', shop)"
                                     style="width:150px;"
                                 >
-                                    <v-icon 
+                                    <b-icon 
                                         color="white"
                                         left
-                                    >mdi-pencil</v-icon>
+                                    >mdi-pencil</b-icon>
                                         <span class="font-weight-white white--text"> Editar</span>
-                                </v-btn>
+                                </b-button>
                             </div>
                             <div class="font-weight-white">
-                                <v-btn
+                                <b-button
                                     class="ma-1"
                                     small
                                     depressed
@@ -73,12 +72,12 @@
                                     @click="deleteShop('delete_marketPlace', shop.id)"
                                     style="width:150px;"
                                 >
-                                    <v-icon 
+                                    <b-icon 
                                         color="white"
                                         left
-                                    >mdi-delete-outline</v-icon>
+                                    >mdi-delete-outline</b-icon>
                                     <span class="font-weight-white white--text"> Apagar</span>
-                                </v-btn>
+                                </b-button>
                             </div>
                         </div>
                         <div class="font-weight-black col-10">
@@ -98,7 +97,7 @@
                                         </div>
                                         <div class="font-weight-white">
                                             <div class="font-weight-white">
-                                                <v-btn
+                                                <b-button
                                                     class="ma-1"
                                                     small
                                                     depressed
@@ -106,15 +105,15 @@
                                                     @click="addShop('edit_marketPlace', item,shop.merchant_id)"
                                                     style="width:150px;"
                                                 >
-                                                    <v-icon 
+                                                    <b-icon 
                                                         color="white"
                                                         left
-                                                    >mdi-pencil</v-icon>
+                                                    >mdi-pencil</b-icon>
                                                         <span class="font-weight-white white--text"> Editar</span>
-                                                </v-btn>
+                                                </b-button>
                                             </div>
                                             <div class="font-weight-white">
-                                                <v-btn
+                                                <b-button
                                                     class="ma-1"
                                                     small
                                                     depressed
@@ -122,12 +121,12 @@
                                                     @click="deleteShop('delete_marketPlace', item.id)"
                                                     style="width:150px;"
                                                 >
-                                                    <v-icon 
+                                                    <b-icon 
                                                         color="white"
                                                         left
-                                                    >mdi-delete-outline</v-icon>
+                                                    >mdi-delete-outline</b-icon>
                                                     <span class="font-weight-white white--text"> Apagar</span>
-                                                </v-btn>
+                                                </b-button>
                                             </div>
                                         </div>
                                     </v-expansion-panel-content>
@@ -136,8 +135,8 @@
                         </div>
                     </div>
                 </div>
-            </v-card>
-        </v-card-text>
+            </div>
+        </div>
         <modal-component v-if="$store.state.sheet"/>
     </div>
 </template>

@@ -21,7 +21,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/auth/ifood', 'DeliveryFactory@auth');
     // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
     Route::get('/ifood/events', 'DeliveryFactory@getOrders');
-    Route::post('/orders/{id}', 'DeliveryFactory@getOrdersDataBase');
+    Route::post('/orders/{id}', 'OrderController@getOrdersDataBase');
     Route::post('/order/cancel', 'DeliveryFactory@cancelOrder');
     Route::post('/order/readyToPickup', 'DeliveryFactory@dspOrder');
     Route::post('/order/{id}/confirm', 'DeliveryFactory@confirmOrder');

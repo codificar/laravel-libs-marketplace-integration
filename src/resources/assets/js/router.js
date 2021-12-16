@@ -1,9 +1,9 @@
 import Vue from 'vue';
-import VueRouter from "vue-router";
+import VueRouter from 'vue-router';
 
-import Home from "./pages/Home";
-import Credentials from "./pages/Credentials";
-import Settings from './pages/Settings';
+import Home from './pages/Home.vue';
+import Credentials from './pages/Credentials.vue';
+import Settings from './pages/Settings.vue';
 
 Vue.use(VueRouter);
 
