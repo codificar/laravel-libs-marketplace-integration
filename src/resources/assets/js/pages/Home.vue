@@ -1,16 +1,15 @@
 <template>
     <div class="col-lg-12">
         <div class="col-lg-4 d-inline-flex" v-if="$store.state.shops.length > 0">
-            <b-form-select v-model="selected" class="mb-3">
-                <b-form-select-option v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.get_config" :value="item.get_config">
-                    {{item}}
-                    <!-- <b-form-select-option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{name}} - {{status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</b-form-select-option> -->
-                </b-form-select-option>
+            <b-form-select v-model="$store.state.selectedShop" class="mb-3">
+                <b-form-select-option-group v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
+                    <b-form-select-option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</b-form-select-option>
+                </b-form-select-option-group>
             </b-form-select>
         </div>
         <div class="card col-lg-12 w-100 h-50 card card-outline-info">
             <div class="card-header justify-space-between">
-                <div class="ma-5 align-center justify-start">
+                <div class="ma-5 col-lg-4 col-md-4 align-center justify-start">
                     <h4 class="m-b-0 text-white"> Pedidos </h4>
                 </div>
                 <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
@@ -19,7 +18,7 @@
                         :isEnable="$store.state.selectedShop.status_reload"
                     />
                 </div>
-                <div class="ma-5 align-center ">
+                <div class="ma-5 col-lg-4 col-md-4 align-center ">
                     <div class="row col-md-12 justify-end"> 
                         <b-button
                             class="ma-lg-2 justify-end"
@@ -58,7 +57,7 @@
             </div>
             <div class="card-body" v-if="!loading && $store.state.orders.length == 0">
                 <div class="card-body">                   
-                    Não existe ordens para entrega! Teste
+                    Não existe ordens para entrega!
                 </div>
             </div>
             <div class="card-body" v-if="!loading && $store.state.orders.length > 0">

@@ -64,28 +64,3 @@ const mutations = {
 };
 
 export default mutations
-
-// import { mapMutations } from 'vuex'
-// export default {
-//   methods: {
-//     ...mapMutations({
-//       STATUS_RELOAD: 'STATUS_RELOAD', // map `this.cal()` to `this.$store.commit('calculate')`
-//       CREDENTIALS: 'CREDENTIALS',
-//       SHOW_DETAILS: 'SHOW_DETAILS',
-//       STATUS_REQUEST: 'STATUS_REQUEST',
-//       DATA_SHOP: 'DATA_SHOP',
-//       ORDER_DETAILS: 'ORDER_DETAILS',
-//       FETCH_SELECTED_SHOP: 'FETCH_SELECTED_SHOP',
-//       CREATE_SHOP: 'CREATE_SHOP',
-//       UPDATE_SHOP: 'UPDATE_SHOP',
-//       FETCH_SHOPS: 'FETCH_SHOPS',
-//       DELETE_SHOP: 'DELETE_SHOP',
-//       CREATE_ORDER: 'CREATE_ORDER',
-//       FETCH_ORDERS: 'FETCH_ORDERS',
-//       CLEAR_ORDERS: 'CLEAR_ORDERS',
-//       REQUEST_ORDERS: 'REQUEST_ORDERS',
-//       DELETE_ORDER: 'DELETE_ORDER',
-//       UPDATE_ORDER: 'UPDATE_ORDER'
-//     })
-//   }
-// }

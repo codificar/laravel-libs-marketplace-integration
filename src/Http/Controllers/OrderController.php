@@ -24,6 +24,16 @@ class OrderController extends Controller
 
     #TODO update or create de ordens
     #TODO updateOrderRequest
+    /**
+     * Save orders details
+     * @author Diogo C. Coutinho
+     * 
+     * @return OrderDatils $order
+     */
+    public function updateOrder($data)
+    {
+        return new OrdersResource(OrdersRepository::updateOrder($data));
+    }
     
 
     #TODO comentar e criar a função de atualização com todos os status locais

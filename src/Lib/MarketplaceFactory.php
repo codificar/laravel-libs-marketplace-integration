@@ -10,8 +10,8 @@ class MarketplaceFactory
     /**
      * Constants of marketplace type
      */
-    const IFOOD     = "ifood";
-    const UBEREATS  = "ubereats";
+    const IFOOD     = 'ifood';
+    const UBEREATS  = 'ubereats';
     const RAPPI     = 'rappi';
 
     /**

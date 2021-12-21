@@ -5,6 +5,9 @@ namespace Codificar\MarketplaceIntegration\Console\Commands;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
+use Codificar\MarketplaceIntegration\Http\Repositories\OrdersRepository;
+use Codificar\MarketplaceIntegration\Lib\IFoodApi;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 
 class Polling extends Command
 {
@@ -53,21 +56,21 @@ class Polling extends Command
     {
         \Log::notice(__FUNCTION__);
     
-        // $factory = new IFoodController();
-        
-        
-        // $expiryToken  = \Settings::findByKey('ifood_expiry_token');
-        // if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-        //     $factory->auth();
-        // }
+        $factory = MarketplaceFactory::createMarketplace(MarketplaceFactory::IFOOD);
+                
+        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
+        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
+            $factory->auth();
+        }
 
-        // $res = $factory->getOrders();                   
-        
+        $res = $factory->getOrder();                   
+        \Log::info('Res: '.is_object($res));
         if ($res) {
-            foreach ($res as $i => $v) {
-                // $acknowledgment = $factory->getAcknowledgment($v);
+            foreach (json_decode($res,1) as $i => $v) {
+                $acknowledgment = $factory->getAcknowledgment($v);
                 if ($res) {
-                    // $factory->getOrderDetails($v->orderId);
+                    $orderDetail = $factory->getOrderDetails($v['orderId']);
+                    $saved = OrdersRepository::updateOrder(json_decode($orderDetail));
                 }
                 
             }

@@ -18,6 +18,6 @@ class Shops extends Model
 
     public function getConfig()
     {
-        return $this->hasMany('Codificar\MarketplaceIntegration\Models\Merchant', 'shop_id');
+        return $this->hasMany('Codificar\MarketplaceIntegration\Models\MerchantDetails', 'shop_id');
     }
 }

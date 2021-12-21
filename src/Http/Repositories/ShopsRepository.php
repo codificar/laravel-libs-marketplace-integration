@@ -53,7 +53,7 @@ class ShopsRepository
      */
     public static function getAllShops($institutionId)
     {
-        return Shops::where('institution_id', $institutionId)->get();
+        return Shops::where('institution_id', $institutionId)->with('getConfig')->get();
     }
 
     /**

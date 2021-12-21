@@ -12,7 +12,7 @@ interface IMarketplace
     *
     * @return Object $reponse 
     */
-    public function auth($cretendials);
+    public function auth();
     
     /**
     * Get Orders in marketplace API

@@ -26,10 +26,12 @@ class IFoodApi implements IMarketplace
         ]);
 
         $expiryToken  = \Settings::findByKey('ifood_expiry_token');
+        
         if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
             $this->clientId          = \Settings::findByKey('ifood_client_id');
             $this->clientSecret      = \Settings::findByKey('ifood_client_secret');
-            $this->accessToken = $this->auth((object)array('clientId' => $this->clientId, 'clientSecret' => $this->clientSecret));
+            $this->accessToken = \Settings::updateOrCreateByKey('ifood_auth_token',$this->auth((object)array('clientId' => $this->clientId, 'clientSecret' => $this->clientSecret)));
+            $expiryToken = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
         } else {
             $this->accessToken = \Settings::getMarketPlaceToken('ifood_auth_token');
         }
@@ -62,14 +64,14 @@ class IFoodApi implements IMarketplace
      * 
      * @return Object $res
      */
-    public function auth($credentials)
+    public function auth()
     {
         try{
             $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
             $body       = [
                 'grantType'     => 'client_credentials',
-                'clientId'      => $credentials->clientId,
-                'clientSecret'  => $credentials->clientSecret,
+                'clientId'      => $this->clientId,
+                'clientSecret'  => $this->clientSecret,
             ];
             $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
             $res=json_decode($res);
@@ -103,11 +105,11 @@ class IFoodApi implements IMarketplace
         $object = array(
             (object)
             array(
-                'id'                => $data->id,
-                'code'              => $data->code,
-                'full_code'         => $data->fullCode,
-                'order_id'          => $data->orderId,
-                'created_at_ifood'  => $data->createdAt
+                'id'                => $data['id'],
+                'code'              => $data['code'],
+                'full_code'         => $data['fullCode'],
+                'order_id'          => $data['orderId'],
+                'created_at_ifood'  => $data['createdAt']
             )
         );
         $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [

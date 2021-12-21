@@ -17,7 +17,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/market/store', 'ShopsController@storeMarketConfig');
     Route::post('/market/delete', 'ShopsController@deleteMarketConfig');
     Route::put('/market/update', 'ShopsController@updateMarketConfig');
-    Route::post('/shop/status', 'ShopsController@status');
+    Route::post('/shop/status', 'ShopsController@updateStatusReload');
     Route::get('/auth/ifood', 'DeliveryFactory@auth');
     // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
     Route::get('/ifood/events', 'DeliveryFactory@getOrders');

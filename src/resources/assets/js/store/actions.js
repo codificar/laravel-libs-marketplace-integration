@@ -569,33 +569,26 @@ const actions = {
         })
       })
     },
-    getShops({commit}){
+    async getShops({commit}){
       console.log("Entrou dispatch");
-      axios.get('/corp/api/shop')
-      .then(res => {
-        commit('FETCH_SHOPS', res.data);
-        commit('FETCH_SELECTED_SHOP', res.data[0])
+      await axios.get('/corp/api/shop')
+      .then(async res => {
+        await commit('FETCH_SHOPS', res.data);
+        await commit('FETCH_SELECTED_SHOP', res.data[0].get_config[0])
         console.log("Data: ", this.state.selectedShop);
-        console.log("Shops: ",res);
+        console.log("Shops: ",res.data[0].get_config[0]);
         if (res.status == 200 && res.data.length > 0) {
           res.data.forEach(element => {
             this.dispatch('getOrders', element.id);
-            // if (element.get_config.length == 0) {
-            //   Vue.swal.fire({
-            //     title: 'Atenção!',
-            //     text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
-            //     icon: 'warning',
-            //     confirmButtonText: 'OK'
-            //   });
-            // }
-          });
-          // Vue.swal.fire({
-          //   title: 'Sucesso!',
-          //   text: "Salvo com sucesso!",
-          //   icon: 'success',
-          //   confirmButtonText: 'OK'
-          // });
-          
+            if (element.get_config.length == 0) {
+              Vue.swal.fire({
+                title: 'Atenção!',
+                text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              });
+            }
+          });          
         } else if (res.data == 0) {
           Vue.swal.fire({
             title: 'Atenção!',
@@ -679,29 +672,3 @@ const actions = {
   }
 
 export default actions
-
-// import { mapActions } from 'vuex'
-// export default {
-//   methods: {
-//     ...mapActions({
-//         makeRequest: 'makeRequest', // map `this.cal()` to `this.$store.dispatch('calculate')`
-//         makeManualRequest: 'makeManualRequest',
-//         updateOrder: 'updateOrder',
-//         showModal: 'showModal',
-//         showDetail: 'showDetail',
-//         readyToPickup: 'readyToPickup',
-//         cancelOrder: 'cancelOrder',
-//         confirmOrder: 'confirmOrder',
-//         getOrders: 'getOrders',
-//         saveShopConfigs: 'saveShopConfigs',
-//         editShopConfigs: 'editShopConfigs',
-//         addMarketConfig: 'addMarketConfig',
-//         editMarketConfig: 'editMarketConfig',
-//         deleteMarketConfig: 'deleteMarketConfig',
-//         saveRealodStatus: 'saveRealodStatus',
-//         getShops: 'getShops',
-//         saveCredentials: 'saveCredentials',
-//         getCredentials: 'getCredentials',
-//     })
-//   }
-// }

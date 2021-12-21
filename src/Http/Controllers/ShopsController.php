@@ -22,8 +22,9 @@ class ShopsController extends Controller
      */
     public function index()
     {
-        $institutionId = \Auth::guard('web_corp')->user()->AdminInstitution->institution_id;
-        $shops = ShopsRepository::getAllShops($institutionId);
+        \Log::debug('User: '.print_r(\AdminInstitution::whereAdminId(\Admin::getCorpAdmin()->id)->first(),1));
+        $adminInstitution = \AdminInstitution::whereAdminId(\Admin::getCorpAdmin()->id)->first();
+        $shops = ShopsRepository::getAllShops($adminInstitution->institution_id);
         return new ShopResource($shops);
     }
 
@@ -35,9 +36,8 @@ class ShopsController extends Controller
      * 
      * @return ShopResource $shop
      */
-    public function updateOrCreateShop(ShopsFormRequest $request)
-    {        
-        $institutionId = 1;
+    public function updateOrCreateShop(ShopsFormRequest $request, $institutionId = 1)
+    {
         $shop = ShopsRepository::updateOrCreateShop($request, $institutionId);
         return new ShopResource($shop);
     }
@@ -142,4 +142,6 @@ class ShopsController extends Controller
             ]);
         }
     }
+    
+
 }
