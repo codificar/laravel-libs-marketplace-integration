@@ -18,6 +18,17 @@ class OrderController extends Controller
     {
         $orders = OrdersRepository::getOrders($id);
 
+        foreach ($orders as $key => $order) {
+            if($order->mmerchant) {
+                $diffDistance = \DB::select( \DB::raw(
+                    "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$order->mmerchant->longitude." ".$order->mmerchant->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
+                ));
+                \Log::debug("DISTANCE: ".print_r($diffDistance,1));
+                $calculatedDistance = $diffDistance[0]->diffDistance;
+                $order->distance = $calculatedDistance;
+            }
+        }
+        
         return new OrdersResource($orders);
 
     }

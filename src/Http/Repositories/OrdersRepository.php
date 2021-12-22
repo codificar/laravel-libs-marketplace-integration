@@ -23,9 +23,12 @@ class OrdersRepository extends OrderDetails
             $query->where('shop_id', $id);
         }
 
+        $query->with('merchant');
+
         $query->whereIn('code', OrderDetails::ORDER_STATUS);
 
-        return $query->orderBy('distance', 'DESC')
+        return $query   
+                        // ->orderBy('distance', 'DESC')
                         ->orderBy('order_detail.display_id', 'ASC')
                         ->orderBy('order_detail.client_name', 'ASC')
                         ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
@@ -42,12 +45,9 @@ class OrdersRepository extends OrderDetails
      */
     public static function updateOrder($data)
     {
-        \Log::debug('Data: '.print_r($data, 1));
-
         $marketConfig = MerchantDetails::where('merchant_id', $data->merchant->id)->first();
 
         $timestamp = strtotime($data->createdAt);
-        $createdAt = date('Y-m-d H:i:s', $timestamp);
         $timestamp = strtotime($data->preparationStartDateTime);
         $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
         \Log::debug('Name:: '.print_r($data->customer->name, 1));
@@ -57,7 +57,6 @@ class OrdersRepository extends OrderDetails
             'order_id'                      => $data->id,
             'client_name'                   => $data->customer->name,
             'merchant_id'                   => $data->merchant->id,
-            'created_at_ifood'              => $createdAt,
             'order_type'                    => $data->orderType,
             'display_id'                    => $data->displayId,
             'preparation_start_date_time'   => $preparationStartDateTime,

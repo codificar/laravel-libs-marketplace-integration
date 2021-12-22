@@ -22,7 +22,6 @@ class ShopsController extends Controller
      */
     public function index()
     {
-        \Log::debug('User: '.print_r(\AdminInstitution::whereAdminId(\Admin::getCorpAdmin()->id)->first(),1));
         $adminInstitution = \AdminInstitution::whereAdminId(\Admin::getCorpAdmin()->id)->first();
         $shops = ShopsRepository::getAllShops($adminInstitution->institution_id);
         return new ShopResource($shops);

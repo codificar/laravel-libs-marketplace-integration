@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetails extends Model
 {
+    protected $table = 'mkt_orders_details';
+
     const ORDER_STATUS = ['CFM', 'RDA', 'DSP'];
 
     use SoftDeletes;
     
-    protected $table = 'order_detail';
     protected $fillable = [
         'request_id',
         'tracking_route',
@@ -48,5 +49,10 @@ class OrderDetails extends Model
     public function getItems()
     {
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'order_id', 'order_id');
+    }
+
+    public function merchant()
+    {
+        return $this->belongsTo('Codificar\MarketplaceIntegration\Models\MerchantDetails', 'merchant_id', 'merchant_id');
     }
 }

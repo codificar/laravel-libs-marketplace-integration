@@ -2,6 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Models;
 
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
