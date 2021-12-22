@@ -75,7 +75,7 @@ const actions = {
           action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
           action_type:2,
           complement: `Cliente ${element.client_name}: ${element.complement}`,
-          collect_value: element.prepaid ? '' : element.order_amount,
+          collect_value: element.prepaid ? null : element.order_amount,
           change: element.prepaid ? '' : element.change_for,
           form_of_receipt: element.method_payment,
           collect_pictures:0,
@@ -146,10 +146,10 @@ const actions = {
     },
     makeManualRequest({commit}, data)
     {
-      commit('STATUS_REQUEST');
-      let points = createPoints(data, this.state.shops, 'makeManualRequest');
-      console.log("POints created:=> ", points);
-      post(`/corp/request/add`,  points );
+      // commit('STATUS_REQUEST');
+      let response = createPoints(data, this.state.shops, 'makeManualRequest');
+      console.log("POints created:=> ", response);
+      post(`/corp/request/add`,  response );
 
     },
     updateOrder({commit}, data) {
@@ -310,10 +310,10 @@ const actions = {
       commit('STATUS_RELOAD', status);
       axios.post('/corp/api/orders/'+id, id)
         .then(res => {
-          console.log("Orders", res.data);
-          res.data.forEach(element => {
-            commit('CREATE_ORDER', element);
-          });
+          console.log("Orders Hari", res.data);
+          // res.data.data.forEach(element => {
+            commit('CREATE_ORDER', res.data);
+          // });
           if (res.status == 200) {
             // Vue.swal.fire({
             //   title: 'Sucesso!',

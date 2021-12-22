@@ -31,7 +31,7 @@ class IFoodApi implements IMarketplace
             $this->clientId          = \Settings::findByKey('ifood_client_id');
             $this->clientSecret      = \Settings::findByKey('ifood_client_secret');
             $this->accessToken = \Settings::updateOrCreateByKey('ifood_auth_token',$this->auth((object)array('clientId' => $this->clientId, 'clientSecret' => $this->clientSecret)));
-            $expiryToken = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+            $expiryToken = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
         } else {
             $this->accessToken = \Settings::getMarketPlaceToken('ifood_auth_token');
         }
@@ -51,9 +51,19 @@ class IFoodApi implements IMarketplace
      * 
      * @return mixed  
      */
-    public function send($requestType, $route, $headers, $body = NULL)
+    public function send($requestType, $route, $headers, $body = NULL, $retry = 0)
     {
         $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
+
+        // reautenticacao caso a chave tenha dado 401 e um novo retry
+        if($response->getStatusCode() == 401 && $retry < 3){
+            $clientId          = \Settings::findByKey('ifood_client_id');
+            $clientSecret      = \Settings::findByKey('ifood_client_secret');
+            $this->auth($clientId, $clientSecret);
+    
+            return $this->send($requestType, $route, $headers, $body, ++$retry);
+        }
+
         return $response->getBody()->getContents();
     }
     

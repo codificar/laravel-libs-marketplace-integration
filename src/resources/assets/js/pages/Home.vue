@@ -199,6 +199,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             RefreshScreen
         },
         data: () => ({
+            searchQuery: null,
             loading: true,
             loader: null,
             attrs: {
@@ -214,15 +215,78 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 type: [Boolean, String],
                 default: true
             },
+            objectData: {},
+            data: {
+                pagination: {
+                    actual : 1,
+                    itensPerPage : 10
+                },
+                filters: {
+                    institution: '',
+                    ItensPerPage: 10
+                },
+                order: {
+                    field: '',
+                    direction: ''
+                },
+                range: [
+                    null,
+                    null
+                ]
+            }
         }),
         created(){
             this.getShop();
         },
         mounted() {
             console.log('Component mounted.');
-            this.getOrders();            
+            this.getOrders();
+            this.resultQuery();
         },
         methods: {
+            returnString(){
+                return JSON.stringify(this.$store.state.orders);
+            },
+            disabledBeforeToday(date){
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                return date < today;
+            },
+            fetch(page = 1) {
+                console.log("Log in fetch");
+                var component = this;
+                // fazemos isso porque as datas são pegas como objetos
+                // então transformamos elas em string pra enviar ao backend
+                this.$store.commit('CLEAR_ORDERS');
+                this.data.pagination.page = page;
+                axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, this.data)
+                .then(
+                    response => {
+                        console.log('sucesso');
+                        console.log(response.data);
+                        component.$store.commit('CREATE_ORDER', response.data);
+                    },
+                    response => {
+                        //console.log(response.data);
+                    // error callback
+                    }
+                );
+                this.$nextTick();
+            },
+            resultQuery(){
+                if(this.searchQuery){
+                    console.log("filter");
+                    return this.$store.state.orders.data.filter((item)=>{
+                        return this.searchQuery.toLowerCase().split(' ').every(v => item.display_id.toLowerCase().includes(v))
+                        || this.searchQuery.toLowerCase().split(' ').every(v => item.neighborhood.toLowerCase().includes(v)) 
+                        || this.searchQuery.toLowerCase().split(' ').every(v => item.client_name.toLowerCase().includes(v))
+                    });
+                }else{
+                    console.log("filter else");
+                    return this.$store.state.orders.data;
+                }
+            },
             formatNumber(number)
             {
                 number = number.toFixed(2) + '';
@@ -250,6 +314,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 if (this.$store.state.orders.length == 0) {
                     console.log("Vazio");
                 }
+
             },
             formatCurrency(value){
                 return (value).toLocaleString('pt-BR', {
@@ -258,7 +323,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 });
             }, 
             makeRequest(type = 'makeRequest'){
-                this.loading = true;
+                // this.loading = true;
                 this.$store.dispatch(type, this.selected)
             },
             showDetails(order) {
@@ -295,6 +360,19 @@ import RefreshScreen from "../components/RefreshScreen.vue";
 
                 this.loader = null
             },
+            "data.range": {
+                handler: function(newVal, oldVal){
+                    console.log("OldVal: ", oldVal);
+                    console.log("newVal: ", newVal);
+                    if (newVal == undefined) {
+                        this.data.range = oldVal;
+                    } else {
+                        this.data.range = newVal;
+                    }
+                    this.fetch();
+                },
+                deep: true
+            }
         }
     }
 </script>

@@ -16,7 +16,7 @@ class Polling extends Command
      *
      * @var string
      */
-    protected $signature = 'events:polling';
+    protected $signature = 'marketplace:polling';
 
     /**
      * The console command description.

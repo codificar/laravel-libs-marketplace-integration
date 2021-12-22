@@ -34,10 +34,11 @@ class RequestUpdateListener implements ShouldQueue
      */
     public function shouldQueue(RequestUpdate $request)
     {
-        $order = OrderDetails::where('request_id', '=', $request->request_id)->get();
-        if (empty($order)) {
-            return TRUE;
+        $data = $request->broadcastWith();
+        if (!empty($data)) {
+            \Log::debug(__FUNCTION__.'::data inst empty');
+            return true;
         }
-        return FALSE;
+        return false;
     }
 }
