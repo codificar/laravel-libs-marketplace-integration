@@ -6,7 +6,9 @@ Abra uma nova janela do Visual Studio e selecione a pasta do vendor/codificar/ma
 
 Instale as libs para desenvolvimento com o comando `yarn install`
 
+## Escute as modificações 
 
+Para atualizar o projeto em dev em tempo real, use o comando `yarn watch` que irá salvar as atualizações feitas e publicará na pasta do projeto que o compete
 
 # Ambiente de Publicação
 

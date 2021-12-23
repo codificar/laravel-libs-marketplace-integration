@@ -110,6 +110,7 @@ const actions = {
                 }
               });
             });
+  
             commit('STATUS_REQUEST');
             Vue.swal({
               title: 'Sucesso!',
