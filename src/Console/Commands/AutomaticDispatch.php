@@ -2,9 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
+use Codificar\MarketplaceIntegration\Repositories\DispatchRepository;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
@@ -38,20 +36,46 @@ class AutomaticDispatch extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
-       
+        
+        $shopOrders = [];
+        $sentinelShopId = null ;
+
+        $orders = DispatchRepository::getOrders();
+        
+        foreach ($orders as $order){
+            
+            if($order->shop_id != $sentinelShopId) {
+
+                $this->dispatch($shopOrders[$sentinelShopId]);
+
+                $sentinelShopId = $order->shop_id; // changes sentinel
+
+            }
+
+            if(!array_key_exists($sentinelShopId)) $shopOrders[$sentinelShopId] = [];
+
+            $shopOrders[$sentinelShopId][] = $order; 
+        }
     }
 
     /**
-     * Execute the console command.
+     * Dispatch when changed the sentinel
      *
-     * @return mixed
+     * @return void
      */
-    public function polling()
-    {
-    
+    public function dispatch(array $shopOrderArray){
+
+        // first rule - reach 3 or more orders
+        if(count($shopOrderArray) > 2){
+            // create the order
+        }
+
+        // second rule - reach time limit
+
     }
+
 }

@@ -22,10 +22,12 @@ class DispatchRepository
     {
         $query = OrderDetails::query();
 
-        // 
-        $query->whereIn('code', ['CFM', 'RDA']);
-        
-        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+        // set code to all orders available to delivery
+        $query->whereIn('code', [OrderDetails::CONFIRMED, OrderDetails::REQUEST_DRIVER_AVAILABILITY])
+            ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+
+        // we need to order by shop_id 
+        $query->orderBy('order_detail.shop_id', 'ASC');
 
         return $query->all();
     }
