@@ -27,7 +27,7 @@ import 'vue2-datepicker/index.css';
 const opts = {}
 
 const app = new Vue({
-    el: '#app',
+    el: '#marketplace-integration',
     vuetify,
     VueSweetalert2,
     DatePicker,
