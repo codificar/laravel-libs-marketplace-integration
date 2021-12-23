@@ -1,6 +1,13 @@
-# Ambiente de Testes
+# Ambiente de Dev
 
-Altere o composer.json do 
+Abra uma nova janela do Visual Studio e selecione a pasta do vendor/codificar/marketplace-integration
+
+## Instale as libs
+
+Instale as libs para desenvolvimento com o comando `yarn install`
+
+
+
 # Ambiente de Publicação
 
 Altere o composer.json do projeto

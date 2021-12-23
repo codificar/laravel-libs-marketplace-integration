@@ -1,3 +1,6 @@
 {
-    "/js/app.js": "/js/app.js?id=1c6e0e729a527946cf48"
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css",
+    "/img/ifood.jpg": "/img/ifood.jpg",
+    "/public/vendor/codificar/marketplace-integration/mix-manifest.json": "/public/vendor/codificar/marketplace-integration/mix-manifest.json"
 }

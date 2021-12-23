@@ -23,7 +23,6 @@
 @endsection
 
 @section('content')
-    <div id="ifood"></div>
-    <script src="{{ elixir('vendor/codificar/marketplace-integration/app.js') }}"></script>
+    <div id="marketplace-integration"></div>
+    <script src="{{ elixir('vendor/codificar/marketplace-integration/js/app.js') }}"></script>
 @endsection
-

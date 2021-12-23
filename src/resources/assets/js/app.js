@@ -20,7 +20,7 @@ Vue.config.productionTip = false
 Vue.use(VueSweetalert2)
 
 new Vue({
-  el: '#ifood',
+  el: '#marketplace-integration',
   VueSweetalert2,
   router,
   store,

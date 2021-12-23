@@ -643,7 +643,7 @@ const actions = {
       .then(res =>{
         if (res.status == 200) {
           console.log("ifood_client_id", res.data.ifood_client_id.value);
-          commit('credentials', {'ifood_client_id': res.data.ifood_client_id.value, 'ifood_client_secret' : res.data.ifood_client_secret.value});
+          commit('CREDENTIALS', {'ifood_client_id': res.data.ifood_client_id.value, 'ifood_client_secret' : res.data.ifood_client_secret.value});
           // Vue.swal.fire({
           //   title: 'Sucesso!',
           //   text: res.data.message,
