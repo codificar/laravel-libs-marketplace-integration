@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 const actions = {
     makeRequest({commit}, data){
       commit('STATUS_REQUEST');
@@ -108,8 +110,9 @@ const actions = {
                 }
               });
             });
+  
             commit('STATUS_REQUEST');
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Sucesso!',
               text: "Corrida criada com sucesso!",
               icon: 'success',
@@ -120,7 +123,7 @@ const actions = {
             console.log("Orders: ", this.state.orders);
           } else {
             if (res.data.error) {
-              Vue.swal.fire({
+              Vue.swal({
                 title: 'Atenção!',
                 text: res.data.error,
                 icon: 'warning',
@@ -129,7 +132,7 @@ const actions = {
                 window.location.reload();
               });
             } else {
-              Vue.swal.fire({
+              Vue.swal({
                 title: 'Atenção!',
                 text: res.data.errors[0],
                 icon: 'warning',
@@ -158,7 +161,7 @@ const actions = {
       .then(res => {
         console.log("Res: ", res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Atualizado com sucesso!",
             icon: 'success',
@@ -167,7 +170,7 @@ const actions = {
             window.location.reload();
           })
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data,
             icon: 'warning',
@@ -177,7 +180,7 @@ const actions = {
         }
       })
       .catch(err =>{
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -206,7 +209,7 @@ const actions = {
         // commit('UPDATE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Confirmado com sucesso!",
             icon: 'success',
@@ -215,7 +218,7 @@ const actions = {
           });
           window.location.reload();
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data,
             icon: 'warning',
@@ -223,7 +226,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -242,7 +245,7 @@ const actions = {
         commit('DELETE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Confirmado com sucesso!",
             icon: 'success',
@@ -250,7 +253,7 @@ const actions = {
             timer: 1500
           });
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data,
             icon: 'warning',
@@ -258,7 +261,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -277,7 +280,7 @@ const actions = {
         // commit('UPDATE_ORDER', res.data)
         console.log(res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Confirmado com sucesso!",
             icon: 'success',
@@ -286,7 +289,7 @@ const actions = {
           });
           window.location.reload();
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data,
             icon: 'warning',
@@ -294,7 +297,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -315,7 +318,7 @@ const actions = {
             commit('CREATE_ORDER', res.data);
           // });
           if (res.status == 200) {
-            // Vue.swal.fire({
+            // Vue.swal({
             //   title: 'Sucesso!',
             //   text: "Lista atualizada com sucesso!",
             //   icon: 'success',
@@ -323,7 +326,7 @@ const actions = {
             //   timer: 1500
             // });
           } else {
-            // Vue.swal.fire({
+            // Vue.swal({
             //   title: 'Atenção!',
             //   text: res.data.errors,
             //   icon: 'warning',
@@ -331,7 +334,7 @@ const actions = {
             // })
           }
         }).catch(err => {
-          // Vue.swal.fire({
+          // Vue.swal({
           //   title: 'Error!',
           //   text: err,
           //   icon: 'error',
@@ -353,7 +356,7 @@ const actions = {
             commit('FETCH_SELECTED_SHOP', res.data[0]);
             commit('CREATE_SHOP', res.data[0]);
             commit('showDetails', data.key);
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Sucesso!',
               text: "Salvo com sucesso!",
               icon: 'success',
@@ -362,7 +365,7 @@ const actions = {
             });
             // this.dispatch('getOrders', res.data.id);
           } else if (res.data.code == 401) {
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Atenção!',
               text: res.data.message,
               icon: 'warning',
@@ -370,7 +373,7 @@ const actions = {
             });
           }
         } else if (res.data.data) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data.errors,
             icon: 'warning',
@@ -378,7 +381,7 @@ const actions = {
           });
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -396,7 +399,7 @@ const actions = {
         
         console.log(res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Salvo com sucesso!",
             icon: 'success',
@@ -406,7 +409,7 @@ const actions = {
           commit('UPDATE_SHOP', res.data);
           commit('showDetails', data.key);
         } else if (res.data.data) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data.errors,
             icon: 'warning',
@@ -414,7 +417,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -432,7 +435,7 @@ const actions = {
         console.log(res);
         if (res.status == 201 || res.status == 200) {
           if (!res.data.code) {
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Sucesso!',
               text: "Salvo com sucesso!",
               icon: 'success',
@@ -442,7 +445,7 @@ const actions = {
             commit('showDetails', data.key);
             // window.location.reload();
           } else {
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Atenção!',
               html: res.data.message,
               icon: 'warning',
@@ -450,7 +453,7 @@ const actions = {
             });
           }
         } else if (res.data) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data.errors,
             icon: 'warning',
@@ -458,7 +461,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -475,7 +478,7 @@ const actions = {
         console.log('Save ',res.data);
         console.log(res);
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: "Salvo com sucesso!",
             icon: 'success',
@@ -485,7 +488,7 @@ const actions = {
           commit('showDetails', data.key);
           window.location.reload();
         } else if (res.data) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data.errors,
             icon: 'warning',
@@ -493,7 +496,7 @@ const actions = {
           })
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -510,7 +513,7 @@ const actions = {
           console.log('deleteMarketConfig reponse data ',res.data);
           console.log(res);
           if (res.status == 200 && res.data.success) {
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Sucesso!',
               text: "Salvo com sucesso!",
               icon: 'success',
@@ -520,7 +523,7 @@ const actions = {
             commit('showDetails', data.key);
             window.location.reload();
           } else if (res.data) {
-            Vue.swal.fire({
+            Vue.swal({
               title: 'Atenção!',
               text: res.data.errors,
               icon: 'warning',
@@ -528,7 +531,7 @@ const actions = {
             })
           }
         }).catch(err => {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Error!',
             text: err,
             icon: 'error',
@@ -543,7 +546,7 @@ const actions = {
       .then(res => {
         console.log("res: ",res);
         if (res.status == 200) {
-          // Vue.swal.fire({
+          // Vue.swal({
           //   title: 'Sucesso!',
           //   text: "Salvo com sucesso!",
           //   icon: 'success',
@@ -551,7 +554,7 @@ const actions = {
           //   timer: 1500
           // })
         } else if (res.data) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: res.data.errors,
             icon: 'warning',
@@ -561,7 +564,7 @@ const actions = {
       })
       .catch(err => {
         console.log("Error", err);
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -581,7 +584,7 @@ const actions = {
           res.data.forEach(element => {
             this.dispatch('getOrders', element.id);
             if (element.get_config.length == 0) {
-              Vue.swal.fire({
+              Vue.swal({
                 title: 'Atenção!',
                 text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
                 icon: 'warning',
@@ -590,7 +593,7 @@ const actions = {
             }
           });          
         } else if (res.data == 0) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
             icon: 'warning',
@@ -599,7 +602,7 @@ const actions = {
         }
         console.log("Saindo: ", this.state.status_reload);
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -612,7 +615,7 @@ const actions = {
       axios.post('/admin/settings/credentials/save', data)
       .then(res =>{
         if (res.status == 200) {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Sucesso!',
             text: res.data.message,
             icon: 'success',
@@ -620,7 +623,7 @@ const actions = {
             timer: 1500
           });
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             html: res.data.message,
             icon: 'warning',
@@ -629,7 +632,7 @@ const actions = {
           });
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',
@@ -643,15 +646,15 @@ const actions = {
       .then(res =>{
         if (res.status == 200) {
           console.log("ifood_client_id", res.data.ifood_client_id.value);
-          commit('credentials', {'ifood_client_id': res.data.ifood_client_id.value, 'ifood_client_secret' : res.data.ifood_client_secret.value});
-          // Vue.swal.fire({
+          commit('CREDENTIALS', {'ifood_client_id': res.data.ifood_client_id.value, 'ifood_client_secret' : res.data.ifood_client_secret.value});
+          // Vue.swal({
           //   title: 'Sucesso!',
           //   text: res.data.message,
           //   icon: 'success',
           //   confirmButtonText: 'OK'
           // });
         } else {
-          Vue.swal.fire({
+          Vue.swal({
             title: 'Atenção!',
             html: res.data.message,
             icon: 'warning',
@@ -660,7 +663,7 @@ const actions = {
           });
         }
       }).catch(err => {
-        Vue.swal.fire({
+        Vue.swal({
           title: 'Error!',
           text: err,
           icon: 'error',

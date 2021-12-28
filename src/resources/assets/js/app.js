@@ -19,14 +19,11 @@ Vue.config.productionTip = false
 
 Vue.use(VueSweetalert2)
 
-const app = new Vue({
-    el: '#marketplace-integration',
-    vuetify,
-    VueSweetalert2,
-    DatePicker,
-    store: store,
-    router: Route,
-    render: h => h(App),
-});
-
-export default app
+new Vue({
+  el: '#marketplace-integration',
+  VueSweetalert2,
+  router,
+  store,
+  components: { App },
+  template: '<App/>'
+})

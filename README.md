@@ -1,30 +1,16 @@
-# Integrações disponíveis
+# Ambiente de Dev
 
-## iFood
+Abra uma nova janela do Visual Studio e selecione a pasta do vendor/codificar/marketplace-integration
 
-Esse módulo atualmente somente está compatível com o iFood, pois é o principal marketplace do Brasi.
+## Instale as libs
 
-A documentação do iFood pode ser acessada pela URL:
+Instale as libs para desenvolvimento com o comando `yarn install`
 
-https://developer.ifood.com.br/pt-BR/docs/guides
+## Escute as modificações 
 
-### Gerar um pedido de Testes
+Para atualizar o projeto em dev em tempo real, use o comando `yarn watch` que irá salvar as atualizações feitas e publicará na pasta do projeto que o compete
 
-Leia atentamente a documentação: https://developer.ifood.com.br/pt-BR/docs/guides/order/workflow/#testes
-
-E solicite ao gerente o usuário de testes da Codificar, para iniciar o procedimento.
-
-Mas em resumo os procedimentos são:
-
-1. Faça login no iFood.com.br com os dados de desenvolvedor da Codificar
-2. Insira o endereço "Ramal Bujari, 100" e depois confirme a localização. No campo bairro informe "Bujari" e clique em "Salvar Endereço"
-3. Rode o comando de polling para abrir a loja: `php artisan marketplace:polling`
-4. Vá na loja Teste da Codificar e faça um pedido de compra: https://www.ifood.com.br/delivery/bujari-ac/teste---codificar-sistemas-3282-bujari/9fbd626b-723b-4bb0-86d8-0a75b23285b6
-5. Caso o supervisor não esteja habilitado, rode o comando `php artisan marketplace:polling` sempre que desejar atualizar o status do pedido
-6. Para aceitar o pedido no windows baixe o gestor de pedidos do Ifood: https://gestordepedidos.ifood.com.br/#/download
-7. No Linux, abra o arquivo insomnia.json na pasta root deste projeto e execute a confirmação do pedido
-
-
+# Ambiente de Publicação
 
 
 

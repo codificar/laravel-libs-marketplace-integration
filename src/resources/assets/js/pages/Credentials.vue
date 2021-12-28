@@ -6,30 +6,26 @@
             <div class="card-body">
                 <div class="panel-body">
                     <div class="modal-body">
-                        <v-form
-                            ref="form"
-                            v-model="valid"
-                            lazy-validation
+                        
+                        <input
+                            v-model="$store.state.ifood_client_id"
+                            label="CLIENT_ID"
+                            required
+                        />
+                        <input
+                            v-model="$store.state.ifood_client_secret"
+                            label="CLIENT_SECRET"
+                            required
+                        />
+                        <b-button
+                            :disabled="!valid"
+                            color="success"
+                            class="mr-0"
+                            @click="saveCredentials"
                         >
-                            <input
-                                v-model="$store.state.ifood_client_id"
-                                label="CLIENT_ID"
-                                required
-                            />
-                            <input
-                                v-model="$store.state.ifood_client_secret"
-                                label="CLIENT_SECRET"
-                                required
-                            />
-                            <v-btn
-                                :disabled="!valid"
-                                color="success"
-                                class="mr-0"
-                                @click="saveCredentials"
-                            >
-                                Salvar
-                            </v-btn>
-                        </v-form>
+                            Salvar
+                        </b-button>
+                    
                     </div>
                 </div>
             </div>
