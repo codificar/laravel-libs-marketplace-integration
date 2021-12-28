@@ -60,8 +60,8 @@ class MarketplaceServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'command.events.polling',
-            'command.check.request'
+            'command.marketplace.polling',
+            'command.marketplace.dispatch'
         ];
     }
 }
