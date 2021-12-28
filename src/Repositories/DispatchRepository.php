@@ -188,7 +188,7 @@ class DispatchRepository
         }
         else {
 
-            $settings = \Settings::findByKey('payment_voucher');
+            $settings = \Settings::findByKey('dispatch_wait_time_limit');
 
             if ($settings)
                 return $settings;
