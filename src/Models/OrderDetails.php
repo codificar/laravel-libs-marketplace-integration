@@ -77,6 +77,16 @@ class OrderDetails extends Model
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
     }
 
+    public function address()
+    {
+        return $this->belongsTo('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
+    }
+
+    public function market()
+    {
+        return $this->belongsTo('Codificar\MarketplaceIntegration\Models\MarketConfig', 'merchant_id', 'merchant_id');
+    }
+
     public function getItems()
     {
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'order_id', 'order_id');

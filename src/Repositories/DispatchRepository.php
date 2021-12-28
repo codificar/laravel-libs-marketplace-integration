@@ -74,52 +74,29 @@ class DispatchRepository
         $formRequest->points[]['form_of_receipt']               = null ;
         $formRequest->points[]['collect_pictures']              = false;
         $formRequest->points[]['collect_signature']             = false ;
-        $formRequest->points[]['geometry']['location']['lat'];
-        $formRequest->points[]['geometry']['location']['lng'];
-        $formRequest->points[]['address']                       = $shopOrderArray[0]->address;
-        $formRequest->points[]['order_id'] ;
+        $formRequest->points[]['geometry']['location']['lat']   = $shopOrderArray[0]->market->latitude;
+        $formRequest->points[]['geometry']['location']['lng']   = $shopOrderArray[0]->market->longitude;
+        $formRequest->points[]['address']                       = $shopOrderArray[0]->market->address;
+        $formRequest->points[]['order_id']                      = null;
 
         // mount others points
         foreach($shopOrderArray as $order){
-/*
-             //add delivery points, point B,C, D and so on
-        request.points.push({
-            address: element.formatted_address,
-            formatted_address: element.formatted_address,
-            geometry:{
-              location:{
-                lat:element.latitude,
-                lng:element.longitude
-              }
-            },
-            title: this.state.alphabet[index+1].toLocaleUpperCase(),
-            action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
-            action_type:2,
-            complement: `Cliente ${element.client_name}: ${element.complement}`,
-            collect_value: element.prepaid ? null : element.order_amount,
-            change: element.prepaid ? '' : element.change_for,
-            form_of_receipt: element.method_payment,
-            collect_pictures:0,
-            collect_signature:0,
-            address_instructions: `Entregar pedido número ${element.display_id} para ${element.client_name}`
-          })
-          request.institution_id = shop[0].institution_id
-          if (!element.prepaid) {
-            request.return_to_start = true;
-          }
 
-          */
-            $formRequest->points[]['title'] ;
-            $formRequest->points[]['action_type'] ;
-            $formRequest->points[]['collect_value'] ;
-            $formRequest->points[]['change'] ;
-            $formRequest->points[]['form_of_receipt'] ;
-            $formRequest->points[]['collect_pictures'] ;
-            $formRequest->points[]['collect_signature'] ;
-            $formRequest->points[]['geometry']['location']['lat'];
-            $formRequest->points[]['geometry']['location']['lng'];
-            $formRequest->points[]['address'] ;
-            $formRequest->points[]['order_id'] = $order->display_id;
+            $formRequest->points[]['title']                         = chr(64 + (++$letter)) ;
+            $formRequest->points[]['action']                        = 2;
+            $formRequest->points[]['action_type']                   = 2;
+            $formRequest->points[]['collect_value']                 = $order->prepaid ? null : $order->order_amount ;
+            $formRequest->points[]['change']                        = $order->prepaid ? null : $order->change_for ;
+            $formRequest->points[]['form_of_receipt']               = $order->method_payment ;
+            $formRequest->points[]['collect_pictures']              = false;
+            $formRequest->points[]['collect_signature']             = false;
+            $formRequest->points[]['geometry']['location']['lat']   = $order->address->latitude;
+            $formRequest->points[]['geometry']['location']['lng']   = $order->address->longitude;
+            $formRequest->points[]['address']                       = $order->address->formatted;
+            $formRequest->points[]['order_id']                      = $order->display_id;
+
+            // if any order is not prepaid, should return
+            if(!$order->prepaid) $formRequest->return_to_start  =   true ;
             
         }
 

@@ -26,9 +26,18 @@ class DeliveryAddress extends Model
         'longitude',
         'distance'
     ];
+
     protected $dates = [
         'deleted_at',
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * get formatted address attribute
+     * @return string formatted address 
+ 	 **/
+	public function getFormattedAttribute(){
+		return sprintf("%s, %s - %s - %s/%s", $this->street_name, $this->street_number, $this->neighborhood, $this->city, $this->state);
+	}
 }
