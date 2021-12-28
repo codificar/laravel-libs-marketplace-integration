@@ -72,6 +72,7 @@ class AutomaticDispatch extends Command
         // first rule - reach 3 or more orders
         if(count($shopOrderArray) > 2){
             // create the order
+            DispatchRepository::createRide($shopOrderArray);
         }
 
         // second rule - reach time limit
@@ -79,6 +80,7 @@ class AutomaticDispatch extends Command
 
         if($timePassed > DispatchRepository::getTimeLimit($shopOrderArray[0]->institution_id)){
             // create the order
+            DispatchRepository::createRide($shopOrderArray);
         }
 
     }

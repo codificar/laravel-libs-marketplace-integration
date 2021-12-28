@@ -52,7 +52,7 @@ class DispatchRepository
      *
      * @return array
      */
-    public static function dispatch(array $shopOrderArray){
+    public static function createRide(array $shopOrderArray){
         $formRequest        = new RequestCreateFormRequest();
         $requestController  = new RequestController();
 
