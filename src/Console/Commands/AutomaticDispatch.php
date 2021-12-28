@@ -48,7 +48,7 @@ class AutomaticDispatch extends Command
         
         foreach ($orders as $order){
             
-            if($order->shop_id != $sentinelShopId) {
+            if($order->shop_id != $sentinelShopId && ! is_null($sentinelShopId)) {
 
                 $this->dispatch($shopOrders[$sentinelShopId]);
 
@@ -75,6 +75,11 @@ class AutomaticDispatch extends Command
         }
 
         // second rule - reach time limit
+        $timePassed = Carbon::now()->diffInMinutes($shopOrderArray[0]->updated_at);
+
+        if($timePassed > DispatchRepository::getTimeLimit($shopOrderArray[0]->institution_id)){
+            // create the order
+        }
 
     }
 

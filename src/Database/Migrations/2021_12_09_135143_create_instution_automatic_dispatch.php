@@ -14,13 +14,13 @@ class CreateInstutionAutomaticDispatch extends Migration
     public function up()
     {
         try{
-            \Settings::updateOrCreate(array('key' => 'ifood_auth_token', 'value' => 'n/a'));
+            \Settings::updateOrCreate(array('key' => 'dispatch_wait_time_limit', 'value' => 10));
         }
         catch(Exception $ex){
 
         }
         try{
-            \Settings::updateOrCreate(array('key' => 'ifood_expiry_token', 'value' => Carbon::now()->addHours(-6)));
+            \Settings::updateOrCreate(array('key' => 'dispatch_max_delivery', 'value' => 3));
         
         }
         catch(Exception $ex){
@@ -31,6 +31,7 @@ class CreateInstutionAutomaticDispatch extends Migration
         Schema::create('automatic_dispatch', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('institution_id')->unsigned()->references('id')->on('institution')->onUpdate('CASCACE')->onDelete('CASCADE');
+            $table->integer('provider_type_id')->unsigned()->nullable()->references('id')->on('provider_type')->onUpdate('CASCACE')->onDelete('CASCADE');
             $table->integer('wait_time_limit')->unsigned()->default(600); // in seconds 
             $table->integer('max_delivery')->unsigned()->default(3); // 3.3 entregas é o padrão da hey
             $table->timestamps();
