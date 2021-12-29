@@ -10,7 +10,7 @@
         <div class="card col-lg-12 w-100 h-50 card card-outline-info">
             <div class="card-header justify-space-between">
                 <div class="ma-5 col-lg-4 col-md-4 align-center justify-start">
-                    <h4 class="m-b-0 text-white"> Pedidos </h4>
+                    <h4 class="m-b-0 text-white"> Pedidos</h4>
                 </div>
                 <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
                     <refresh-screen
@@ -61,7 +61,7 @@
                 </div>
             </div>
             <div class="card-body" v-if="!loading && $store.state.orders.length > 0">
-                <v-card 
+                <div 
                     class="pa-md-4 mx-lg-auto mb-2"
                     elevation="2"
                     v-for="order in $store.state.orders"
@@ -71,18 +71,10 @@
                         <div class="d-flex justify-space-between caption">
                             <div class="font-weight-black mr-3">
                                 <div class="font-weight-medium">
-                                    <v-avatar
-                                        size="64"
-                                        class="mr-5"
-                                    >
-                                        <v-img
-                                            :src="require('../images/ifood.jpg')"
-                                            alt="iFood"
-                                        />
-                                    </v-avatar>
+                                    <b-avatar src="http://entregas:8003/images/ifood.jpg" size="6rem"></b-avatar>
                                 </div>
                                 <div class="font-weight-medium">
-                                    {{$store.state.shops.filter(element => element.id == order.shop_id)[0].name}}
+                                    {{$store.state.shops.filter(element => element.id == order.shop_id)[0]}}
                                 </div>
                             </div>
                             <div class="font-weight-black">
@@ -140,11 +132,8 @@
                                         @click="showDetails(order)"
                                         style="width:150px;"
                                     >
-                                        <v-icon 
-                                            color="white"
-                                            left
-                                        >mdi-clipboard-text</v-icon>
-                                            <span class="font-weight-white white--text"> Detalhes</span>
+                                        <i class="mdi mdi-clipboard-text"></i>
+                                        <span class="font-weight-white white--text"> Detalhes</span>
                                     </b-button>
                                 </div>
                             </div>
@@ -173,17 +162,15 @@
                                         v-bind="attrs"
                                         :href="'/corp/request/tracking/'+order.tracking_route"
                                     >
-                                        <v-icon 
-                                            color="white"
-                                            left
-                                        >mdi-map</v-icon>
+                                        <i class="mdi mdi-map"></i>
+                                        
                                         ACOMPANHAR
                                     </b-button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </v-card>
+                </div>
             </div>
         </div>
         <!-- <modal-component v-if="$store.state.sheet"/> -->

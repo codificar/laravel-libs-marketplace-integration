@@ -6,7 +6,10 @@ import App from './views/App.vue'
 import router from './router.js'
 import store from './store/index.js'
 import VueSweetalert2 from 'vue-sweetalert2'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+
+import { BAvatar } from 'bootstrap-vue'
+Vue.component('b-avatar', BAvatar)
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

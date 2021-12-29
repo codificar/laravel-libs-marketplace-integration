@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderDetails extends Model
 {
-    // Constants from iFood
+    protected $table = 'mkt_orders_details';
 
     // ORDER_STATUS 
     const PLACED = 'PLC' ; // Novo Pedido na plataforma

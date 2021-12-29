@@ -2,12 +2,29 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Repositories;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\ShopsController;
 use Codificar\MarketplaceIntegration\Models\MerchantDetails;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 
 class OrdersRepository extends OrderDetails
 {
+
+    /**
+     * Create order by polling
+     * @author Diogo C. Coutinho
+     * 
+     * @param $data
+     * 
+     * @return OrderDetails $data
+     */
+    public static function createOrder($data)
+    {
+        return OrderDetails::create([
+            'full_code'                     => $data->fullCode,
+            'code'                          => $data->code,
+            'order_id'                      => $data->orderId
+        ]);
+    }
+
     /**
      * Get orders in database
      * @author Diogo C. Coutinho
@@ -25,7 +42,7 @@ class OrdersRepository extends OrderDetails
 
         $query->with('merchant');
 
-        $query->whereIn('code', OrderDetails::ORDER_STATUS);
+        $query->whereIn('code', [OrderDetails::CONFIRMED, OrderDetails::READY_TO_PICKUP, OrderDetails::DISPATCHED]);
 
         return $query   
                         // ->orderBy('distance', 'DESC')

@@ -314,9 +314,9 @@ const actions = {
       axios.post('/corp/api/orders/'+id, id)
         .then(res => {
           console.log("Orders Hari", res.data);
-          // res.data.data.forEach(element => {
-            commit('CREATE_ORDER', res.data);
-          // });
+          res.data.data.forEach(element => {
+            commit('CREATE_ORDER', element);
+          });
           if (res.status == 200) {
             // Vue.swal({
             //   title: 'Sucesso!',
