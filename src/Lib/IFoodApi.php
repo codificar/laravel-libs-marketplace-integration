@@ -48,18 +48,22 @@ class IFoodApi
     \Log::debug("route: ". print_r($route, 1));
     \Log::debug("headers: ". print_r($headers,1));
     \Log::debug("body: ". print_r($body,1));
-    $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-    \Log::debug("Code: ". $response->getStatusCode());
 
-    // reautenticacao caso a chave tenha dado 401 e um novo retry
-    if($response->getStatusCode() == 401 && $retry < 3){
-      $clientId          = \Settings::findByKey('ifood_client_id');
-      $clientSecret      = \Settings::findByKey('ifood_client_secret');
-      $this->auth($clientId, $clientSecret);
-
-      return $this->send($requestType, $route, $headers, $body, ++$retry);
+    try {
+      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
+      \Log::debug("Code: ". $response->getStatusCode());
     }
+    catch(Exception $ex){
+      // reautenticacao caso a chave tenha dado 401 e um novo retry
+      if($ex->getCode() == 401 && $retry < 3){
+        $clientId          = \Settings::findByKey('ifood_client_id');
+        $clientSecret      = \Settings::findByKey('ifood_client_secret');
+        $this->auth($clientId, $clientSecret);
 
+        return $this->send($requestType, $route, $headers, $body, ++$retry);
+      }  
+    }
+    
     return $response->getBody()->getContents();
   }
 

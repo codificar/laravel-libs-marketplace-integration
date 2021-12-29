@@ -5,6 +5,8 @@ namespace Codificar\MarketplaceIntegration\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Codificar\MarketplaceIntegration\Models\MarketConfig ;
+
 class OrderDetails extends Model
 {
     // Constants from iFood
@@ -79,12 +81,12 @@ class OrderDetails extends Model
 
     public function address()
     {
-        return $this->belongsTo('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
+        return $this->hasOne('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
     }
 
     public function market()
     {
-        return $this->belongsTo('Codificar\MarketplaceIntegration\Models\MarketConfig', 'merchant_id', 'merchant_id');
+        return $this->belongsTo(MarketConfig::class, 'merchant_id', 'merchant_id');
     }
 
     public function getItems()
