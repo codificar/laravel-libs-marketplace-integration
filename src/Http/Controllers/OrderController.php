@@ -28,7 +28,7 @@ class OrderController extends Controller
                 $order->distance = $calculatedDistance;
             }
         }
-        
+        \Log::info('Orders: '. print_r($orders,1));
         return new OrdersResource($orders);
 
     }

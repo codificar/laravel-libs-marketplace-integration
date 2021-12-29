@@ -64,12 +64,12 @@ class Polling extends Command
         }
 
         $res = $factory->getOrder();                   
-        \Log::info('Res: '.print_r($res,1));
         if ($res) {
             foreach (json_decode($res,1) as $i => $v) {
                 $acknowledgment = $factory->getAcknowledgment($v);
                 if ($res) {
-                    $data = OrdersRepository::createOrder($res);
+                    \Log::info('Res: '.print_r($v,1));
+
                     $orderDetail = $factory->getOrderDetails($v['orderId']);
                     $saved = OrdersRepository::updateOrder(json_decode($orderDetail));
                     \Log::info('saved: '.print_r($saved, 1));

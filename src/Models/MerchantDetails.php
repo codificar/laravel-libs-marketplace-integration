@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MerchantDetails extends Model
 {
     use SoftDeletes;
+
     protected $table = 'mkt_merchant_details';
+
     protected $fillable = [
         'id',
         'shop_id',
@@ -20,6 +22,7 @@ class MerchantDetails extends Model
         'longitude',
         'address',
     ];
+    
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
     public function getMarketplace(){

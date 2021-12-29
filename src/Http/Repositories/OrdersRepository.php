@@ -19,9 +19,9 @@ class OrdersRepository extends OrderDetails
     public static function createOrder($data)
     {
         return OrderDetails::create([
-            'full_code'                     => $data->fullCode,
-            'code'                          => $data->code,
-            'order_id'                      => $data->orderId
+            'full_code'                     => $data['fullCode'],
+            'code'                          => $data['code'],
+            'order_id'                      => $data['orderId']
         ]);
     }
 
@@ -67,9 +67,12 @@ class OrdersRepository extends OrderDetails
         $timestamp = strtotime($data->createdAt);
         $timestamp = strtotime($data->preparationStartDateTime);
         $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-        \Log::debug('Name:: '.print_r($data->customer->name, 1));
+        \Log::debug('Name:: '.print_r($data, 1));
 
-        return OrderDetails::whereOrderId($data->id)->update([
+        return OrderDetails::updateOrCreate([
+            'order_id'                      => $data->id,
+        ],
+        [
             'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
             'order_id'                      => $data->id,
             'client_name'                   => $data->customer->name,
@@ -85,9 +88,11 @@ class OrdersRepository extends OrderDetails
             'method_payment'                => $data->payments->methods[0]->method,
             'prepaid'                       => $data->payments->methods[0]->prepaid,
             'change_for'                    => $data->payments->methods[0]->method == 'CASH' ? $data->payments->methods[0]->cash->changeFor : '',
-            'card_brand'                     => $data->payments->methods[0]->method == 'CREDIT' ? $data->payments->methods[0]->card->brand : NULL,
-            'extra_info'                    => isset($data->extraInfo) ? $data->extraInfo : ''
-
+            'card_brand'                    => $data->payments->methods[0]->method == 'CREDIT' ? $data->payments->methods[0]->card->brand : NULL,
+            'extra_info'                    => isset($data->extraInfo) ? $data->extraInfo : '',
+            'full_code'                     => isset($data->fullCode) ? $data->fullCode : '',
+            'order_id'                      => isset($data->orderId) ? $data->orderId : '',
+            'code'                          => isset($data->code) ? $data->code : '',
         ]);
     }
 
