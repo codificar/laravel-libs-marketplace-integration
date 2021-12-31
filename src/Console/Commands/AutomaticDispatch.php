@@ -42,23 +42,32 @@ class AutomaticDispatch extends Command
     {
         
         $shopOrders = [];
-        $sentinelShopId = null ;
 
         $orders = DispatchRepository::getOrders();
 
+        $sentinelShopId = (count($orders) ? $orders[0]->shop_id : null ) ;
+
         $this->info(sprintf("Count orders: %s", count($orders)));
         
-        foreach ($orders as $order){
-            
-            if($order->shop_id != $sentinelShopId && !is_null($sentinelShopId)) {
-                $this->dispatch($shopOrders[$sentinelShopId]);
-            }
+        foreach ($orders as $index => $order){
 
+            $this->info(sprintf("shop_id: %s - order_id: %s", $order->shop_id, $order->id));
+
+            // create empty array
             if(!array_key_exists($sentinelShopId, $shopOrders)) $shopOrders[$sentinelShopId] = [];
 
             $shopOrders[$sentinelShopId][] = $order; 
 
-            $sentinelShopId = $order->shop_id; // changes sentinel
+            // changes sentinel
+            $newSentinelShopId = (isset($orders[$index+1]) ? $orders[$index+1]->shop_id : null); 
+            //$this->info(sprintf("sentinelShopId: %s - newSentinelShopId: %s", $sentinelShopId, $newSentinelShopId));
+
+            if($sentinelShopId != $newSentinelShopId) {
+                $this->info(sprintf("Dispatching shop_id: %s - count orders: %s", $sentinelShopId, count($shopOrders[$sentinelShopId])));
+                $this->dispatch($shopOrders[$sentinelShopId]);
+                $sentinelShopId = $newSentinelShopId;
+            }
+
         }
     }
 
@@ -70,20 +79,26 @@ class AutomaticDispatch extends Command
     public function dispatch(array $shopOrderArray){
 
         // rule variables
-        $timePassed = Carbon::now()->diffInMinutes($shopOrderArray[0]->updated_at);
         $timeLimit = DispatchRepository::getTimeLimit($shopOrderArray[0]->institution_id);
-        $this->info(sprintf("Count: %s - Time passed: %s - getTimeLimit: %s", count($shopOrderArray), $timePassed, $timeLimit));
 
-        // first rule - reach 3 or more orders
-        if(count($shopOrderArray) > 2){
-            // create the order
-            return DispatchRepository::createRide($shopOrderArray);
-        }
+        foreach(array_chunk($shopOrderArray, DispatchRepository::SIZE_LIMIT) as $orderArray){
+            // first rule - reach 3 orders
+            if(count($orderArray) == DispatchRepository::SIZE_LIMIT){
+                $this->info(sprintf("ShoId: %s - First Rule Count: %s", $orderArray[0]->shop_id, count($orderArray)));
+                // create the order
+                DispatchRepository::createRide($orderArray);
+                continue ;
+            }
 
-        // second rule - reach time limit
-        if($timePassed > $timeLimit){
-            // create the order
-            return DispatchRepository::createRide($shopOrderArray);
+            $timePassed = Carbon::now()->diffInMinutes($orderArray[0]->updated_at);
+            // second rule - reach time limit
+            if($timePassed > $timeLimit){
+                $this->info(sprintf("ShopId: %s - Second Rule Time: %s", $orderArray[0]->shop_id, $timePassed));
+                // create the order
+                DispatchRepository::createRide($orderArray);
+                continue;
+            }
+            
         }
 
     }
