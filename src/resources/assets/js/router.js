@@ -16,7 +16,7 @@ const router = new VueRouter({
             component: Home
         },
         {
-            path: '/admin/settings/credentials',
+            path: '/admin/marketplace-integration/credentials',
             name: 'credentials',
             component: Credentials
         },

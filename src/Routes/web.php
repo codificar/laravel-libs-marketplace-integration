@@ -19,5 +19,5 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
-    Route::get('/settings/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
+    Route::get('/marketplace-integration/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
 });
