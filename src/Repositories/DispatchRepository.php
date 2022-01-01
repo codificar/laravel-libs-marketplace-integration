@@ -9,6 +9,7 @@ use Codificar\MarketplaceIntegration\Models\AutomaticDispatch ;
 
 use App\Http\Requests\RequestCreateFormRequest;
 use api\v1\RequestController;
+use App\Models\RequestPoint ;
 
 use Carbon\Carbon;
 
@@ -91,8 +92,8 @@ class DispatchRepository
         $letter = 0;
         // first point it is the default shop location
         $point['title']                         =  chr(64 + $letter);
-        $point['action']                        = 4;
-        $point['action_type']                   = 4;
+        $point['action']                        = trans('requests.take_package');
+        $point['action_type']                   = RequestPoint::action_take_package;
         $point['collect_value']                 = null ;
         $point['change']                        = null ;
         $point['form_of_receipt']               = null ;
@@ -108,8 +109,8 @@ class DispatchRepository
         foreach($shopOrderArray as $order){
             $point                                  =   [];
             $point['title']                         = chr(64 + (++$letter)) ;
-            $point['action']                        = 2;
-            $point['action_type']                   = 2;
+            $point['action']                        = trans('requests.leave_package');
+            $point['action_type']                   = RequestPoint::action_leave_package;
             $point['collect_value']                 = $order->prepaid ? null : $order->order_amount ;
             $point['change']                        = $order->prepaid ? null : $order->change_for ;
             $point['form_of_receipt']               = $order->method_payment ;
