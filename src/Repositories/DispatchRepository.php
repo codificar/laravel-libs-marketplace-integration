@@ -34,7 +34,9 @@ class DispatchRepository
         $query->whereIn('code', [OrderDetails::CONFIRMED, OrderDetails::REQUEST_DRIVER_AVAILABILITY])
             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
             ->join('shops', 'order_detail.shop_id', '=', 'shops.id')
+            ->join('institution', 'institution.id', '=', 'shops.institution_id')
             ->join('market_config', 'order_detail.merchant_id', '=', 'market_config.merchant_id');
+            
 
         // the request should not be created
         $query->whereNull('order_detail.request_id');
@@ -53,12 +55,13 @@ class DispatchRepository
         $query->select(
             [
                 'order_detail.*', 
+                'institution.default_user_id',
                 'market_config.longitude as market_longitude', 
                 'market_config.latitude as market_latitude',
                 'market_config.address as market_address',
                 'delivery_address.longitude as delivery_longitude', 
                 'delivery_address.latitude as delivery_latitude',
-                'delivery_address.street_name as delivery_address'
+                \DB::raw('CONCAT(delivery_address.formatted_address, " - ", delivery_address.neighborhood) as delivery_address')
             ]
         );
 
@@ -75,50 +78,56 @@ class DispatchRepository
         $requestController  = new RequestController();
         
         $formRequest->institution_id        =   $shopOrderArray[0]->institution_id;
+        $formRequest->user_id               =   $shopOrderArray[0]->default_user_id;
         $formRequest->token                 =   null;
         $formRequest->provider_type         =   self::getProviderType($shopOrderArray[0]->institution_id);
         $formRequest->payment_mode          =   self::getPaymentMode($shopOrderArray[0]->institution_id);;
         $formRequest->return_to_start       =   false ;
+        $formRequest->is_automation         =   true ;
+        $formRequest->is_admin              =   true ;
         $formRequest->points                =   [];
+        $point                              =   [];
 
         $letter = 0;
         // first point it is the default shop location
-        $formRequest->points[]['title']                         =  chr(64 + $letter);
-        $formRequest->points[]['action']                        = 4;
-        $formRequest->points[]['action_type']                   = 4;
-        $formRequest->points[]['collect_value']                 = null ;
-        $formRequest->points[]['change']                        = null ;
-        $formRequest->points[]['form_of_receipt']               = null ;
-        $formRequest->points[]['collect_pictures']              = false;
-        $formRequest->points[]['collect_signature']             = false ;
-        $formRequest->points[]['geometry']['location']['lat']   = $shopOrderArray[0]->market_latitude;
-        $formRequest->points[]['geometry']['location']['lng']   = $shopOrderArray[0]->market_longitude;
-        $formRequest->points[]['address']                       = $shopOrderArray[0]->market_address;
-        $formRequest->points[]['order_id']                      = null;
+        $point['title']                         =  chr(64 + $letter);
+        $point['action']                        = 4;
+        $point['action_type']                   = 4;
+        $point['collect_value']                 = null ;
+        $point['change']                        = null ;
+        $point['form_of_receipt']               = null ;
+        $point['collect_pictures']              = false;
+        $point['collect_signature']             = false ;
+        $point['geometry']['location']['lat']   = $shopOrderArray[0]->market_latitude;
+        $point['geometry']['location']['lng']   = $shopOrderArray[0]->market_longitude;
+        $point['address']                       = $shopOrderArray[0]->market_formatted_address;
+        $poin['order_id']                      = null;
+        $formRequest->points[] = $point ;
 
         // mount others points
         foreach($shopOrderArray as $order){
-
-            $formRequest->points[]['title']                         = chr(64 + (++$letter)) ;
-            $formRequest->points[]['action']                        = 2;
-            $formRequest->points[]['action_type']                   = 2;
-            $formRequest->points[]['collect_value']                 = $order->prepaid ? null : $order->order_amount ;
-            $formRequest->points[]['change']                        = $order->prepaid ? null : $order->change_for ;
-            $formRequest->points[]['form_of_receipt']               = $order->method_payment ;
-            $formRequest->points[]['collect_pictures']              = false;
-            $formRequest->points[]['collect_signature']             = false;
-            $formRequest->points[]['geometry']['location']['lat']   = $order->delivery_latitude;
-            $formRequest->points[]['geometry']['location']['lng']   = $order->delivery_longitude;
-            $formRequest->points[]['address']                       = $order->delivery_address;
-            $formRequest->points[]['order_id']                      = $order->display_id;
+            $point                                  =   [];
+            $point['title']                         = chr(64 + (++$letter)) ;
+            $point['action']                        = 2;
+            $point['action_type']                   = 2;
+            $point['collect_value']                 = $order->prepaid ? null : $order->order_amount ;
+            $point['change']                        = $order->prepaid ? null : $order->change_for ;
+            $point['form_of_receipt']               = $order->method_payment ;
+            $point['collect_pictures']              = false;
+            $point['collect_signature']             = false;
+            $point['geometry']['location']['lat']   = $order->delivery_latitude;
+            $point['geometry']['location']['lng']   = $order->delivery_longitude;
+            $point['address']                       = $order->delivery_address;
+            $point['order_id']                      = $order->display_id;
+            $formRequest->points[] = $point ;
 
             // if any order is not prepaid, should return
             if(!$order->prepaid) $formRequest->return_to_start  =   true ;
             
         }
-
-
-        //return $requestController->create($formRequest);
+        //dd($formRequest->points);
+        $formRequest->rules();
+        return $requestController->create($formRequest);
     }
 
     /**

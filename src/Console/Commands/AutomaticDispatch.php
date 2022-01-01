@@ -41,7 +41,7 @@ class AutomaticDispatch extends Command
     public function handle()
     {
         
-        $shopOrders = [];
+        $shopOrders = $return = [];
 
         $orders = DispatchRepository::getOrders();
 
@@ -64,11 +64,13 @@ class AutomaticDispatch extends Command
 
             if($sentinelShopId != $newSentinelShopId) {
                 $this->info(sprintf("Dispatching shop_id: %s - count orders: %s", $sentinelShopId, count($shopOrders[$sentinelShopId])));
-                $this->dispatch($shopOrders[$sentinelShopId]);
+                $return [] = $this->dispatch($shopOrders[$sentinelShopId]);
                 $sentinelShopId = $newSentinelShopId;
             }
 
         }
+
+        $this->info(print_r($return,1));
     }
 
     /**
@@ -77,16 +79,16 @@ class AutomaticDispatch extends Command
      * @return void
      */
     public function dispatch(array $shopOrderArray){
-
+        $return = [];
         // rule variables
         $timeLimit = DispatchRepository::getTimeLimit($shopOrderArray[0]->institution_id);
 
         foreach(array_chunk($shopOrderArray, DispatchRepository::SIZE_LIMIT) as $orderArray){
             // first rule - reach 3 orders
             if(count($orderArray) == DispatchRepository::SIZE_LIMIT){
-                $this->info(sprintf("ShoId: %s - First Rule Count: %s", $orderArray[0]->shop_id, count($orderArray)));
+                $this->info(sprintf("ShopId: %s - First Rule Count: %s", $orderArray[0]->shop_id, count($orderArray)));
                 // create the order
-                DispatchRepository::createRide($orderArray);
+                $return [] = DispatchRepository::createRide($orderArray);
                 continue ;
             }
 
@@ -95,11 +97,13 @@ class AutomaticDispatch extends Command
             if($timePassed > $timeLimit){
                 $this->info(sprintf("ShopId: %s - Second Rule Time: %s", $orderArray[0]->shop_id, $timePassed));
                 // create the order
-                DispatchRepository::createRide($orderArray);
+                $return [] = DispatchRepository::createRide($orderArray);
                 continue;
             }
             
         }
+
+        $return ;
 
     }
 

@@ -250,7 +250,7 @@ class IFoodController extends Controller
                 $order->save();
             // }
             \Log::debug('Order: '.print_r($order, 1));
-            $order->getAddress;
+            $order->address;
             return $order;
             
         }catch (\Exception $e){
@@ -293,7 +293,7 @@ class IFoodController extends Controller
                 $order->save();
             }
             \Log::debug('Order: '.print_r($order, 1));
-            $order->getAddress;
+            $order->address;
             return $order;
             
         }catch (\Exception $e){
@@ -359,7 +359,7 @@ class IFoodController extends Controller
                 $order->save();
             // }
             \Log::debug('Order: '.print_r($order, 1));
-            $order->getAddress;
+            $order->address;
             return $order;
             
         }catch (\Exception $e){

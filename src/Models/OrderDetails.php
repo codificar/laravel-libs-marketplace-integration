@@ -74,23 +74,34 @@ class OrderDetails extends Model
         'deleted_at',
     ];
 
-    public function getAddress()
-    {
-        return $this->hasMany('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
-    }
-
+    /**
+     * Get the address associated with the order.
+     * @return DeliveryAddress
+     */
     public function address()
     {
         return $this->hasOne('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
     }
-
+     
+    /**
+     * Get the market_config that owns the merchant_id.
+     * @return MarketConfig
+     */
     public function market()
     {
         return $this->belongsTo(MarketConfig::class, 'merchant_id', 'merchant_id');
     }
 
-    public function getItems()
-    {
-        return $this->hasMany('Codificar\MarketplaceIntegration\Models\OrderItems', 'order_id', 'order_id');
+
+    /**
+     * Get the address associated with the market_config 
+     * @return string market_address
+     */
+    public function getMarketFormattedAddressAttribute(){
+        if($this->market_address){
+            $decoded = json_decode($this->market_address);
+
+            return sprintf('%s - %s', $decoded->street, $decoded->district);
+        }
     }
 }
