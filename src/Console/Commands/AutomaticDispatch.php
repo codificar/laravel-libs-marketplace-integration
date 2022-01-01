@@ -40,6 +40,11 @@ class AutomaticDispatch extends Command
      */
     public function handle()
     {
+        // if not enabled return false
+        if(!\Settings::findByKey('automatic_dispatch_enabled')) {
+            $this->info("Automatic dispatch is disabled");
+            return ;
+        }
         
         $shopOrders = $return = [];
 
@@ -70,7 +75,7 @@ class AutomaticDispatch extends Command
 
         }
 
-        $this->info(print_r($return,1));
+        //$this->info(print_r($return,1));
     }
 
     /**
@@ -103,7 +108,7 @@ class AutomaticDispatch extends Command
             
         }
 
-        $return ;
+        return $return ;
 
     }
 

@@ -21,6 +21,7 @@ use Carbon\Carbon;
 class DispatchRepository
 {
     const SIZE_LIMIT = 3;
+
     /**
      * @author Raphael Cangucu
      *
@@ -102,7 +103,7 @@ class DispatchRepository
         $point['geometry']['location']['lat']   = $shopOrderArray[0]->market_latitude;
         $point['geometry']['location']['lng']   = $shopOrderArray[0]->market_longitude;
         $point['address']                       = $shopOrderArray[0]->market_formatted_address;
-        $poin['order_id']                      = null;
+        $point['order_id']                      = null;
         $formRequest->points[] = $point ;
 
         // mount others points
@@ -119,7 +120,7 @@ class DispatchRepository
             $point['geometry']['location']['lat']   = $order->delivery_latitude;
             $point['geometry']['location']['lng']   = $order->delivery_longitude;
             $point['address']                       = $order->delivery_address;
-            $point['order_id']                      = $order->display_id;
+            $point['order_id']                      = $order->id;
             $formRequest->points[] = $point ;
 
             // if any order is not prepaid, should return
@@ -229,6 +230,26 @@ class DispatchRepository
                 return 10;
         }
 
+    }
+
+
+    /**
+     * Update the point and request_id at an order
+     * 
+     * @return OrderDetail
+     */
+    public static function setPoint($orderId, $pointId, $requestId)
+    {
+      
+        $order = OrderDetails::where([
+            'id'                       => $orderId
+        ])->update([
+                'request_id'                => $requestId,
+                'point_id'                  => $pointId,
+                'tracking_route'            => $requestId,
+        ]);
+
+        return $order;
     }
 
 }

@@ -13,6 +13,14 @@ class CreateInstutionAutomaticDispatch extends Migration
      */
     public function up()
     {
+
+        try{
+            \Settings::updateOrCreate(array('key' => 'automatic_dispatch_enabled', 'value' => false));
+        }
+        catch(Exception $ex){
+
+        }
+
         try{
             \Settings::updateOrCreate(array('key' => 'dispatch_wait_time_limit', 'value' => 10));
         }
