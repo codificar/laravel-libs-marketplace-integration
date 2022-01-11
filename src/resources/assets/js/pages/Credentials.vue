@@ -1,45 +1,87 @@
 <template>
   <div>
     <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-        <div class="card card-outline-info">
-            <div class="card-header">
-                <h4 class="text-white m-b-0">{{ trans('settings.ifood_credentials')}}</h4>
-            </div> 
 
-            <div class="card-block">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <b-form-group
-                            id="input-group-1"
-                            :label="trans('settings.ifood_client_id')"
-                            label-for="ifood_client_id"
-                        >
-                            <b-form-input
-                            id="ifood_client_id"
-                            v-model="form.ifood_client_id"
-                            type="text"
-                            required
-                            ></b-form-input>
-                        </b-form-group>
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                        <b-form-group
-                            id="input-group-2"
-                            :label="trans('settings.ifood_client_id')"
-                            label-for="ifood_client_secret"
-                            description="We'll never share your email with anyone else."
-                        >
-                            <b-form-input
-                            id="ifood_client_secret"
-                            v-model="form.ifood_client_secret"
-                            type="text"
-                            required
-                            ></b-form-input>
-                        </b-form-group>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div class="card card-outline-info">
+          <div class="card-header">
+              <h4 class="text-white m-b-0">{{ trans('settings.automatic_dispatch')}}</h4>
+              <div class="pull-right">
+                  <input type="checkbox" />
+              </div>
+          </div> 
+
+          <div class="card-block">
+              <div class="row">
+                  <div class="col-md-6 col-sm-12">
+                      <b-form-group
+                          id="input-group-1"
+                          :label="trans('settings.ifood_client_id')"
+                          label-for="ifood_client_id"
+                      >
+                          <b-form-input
+                          id="ifood_client_id"
+                          v-model="form.ifood_client_id"
+                          type="text"
+                          required
+                          ></b-form-input>
+                      </b-form-group>
+                  </div>
+                  <div class="col-md-6 col-sm-12">
+                      <b-form-group
+                          id="input-group-2"
+                          :label="trans('settings.ifood_client_secret')"
+                          label-for="ifood_client_secret"
+                      >
+                          <b-form-input
+                          id="ifood_client_secret"
+                          v-model="form.ifood_client_secret"
+                          type="text"
+                          required
+                          ></b-form-input>
+                      </b-form-group>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="card card-outline-info">
+          <div class="card-header">
+              <h4 class="text-white m-b-0">{{ trans('settings.ifood_credentials')}}</h4>
+          </div> 
+
+          <div class="card-block">
+              <div class="row">
+                  <div class="col-md-6 col-sm-12">
+                      <b-form-group
+                          id="input-group-1"
+                          :label="trans('settings.ifood_client_id')"
+                          label-for="ifood_client_id"
+                      >
+                          <b-form-input
+                          id="ifood_client_id"
+                          v-model="form.ifood_client_id"
+                          type="text"
+                          required
+                          ></b-form-input>
+                      </b-form-group>
+                  </div>
+                  <div class="col-md-6 col-sm-12">
+                      <b-form-group
+                          id="input-group-2"
+                          :label="trans('settings.ifood_client_secret')"
+                          label-for="ifood_client_secret"
+                      >
+                          <b-form-input
+                          id="ifood_client_secret"
+                          v-model="form.ifood_client_secret"
+                          type="text"
+                          required
+                          ></b-form-input>
+                      </b-form-group>
+                  </div>
+              </div>
+          </div>
+      </div>
       
 
       <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
@@ -71,8 +113,8 @@
         </b-form-checkbox-group>
       </b-form-group>
 
-      <b-button type="submit" variant="primary">Submit</b-button>
-      <b-button type="reset" variant="danger">Reset</b-button>
+      <b-button type="submit" variant="primary">{{ trans('settings.save')}}</b-button>
+      <b-button type="reset" variant="danger">{{ trans('settings.save')}}</b-button>
     </b-form>
     <b-card class="mt-3" header="Form Data Result">
       <pre class="m-0">{{ form }}</pre>

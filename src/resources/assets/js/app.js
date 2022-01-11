@@ -19,6 +19,9 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import DatePicker from 'vue2-datepicker';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
+// Import Bootstrap an BootstrapVue CSS files (order is important)
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 
 import 'sweetalert2/dist/sweetalert2.min.css';
 import Datepicker from 'vue2-datepicker';
@@ -28,6 +31,7 @@ Vue.use(Vuex)
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)
+
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
