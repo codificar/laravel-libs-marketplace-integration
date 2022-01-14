@@ -23,7 +23,6 @@ import ToggleButton from 'vue-js-toggle-button';
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-
 import 'sweetalert2/dist/sweetalert2.min.css';
 import Datepicker from 'vue2-datepicker';
 
@@ -48,6 +47,7 @@ Vue.prototype.isEmpty = (obj) => {
 Vue.use(ToggleButton);
 
 Vue.component("pagination", require("laravel-vue-pagination"));
+
 Vue.component("datepicker", require('vue2-datepicker'));
 Vue.use(Datepicker);
 import 'vue2-datepicker/index.css';

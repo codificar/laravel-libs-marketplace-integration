@@ -6,7 +6,7 @@
           <div class="card-header">
               <h4 class="text-white m-b-0">{{ trans('settings.automatic_dispatch')}}</h4>
               <div class="pull-right">
-                    <toggle-button v-model="settings.automatic_dispatch_enabled" :value="settings.automatic_dispatch_enabled" />
+                    <toggle-button v-model="settings.automatic_dispatch_enabled" :sync="true" :value="settings.automatic_dispatch_enabled" />
               </div>
           </div> 
 
@@ -109,9 +109,9 @@ export default {
     data() {
         return{
             settings: {
-              automatic_dispatch_enabled : true ,
-              dispatch_wait_time_limit : null ,
-              dispatch_max_delivery : null ,
+              automatic_dispatch_enabled : false ,
+              dispatch_wait_time_limit : 10 ,
+              dispatch_max_delivery : 3 ,
               ifood_client_id : null ,
               ifood_client_secret : null ,
             }
