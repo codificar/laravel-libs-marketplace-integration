@@ -20,6 +20,7 @@ require 'api.php';
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
     Route::get('/marketplace-integration/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
+    Route::get('/automatic-dispatch/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@get'));
 });
 
 /**

@@ -175,17 +175,29 @@ class DispatchRepository
     }
 
     /**
-     * Get the provider_type configuration
+     * Get the AutomaticDispatch model
      *
-     * @return integer provider_type
+     * @return AutomaticDispatch automaticDispatch
      */
-    public static function getProviderType($institutionId){
+    public static function getAutomaticDispatch($institutionId){
 
         $query = AutomaticDispatch::query();
 
         $query->where('institution_id', '=', $institutionId);
         
         $automaticDispatch = $query->first();
+
+        return $automaticDispatch ;
+    }
+
+    /**
+     * Get the provider_type configuration
+     *
+     * @return integer provider_type
+     */
+    public static function getProviderType($institutionId){
+
+        $automaticDispatch = self::getAutomaticDispatch($institutionId);
 
         if($automaticDispatch){
             return $automaticDispatch->provider_type_id ;
@@ -211,11 +223,7 @@ class DispatchRepository
      */
     public static function getTimeLimit($institutionId){
 
-        $query = AutomaticDispatch::query();
-
-        $query->where('institution_id', '=', $institutionId);
-        
-        $automaticDispatch = $query->first();
+        $automaticDispatch = self::getAutomaticDispatch($institutionId);
 
         if($automaticDispatch){
             return $automaticDispatch->wait_time_limit ;
