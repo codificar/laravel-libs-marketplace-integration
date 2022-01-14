@@ -17,7 +17,8 @@ import Route from './router.js';
 import App from './views/App';
 import VueSweetalert2 from 'vue-sweetalert2';
 import DatePicker from 'vue2-datepicker';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import ToggleButton from 'vue-js-toggle-button';
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -44,7 +45,7 @@ Vue.prototype.isEmpty = (obj) => {
     return _.isEmpty(obj);
 };
 
-
+Vue.use(ToggleButton);
 
 Vue.component("pagination", require("laravel-vue-pagination"));
 Vue.component("datepicker", require('vue2-datepicker'));

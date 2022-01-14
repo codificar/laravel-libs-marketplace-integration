@@ -1,27 +1,27 @@
 <template>
   <div>
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+    <b-form @submit="saveSettings" @reset="settings = []" >
 
       <div class="card card-outline-info">
           <div class="card-header">
               <h4 class="text-white m-b-0">{{ trans('settings.automatic_dispatch')}}</h4>
               <div class="pull-right">
-                  <input type="checkbox" />
+                    <toggle-button v-model="settings.automatic_dispatch_enabled" :value="settings.automatic_dispatch_enabled" />
               </div>
           </div> 
 
-          <div class="card-block">
+          <div class="card-block" v-if="settings.automatic_dispatch_enabled">
               <div class="row">
                   <div class="col-md-6 col-sm-12">
                       <b-form-group
                           id="input-group-1"
-                          :label="trans('settings.ifood_client_id')"
-                          label-for="ifood_client_id"
+                          :label="trans('settings.dispatch_wait_time_limit')"
+                          label-for="dispatch_wait_time_limit"
                       >
                           <b-form-input
-                          id="ifood_client_id"
-                          v-model="form.ifood_client_id"
-                          type="text"
+                          id="dispatch_wait_time_limit"
+                          v-model="settings.dispatch_wait_time_limit"
+                          type="number"
                           required
                           ></b-form-input>
                       </b-form-group>
@@ -29,13 +29,13 @@
                   <div class="col-md-6 col-sm-12">
                       <b-form-group
                           id="input-group-2"
-                          :label="trans('settings.ifood_client_secret')"
-                          label-for="ifood_client_secret"
+                          :label="trans('settings.dispatch_max_delivery')"
+                          label-for="dispatch_max_delivery"
                       >
                           <b-form-input
-                          id="ifood_client_secret"
-                          v-model="form.ifood_client_secret"
-                          type="text"
+                          id="dispatch_max_delivery"
+                          v-model="settings.dispatch_max_delivery"
+                          type="number"
                           required
                           ></b-form-input>
                       </b-form-group>
@@ -44,7 +44,7 @@
           </div>
       </div>
 
-      <div class="card card-outline-info">
+      <div class="card card-outline-info" v-if="settings.automatic_dispatch_enabled">
           <div class="card-header">
               <h4 class="text-white m-b-0">{{ trans('settings.ifood_credentials')}}</h4>
           </div> 
@@ -59,7 +59,7 @@
                       >
                           <b-form-input
                           id="ifood_client_id"
-                          v-model="form.ifood_client_id"
+                          v-model="settings.ifood_client_id"
                           type="text"
                           required
                           ></b-form-input>
@@ -73,7 +73,7 @@
                       >
                           <b-form-input
                           id="ifood_client_secret"
-                          v-model="form.ifood_client_secret"
+                          v-model="settings.ifood_client_secret"
                           type="text"
                           required
                           ></b-form-input>
@@ -82,78 +82,97 @@
               </div>
           </div>
       </div>
+      <div class="box-footer">
+        <div class="pull-right">
+          <div class="row">
+            <div class="col">
+              <b-button type="reset" class="btn btn-inverse btn-flat"  >{{ trans('settings.reset')}}</b-button>
+            </div>
+            <div class="col">
+              <b-button type="submit" variant="success" class="btn btn-success btn-flat btn-block">{{ trans('settings.save')}}</b-button>
+            </div>
+          </div>
+        </div>
+      </div>
       
-
-      <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
-        <b-form-input
-          id="input-2"
-          v-model="form.name"
-          placeholder="Enter name"
-          required
-        ></b-form-input>
-      </b-form-group>
-
-      <b-form-group id="input-group-3" label="Food:" label-for="input-3">
-        <b-form-select
-          id="input-3"
-          v-model="form.food"
-          :options="foods"
-          required
-        ></b-form-select>
-      </b-form-group>
-
-      <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
-        <b-form-checkbox-group
-          v-model="form.checked"
-          id="checkboxes-4"
-          :aria-describedby="ariaDescribedby"
-        >
-          <b-form-checkbox value="me">Check me out</b-form-checkbox>
-          <b-form-checkbox value="that">Check that out</b-form-checkbox>
-        </b-form-checkbox-group>
-      </b-form-group>
-
-      <b-button type="submit" variant="primary">{{ trans('settings.save')}}</b-button>
-      <b-button type="reset" variant="danger">{{ trans('settings.save')}}</b-button>
     </b-form>
-    <b-card class="mt-3" header="Form Data Result">
-      <pre class="m-0">{{ form }}</pre>
-    </b-card>
   </div>
 </template>
 
 <script>
-  export default {
+import axios from 'axios';
+
+export default {
+    props: [
+        'Settings'
+    ],
     data() {
-      return {
-        form: {
-          email: '',
-          name: '',
-          food: null,
-          checked: []
-        },
-        foods: [{ text: 'Select One', value: null }, 'Carrots', 'Beans', 'Tomatoes', 'Corn'],
-        show: true
-      }
+        return{
+            settings: {
+              automatic_dispatch_enabled : true ,
+              dispatch_wait_time_limit : null ,
+              dispatch_max_delivery : null ,
+              ifood_client_id : null ,
+              ifood_client_secret : null ,
+            }
+        }
     },
     methods: {
-      onSubmit(event) {
-        event.preventDefault()
-        alert(JSON.stringify(this.form))
+      saveSettings() {
+        axios.post('/settings/application/save',{
+          settings: this.settings,
+        }).then(response => {
+          console.log(response.data)
+          if (response.data.success) {
+            this.reloadPageWithMessage(this.trans("settings.config_update_alert"));
+          } else {
+            this.showErrorMsg(response.data.errors);
+          }
+        }).catch(error => {
+          this.showErrorMsg(error);
+        });  
       },
-      onReset(event) {
-        event.preventDefault()
-        // Reset our form values
-        this.form.email = ''
-        this.form.name = ''
-        this.form.food = null
-        this.form.checked = []
-        // Trick to reset/clear native browser form validation state
-        this.show = false
-        this.$nextTick(() => {
-          this.show = true
-        })
+      reloadPageWithMessage(message) {
+        this.$swal({
+          title: message,
+        }).then((result) => { /* location.reload(); */ });
+      },
+      showErrorMsg(errors) {
+        this.$swal({
+          title: this.trans("setting.error"),
+          html:
+          '<label class="alert alert-danger alert-dismissable text-left">' +
+          errors +
+          "</label>",
+          type: "error"
+        }).then(result => {});
+      },
+    },
+    created(){
+      if(this.Settings){
+        this.settings = JSON.parse(this.Settings);
+        console.log(this.settings);
+      }
+      else {
+        axios.post('/settings/application/pairs',{
+          keys: Object.keys(this.settings).join(','),
+        }).then(response => {
+          console.log(response.data)
+          this.settings = response.data;
+          // if (response.data.success) {
+          //   this.settings = response.data;
+          // } else {
+          //   this.showErrorMsg(response.data.errors);
+          // }
+        }).catch(error => {
+          this.showErrorMsg(error);
+        }); 
       }
     }
-  }
+}
 </script>
+<style>
+  button {
+    color:white;
+  }
+</style>
