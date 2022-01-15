@@ -222,6 +222,18 @@ class IFoodApi implements IMarketplace
     }
 
     /**
+     * Get Merchant Status in IFood
+     * 
+     * @param string $merchantId
+     * 
+     * @return string $status
+     */
+    public function getMerchantStatus($merchantId)
+    {
+        return $this->send('GET','merchant/v1.0/merchants/'.$merchantId.'/status', $this->headers);
+    }
+
+    /**
      * Make a polling to get change events in orders
      * 
      */
