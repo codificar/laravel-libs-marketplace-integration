@@ -6,11 +6,13 @@ use Codificar\MarketplaceIntegration\Http\Requests\ShopsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
+use Codificar\MarketplaceIntegration\Http\Repositories\MerchantRepository;
 use Codificar\MarketplaceIntegration\Http\Repositories\ShopsRepository;
 use Codificar\MarketplaceIntegration\Http\Repositories\SettingsRepository;
 use Codificar\MarketplaceIntegration\Http\Requests\IFoodCredentialsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Requests\UpdateStatusReloadFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\SettingsResource;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 
 class ShopsController extends Controller
 {
@@ -24,6 +26,15 @@ class ShopsController extends Controller
     {
         $adminInstitution = \AdminInstitution::whereAdminId(\Admin::getCorpAdmin()->id)->first();
         $shops = ShopsRepository::getAllShops($adminInstitution->institution_id);
+        foreach ($shops as $key => $shop) {
+            $marchant = MerchantRepository::getMerchantDetails($shop->id);
+            $factory = MarketplaceFactory::createMarketplace(MarketplaceFactory::IFOOD);
+
+            \Log::info('Shops: '.print_r($marchant->merchant_id, 1));
+            $status = $factory->getMerchantStatus($marchant->merchant_id);
+            \Log::info('Status: '.json_decode($status,1));
+            // $shop->status = 
+        }
         return new ShopResource($shops);
     }
 

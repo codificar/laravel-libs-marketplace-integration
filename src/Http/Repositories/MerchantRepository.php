@@ -6,6 +6,19 @@ use Codificar\MarketplaceIntegration\Models\MerchantDetails;
 
 class MerchantRepository
 {
+
+    /**
+     * Get Merchant Details
+     * 
+     * @param integer $shop_id
+     * 
+     * @return MerchantDetails $merchantDetails
+     */
+    public static function getMerchantDetails($shopId)
+    {
+        return MerchantDetails::where('shop_id', $shopId)->first();
+    }
+
     /**
      * Update or create Mechant details on database
      * 

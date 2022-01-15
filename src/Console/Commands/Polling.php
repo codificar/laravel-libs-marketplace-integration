@@ -42,9 +42,12 @@ class Polling extends Command
      */
     public function handle()
     {
-        $this->polling();
-        sleep(30);
-        $this->polling();
+        // just polling if has the proper configurations
+        if(\Settings::findByKey('ifood_client_id') && \Settings::findByKey('ifood_client_secret')){
+            $this->polling();
+            sleep(30);
+            $this->polling();
+        }
     }
 
     /**

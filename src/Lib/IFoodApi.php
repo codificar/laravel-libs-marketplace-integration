@@ -8,50 +8,70 @@ use Carbon\Carbon;
 
 class IFoodApi implements IMarketplace
 {
-    protected $clientId;
-    protected $clientSecret;
-    protected $baseUrl;
-    protected $accessToken;
-    protected $headers;
-    protected $client;
-        
-    /**
-     * Instantiate a new iFoodApi instance with common variables and configuration.
-     */
-    function __construct()
-    {
-        $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
-        $this->client       = new Client([
-            'base_uri'  => $this->baseUrl
-        ]);
+  protected $clientId;
+  protected $clientSecret;
+  protected $baseUrl;
+  protected $access_token;
+  protected $headers;
+  protected $client;
 
-        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
-        
-        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-            $this->clientId          = \Settings::findByKey('ifood_client_id');
-            $this->clientSecret      = \Settings::findByKey('ifood_client_secret');
-            $this->accessToken = \Settings::updateOrCreateByKey('ifood_auth_token',$this->auth((object)array('clientId' => $this->clientId, 'clientSecret' => $this->clientSecret)));
-            $expiryToken = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
-        } else {
-            $this->accessToken = \Settings::getMarketPlaceToken('ifood_auth_token');
-        }
+  #status
 
-        $this->headers    = [
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$this->accessToken
-        ];
+  /**
+   * Instantiate a new iFoodApi instance with common variables and configuration.
+   */
+  function __construct()
+  {
+    $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
+    $this->client       = new Client([
+      'base_uri'  => $this->baseUrl
+    ]);    
+    //get the marketplace toe=ken
+    $key = \Settings::getMarketPlaceToken('ifood_auth_token');
+
+    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
+    //initialize a common variable
+    $this->access_token = $key;
+    //initialize a common variable
+    $this->headers    = [
+      'Content-Type' => 'application/json',
+      'Authorization' => 'Bearer '.$key
+    ];
+  }
+
+  public function send($requestType, $route, $headers, $body = null, $retry = 0)
+  {
+    \Log::debug("requestType: ". print_r($requestType, 1));
+    \Log::debug("route: ". print_r($route, 1));
+    \Log::debug("headers: ". print_r($headers,1));
+    \Log::debug("body: ". print_r($body,1));
+
+    try {
+      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
+      \Log::debug("Code: ". $response->getStatusCode());
+    }
+    catch(Exception $ex){
+      // reautenticacao caso a chave tenha dado 401 e um novo retry
+      if($ex->getCode() == 401 && $retry < 3){
+        $clientId          = \Settings::findByKey('ifood_client_id');
+        $clientSecret      = \Settings::findByKey('ifood_client_secret');
+        $this->auth($clientId, $clientSecret);
+
+        return $this->send($requestType, $route, $headers, $body, ++$retry);
+      }  
     }
     
-    /**
-     * Send request to marketplace API
-     * 
-     * @param String $requestType, $route
-     * @param Array $headers
-     * @param mixed $body
-     * 
-     * @return mixed  
-     */
-    public function send($requestType, $route, $headers, $body = NULL, $retry = 0)
+    return $response->getBody()->getContents();
+  }
+
+  /**
+   * Authenticate and save updated keys
+   */
+  public function auth($clientId, $clientSecret)
+  {
+    \Log::debug('clientId:'.print_r($clientId,1));
+    \Log::debug('clientSecret:'.print_r($clientSecret,1));
+    try
     {
         $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
 

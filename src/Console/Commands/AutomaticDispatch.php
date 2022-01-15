@@ -40,26 +40,42 @@ class AutomaticDispatch extends Command
      */
     public function handle()
     {
+        // if not enabled return false
+        if(!\Settings::findByKey('automatic_dispatch_enabled')) {
+            $this->info("Automatic dispatch is disabled");
+            return ;
+        }
         
-        $shopOrders = [];
-        $sentinelShopId = null ;
+        $shopOrders = $return = [];
 
         $orders = DispatchRepository::getOrders();
+
+        $sentinelShopId = (count($orders) ? $orders[0]->shop_id : null ) ;
+
+        $this->info(sprintf("Count orders: %s", count($orders)));
         
-        foreach ($orders as $order){
-            
-            if($order->shop_id != $sentinelShopId) {
+        foreach ($orders as $index => $order){
 
-                $this->dispatch($shopOrders[$sentinelShopId]);
+            $this->info(sprintf("shop_id: %s - order_id: %s", $order->shop_id, $order->id));
 
-                $sentinelShopId = $order->shop_id; // changes sentinel
-
-            }
-
-            if(!array_key_exists($sentinelShopId)) $shopOrders[$sentinelShopId] = [];
+            // create empty array
+            if(!array_key_exists($sentinelShopId, $shopOrders)) $shopOrders[$sentinelShopId] = [];
 
             $shopOrders[$sentinelShopId][] = $order; 
+
+            // changes sentinel
+            $newSentinelShopId = (isset($orders[$index+1]) ? $orders[$index+1]->shop_id : null); 
+            //$this->info(sprintf("sentinelShopId: %s - newSentinelShopId: %s", $sentinelShopId, $newSentinelShopId));
+
+            if($sentinelShopId != $newSentinelShopId) {
+                $this->info(sprintf("Dispatching shop_id: %s - count orders: %s", $sentinelShopId, count($shopOrders[$sentinelShopId])));
+                $return [] = $this->dispatch($shopOrders[$sentinelShopId]);
+                $sentinelShopId = $newSentinelShopId;
+            }
+
         }
+
+        //$this->info(print_r($return,1));
     }
 
     /**
@@ -68,13 +84,31 @@ class AutomaticDispatch extends Command
      * @return void
      */
     public function dispatch(array $shopOrderArray){
+        $return = [];
+        // rule variables
+        $timeLimit = DispatchRepository::getTimeLimit($shopOrderArray[0]->institution_id);
 
-        // first rule - reach 3 or more orders
-        if(count($shopOrderArray) > 2){
-            // create the order
+        foreach(array_chunk($shopOrderArray, DispatchRepository::SIZE_LIMIT) as $orderArray){
+            // first rule - reach 3 orders
+            if(count($orderArray) == DispatchRepository::SIZE_LIMIT){
+                $this->info(sprintf("ShopId: %s - First Rule Count: %s", $orderArray[0]->shop_id, count($orderArray)));
+                // create the order
+                $return [] = DispatchRepository::createRide($orderArray);
+                continue ;
+            }
+
+            $timePassed = Carbon::now()->diffInMinutes($orderArray[0]->updated_at);
+            // second rule - reach time limit
+            if($timePassed > $timeLimit){
+                $this->info(sprintf("ShopId: %s - Second Rule Time: %s", $orderArray[0]->shop_id, $timePassed));
+                // create the order
+                $return [] = DispatchRepository::createRide($orderArray);
+                continue;
+            }
+            
         }
 
-        // second rule - reach time limit
+        return $return ;
 
     }
 

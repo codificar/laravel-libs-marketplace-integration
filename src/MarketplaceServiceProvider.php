@@ -2,6 +2,7 @@
 namespace Codificar\MarketplaceIntegration;
 
 use Codificar\MarketplaceIntegration\Console\Commands\Polling;
+use Codificar\MarketplaceIntegration\Console\Commands\AutomaticDispatch;
 use Codificar\MarketplaceIntegration\Listeners\RequestUpdateListener;
 use App\Events\RequestUpdate;
 use Illuminate\Support\ServiceProvider;
@@ -28,7 +29,12 @@ class MarketplaceServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
 
         // // Commands (Carrega os comandos do projeto)
-        $this->commands([Polling::class]);
+        $this->commands(
+            [
+                Polling::class,
+                AutomaticDispatch::class
+            ]
+        );
 
         // // Load trans files (Carrega tos arquivos de traducao) 
         $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'marketplace-integration');
