@@ -32,7 +32,7 @@ class ShopsController extends Controller
 
             \Log::info('Shops: '.print_r($marchant->merchant_id, 1));
             $status = $factory->getMerchantStatus($marchant->merchant_id);
-            \Log::info('Status: '.json_decode($status,1));
+            \Log::info('Status: '.print_r($status,1));
             // $shop->status = 
         }
         return new ShopResource($shops);

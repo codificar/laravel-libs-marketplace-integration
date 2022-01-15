@@ -25,5 +25,5 @@
 @section('content')
     <div id="marketplace-integration"></div>
     <script src="/marketplace-integration/lang.trans/settings"> </script> 
-    <script src="{{ elixir('vendor/codificar/marketplace-integration/js/app.js') }}"></script>
+    <script src="{{ elixir('vendor/codificar/marketplace-integration/app.js') }}"></script>
 @endsection

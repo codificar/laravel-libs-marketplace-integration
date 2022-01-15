@@ -63,30 +63,7 @@ class IFoodApi implements IMarketplace
     
     return $response->getBody()->getContents();
   }
-
-  /**
-   * Authenticate and save updated keys
-   */
-  public function auth($clientId, $clientSecret)
-  {
-    \Log::debug('clientId:'.print_r($clientId,1));
-    \Log::debug('clientSecret:'.print_r($clientSecret,1));
-    try
-    {
-        $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-
-        // reautenticacao caso a chave tenha dado 401 e um novo retry
-        if($response->getStatusCode() == 401 && $retry < 3){
-            $clientId          = \Settings::findByKey('ifood_client_id');
-            $clientSecret      = \Settings::findByKey('ifood_client_secret');
-            $this->auth($clientId, $clientSecret);
-    
-            return $this->send($requestType, $route, $headers, $body, ++$retry);
-        }
-
-        return $response->getBody()->getContents();
-    }
-    
+   
     /**
      * Authenticate and save updated keys.
      * 
