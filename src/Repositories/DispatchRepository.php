@@ -37,6 +37,7 @@ class DispatchRepository
             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
             ->join('shops', 'order_detail.shop_id', '=', 'shops.id')
             ->join('institution', 'institution.id', '=', 'shops.institution_id')
+            ->join('automatic_dispatch', 'institution.id', '=', 'automatic_dispatch.institution_id')
             ->join('market_config', 'order_detail.merchant_id', '=', 'market_config.merchant_id');
             
 

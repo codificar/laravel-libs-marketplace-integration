@@ -35,6 +35,26 @@ class CreateInstutionAutomaticDispatch extends Migration
 
         }
 
+        try{
+            
+            $credentials = \Permission::where('name', 'like', '%credentials_settings%')->first();
+            $integrations = \Permission::where('name', 'like', '%integrations')->first();
+
+            if($credentials){
+                // seta integração como pai
+                if($integrations){
+                    $credentials->parent_id = $integrations->id;
+                }
+                
+                $credentials->icon = 'mdi mdi-shopping' ;
+                $credentials->name = 'marketplace';
+                $credentials->save();
+            }
+        }
+        catch(Exception $ex){
+            dd($ex->getMessage());
+        }
+
 
         Schema::create('automatic_dispatch', function (Blueprint $table) {
             $table->increments('id');
