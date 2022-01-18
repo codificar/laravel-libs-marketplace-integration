@@ -37,15 +37,16 @@ class CreateInstutionAutomaticDispatch extends Migration
 
         try{
             
-            $credentials = \Permission::where('name', 'like', '%credentials_settings%')->first();
+            $credentials = \Permission::where('url', 'like', '%credentials%')->first();
             $integrations = \Permission::where('name', 'like', '%integrations')->first();
 
-            if($credentials){
+            if($credentials && $credentials->id){
                 // seta integração como pai
                 if($integrations){
                     $credentials->parent_id = $integrations->id;
                 }
                 
+                $credentials->url = '/admin/marketplace-integration/credentials' ;
                 $credentials->icon = 'mdi mdi-shopping' ;
                 $credentials->name = 'marketplace';
                 $credentials->save();
