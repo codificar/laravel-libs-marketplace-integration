@@ -8,6 +8,10 @@ use Codificar\MarketplaceIntegration\Http\Requests\AutomaticDispatchStoreFormReq
 use Codificar\MarketplaceIntegration\Http\Requests\AutomaticDispatchFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\AutomaticDispatchResource;
 
+use Codificar\MarketplaceIntegration\Repositories\DispatchRepository;
+
+use Codificar\MarketplaceIntegration\Models\AutomaticDispatch;
+
 class AutomaticDispatchController extends Controller
 {
 
@@ -43,6 +47,18 @@ class AutomaticDispatchController extends Controller
             'provider_type_id'      => $automaticDispatch->provider_type_id,
             'wait_time_limit'       => $automaticDispatch->wait_time_limit,
             'max_delivery'          => $automaticDispatch->max_delivery
+        ];
+
+        return new AutomaticDispatchResource($resource);
+    }
+
+    public function delete(AutomaticDispatchFormRequest $request) {
+
+        $request->automaticDispatch->delete();
+
+        $resource = [
+            'success'               => true,
+            'institution_id'        => $request->institution_id
         ];
 
         return new AutomaticDispatchResource($resource);

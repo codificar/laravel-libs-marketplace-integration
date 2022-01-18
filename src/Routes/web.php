@@ -22,6 +22,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/marketplace-integration/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
     Route::any('/automatic-dispatch/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@get'));
     Route::post('/automatic-dispatch/store/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@store'));
+    Route::post('/automatic-dispatch/delete/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@delete'));
 });
 
 /**
