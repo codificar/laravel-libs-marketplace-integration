@@ -167,7 +167,7 @@ class DispatchRepository
         }
 
         if(!$paymentMode){
-            \Log::error("There is no payment method defined as default to use on automatic dispatch for institutionId: ". $institutionId);
+            \Log::debug("There is no payment method defined as default to use on automatic dispatch for institutionId: ". $institutionId);
             return \RequestCharging::PAYMENT_MODE_BALANCE;
         }
 
