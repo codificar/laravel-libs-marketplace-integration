@@ -26,7 +26,7 @@ class IFoodController extends Controller
 
     }
 
-    public function auth($id = null)
+    public static function auth($id = null)
     {
         $clientId          = \Settings::findByKey('ifood_client_id');
         $clientSecret      = \Settings::findByKey('ifood_client_secret');
@@ -42,7 +42,7 @@ class IFoodController extends Controller
     
     }
 
-    public function getOrders()
+    public static function getOrders()
     {
         $res        = new IFoodApi;
         $response   = json_decode($res->getOrders(\Settings::findByKey('ifood_auth_token')));
@@ -69,7 +69,7 @@ class IFoodController extends Controller
         return $response;
     }
 
-    public function getOrderDetails($order_id)
+    public static function getOrderDetails($order_id)
     {
         \Log::debug('MarketID: '. $order_id);
         
@@ -160,13 +160,13 @@ class IFoodController extends Controller
         }
     }
 
-    public function getAcknowledgment($data)
+    public static function getAcknowledgment($data)
     {
         $res        = new IFoodApi;
         $acknowledgment = $res->getAcknowledgment(\Settings::findByKey('ifood_auth_token'), $data);
     }
 
-    public function getOrdersDataBase(Request $request, $id = NULL)
+    public static function getOrdersDataBase(Request $request, $id = NULL)
     {
         \Log::warning("Request: ".print_r($request->all(),1));
         $startTime = $request
@@ -214,7 +214,7 @@ class IFoodController extends Controller
         return new OrdersResource($orders);
     }
 
-    public function confirmOrder(Request $request)
+    public static function confirmOrder(Request $request)
     {
         try {
             $market     = Shops::where('id', $request->id)->first();
@@ -259,7 +259,7 @@ class IFoodController extends Controller
         }
     }
 
-    public function cancelOrder(Request $request)
+    public static function cancelOrder(Request $request)
     {
         \Log::debug('s_id: '.$request->s_id);
         \Log::debug('id: '.$request->id);
@@ -305,7 +305,7 @@ class IFoodController extends Controller
     /**
      * Update a single order on our DB and to iFoodApi
      */
-    public function updateOrderRequest(Request $request)
+    public static function updateOrderRequest(Request $request)
     {
         \Log::debug('Request Update: '.print_r($request->all(), 1));
         
@@ -325,7 +325,7 @@ class IFoodController extends Controller
         return $order;
     }
 
-    public function dspOrder(Request $request)
+    public static function dspOrder(Request $request)
     {
         \Log::debug("readyToPickup: ".print_r($request->all(),1));
         \Log::debug('s_id: '.$request->s_id);
@@ -375,7 +375,7 @@ class IFoodController extends Controller
         // \Log::debug("readyToPickup: ".print_r($response,1));
     }
 
-    public function getMerchantDetails($request)
+    public static function getMerchantDetails($request)
     {
         
         $res = new IFoodApi;
