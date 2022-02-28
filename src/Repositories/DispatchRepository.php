@@ -212,7 +212,7 @@ class DispatchRepository
 
             if($providerType)   return $providerType->id ;
             else {
-                throw(new Exception("There is no provider type defined as default to use on automatic dispatch"));
+                throw(new \Exception("There is no provider type defined as default to use on automatic dispatch"));
             };
         }
     }
