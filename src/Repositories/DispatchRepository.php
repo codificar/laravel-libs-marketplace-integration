@@ -138,36 +138,39 @@ class DispatchRepository
      *
      * @return integer provider_mode
      */
-    public static function getPaymentMode($institutionId){
-        $paymentMethods = \PaymentMethods::whereInstitutionId($institutionId)->where('settings.value', '=', true)
-        ->where('payment_methods.is_active', '=', true)
-        ->join('settings', 'settings.id', '=', 'payment_methods.payment_settings_id')
-        ->select(array('payment_methods.id', 'payment_methods.name', 'payment_methods.is_active', 'settings.key'))
-        ->get()->toArray();
+    public static function getPaymentMode($institutionId = null){
 
         $paymentMode = null ;
-        
-        if($paymentMethods){
-            // first dispatch for billing
-            $paymentMode = array_reduce($paymentMethods, function($carry, $item){
-                if($item['key'] == 'payment_billing') return \RequestCharging::PAYMENT_MODE_BILLING;
-            });
 
-            // then balance
-            if(!$paymentMode){
+        if($institutionId) {
+            $paymentMethods = \PaymentMethods::whereInstitutionId($institutionId)->where('settings.value', '=', true)
+            ->where('payment_methods.is_active', '=', true)
+            ->join('settings', 'settings.id', '=', 'payment_methods.payment_settings_id')
+            ->select(array('payment_methods.id', 'payment_methods.name', 'payment_methods.is_active', 'settings.key'))
+            ->get()->toArray();
+            
+            if($paymentMethods){
+                // first dispatch for billing
                 $paymentMode = array_reduce($paymentMethods, function($carry, $item){
-                    if($item['key'] == 'payment_balance') return \RequestCharging::PAYMENT_MODE_BALANCE;
+                    if($item['key'] == 'payment_billing') return \RequestCharging::PAYMENT_MODE_BILLING;
                 });
-            }
 
-            // or the first one active
-            if(!$paymentMode && $paymentMethods){
-                return \Settings::getPaymentMethodIndex($paymentMethods[0]->key);
+                // then balance
+                if(!$paymentMode){
+                    $paymentMode = array_reduce($paymentMethods, function($carry, $item){
+                        if($item['key'] == 'payment_balance') return \RequestCharging::PAYMENT_MODE_BALANCE;
+                    });
+                }
+
+                // or the first one active
+                if(!$paymentMode && $paymentMethods){
+                    return \Settings::getPaymentMethodIndex($paymentMethods[0]->key);
+                }
             }
         }
 
         if(!$paymentMode){
-            \Log::debug("There is no payment method defined as default to use on automatic dispatch for institutionId: ". $institutionId);
+            \Log::warning("There is no payment method defined as default to use on automatic dispatch for institutionId: ". $institutionId);
             return \RequestCharging::PAYMENT_MODE_BALANCE;
         }
 
@@ -181,6 +184,8 @@ class DispatchRepository
      * @return AutomaticDispatch automaticDispatch
      */
     public static function getAutomaticDispatch($institutionId){
+        
+        if(!$institutionId) return null;
 
         $query = AutomaticDispatch::query();
 
@@ -196,7 +201,7 @@ class DispatchRepository
      *
      * @return integer provider_type
      */
-    public static function getProviderType($institutionId){
+    public static function getProviderType($institutionId = null){
 
         $automaticDispatch = self::getAutomaticDispatch($institutionId);
 
@@ -212,7 +217,9 @@ class DispatchRepository
 
             if($providerType)   return $providerType->id ;
             else {
-                throw(new \Exception("There is no provider type defined as default to use on automatic dispatch"));
+                \Log::warning("There is no provider type defined as default to use on automatic dispatch. We will get the first");
+                $providerType = \ProviderType::query()->first();
+                return $providerType->id ;
             };
         }
     }
@@ -222,7 +229,7 @@ class DispatchRepository
      *
      * @return integer 
      */
-    public static function getTimeLimit($institutionId){
+    public static function getTimeLimit($institutionId = null){
 
         $automaticDispatch = self::getAutomaticDispatch($institutionId);
 
@@ -259,6 +266,29 @@ class DispatchRepository
         ]);
 
         return $order;
+    }
+
+
+    /**
+     * Get Logged InstitutionId
+     *
+     * @return integer 
+     */
+    public static function getInstitutionIdFromGuard(){
+
+        $admin = \Auth::guard('web')->user();
+
+        if (!$admin || !$admin->AdminInstitution) {
+            $user = \Auth::guard('web_corp')->user();
+        }
+		
+		if($admin) {
+            $adminInstitution = \AdminInstitution::where('admin_id', '=', $admin->id)->first();
+		    if($adminInstitution)
+                return $adminInstitution->institution_id ;
+        };
+
+        return null;
     }
 
 }

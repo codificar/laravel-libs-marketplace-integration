@@ -13,10 +13,10 @@
 
 require 'api.php';
 
-    Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
-        Route::get('/marketplace/integration', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
-        Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
-    });
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
+    Route::get('/marketplace/integration', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
+    Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
+});
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
     Route::get('/marketplace-integration/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
@@ -45,3 +45,17 @@ Route::get('/marketplace-integration/lang.trans/{files}', function ($files) {
     return response('window.lang = ' . json_encode($strings) . ';')
             ->header('Content-Type', 'text/javascript');
 })->name('assets.lang');
+
+
+Route::get('/marketplace-integration/js/env.js', function () {
+
+    app('debugbar')->disable();
+    
+    ob_start();
+    require __DIR__ . '/../resources/assets/php/marketplace.php';
+    $content = ob_get_clean();
+
+    return response($content)
+            ->header('Content-Type', 'text/javascript');
+});
+
