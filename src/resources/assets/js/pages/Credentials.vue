@@ -44,7 +44,7 @@
           </div>
       </div>
 
-      <div class="card card-outline-info" v-if="settings.automatic_dispatch_enabled">
+      <div class="card card-outline-info">
           <div class="card-header">
               <h4 class="text-white m-b-0">{{ trans('settings.ifood_credentials')}}</h4>
           </div> 
