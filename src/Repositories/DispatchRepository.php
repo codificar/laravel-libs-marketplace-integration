@@ -279,7 +279,7 @@ class DispatchRepository
         $admin = \Auth::guard('web')->user();
 
         if (!$admin || !$admin->AdminInstitution) {
-            $user = \Auth::guard('web_corp')->user();
+            $admin = \Auth::guard('web_corp')->user();
         }
 		
 		if($admin) {
