@@ -15,12 +15,14 @@
           ref="form"
           v-model="valid"
           lazy-validation
+          data-test="shop_form"
         >
           <v-text-field
             v-if="$store.state.modalContent == 'addShop'"
             v-model="form.name"
             :rules="nameRules"
             label="Nome da Loja"
+            data-test="shop_name"
             required
           ></v-text-field>
             <v-select
@@ -28,6 +30,8 @@
               v-model="form.select"
               :items="items"
               item-value="id"
+
+              data-test="marketplace_name"
               item-text="name"
               :rules="[v => !!v || 'Item é obrigatório']"
               label="Marketplace"
@@ -37,18 +41,22 @@
           <v-text-field
             v-if="form.select || $store.state.modalContent == 'edit_marketPlace'"
             v-model="form.merchant_id"
+            data-test="merchant_id"
             label="MERCHANT_ID"
             required
           ></v-text-field>
           <v-text-field
             v-if="form.select || $store.state.modalContent == 'edit_marketPlace'"
             v-model="form.merchant_name"
+
+            data-test="merchant_name"
             label="Nome"
             required
           ></v-text-field>
           <v-btn
             :disabled="!valid"
             color="success"
+            data-test="saveShop"
             class="mr-0"
             @click="saveShop"
           >
