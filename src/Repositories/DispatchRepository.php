@@ -91,7 +91,7 @@ class DispatchRepository
         $formRequest->points                =   [];
         $point                              =   [];
 
-        $letter = 0;
+        $letter = 1;
         // first point it is the default shop location
         $point['title']                         =  chr(64 + $letter);
         $point['action']                        = trans('requests.take_package');
@@ -110,7 +110,7 @@ class DispatchRepository
         // mount others points
         foreach($shopOrderArray as $order){
             $point                                  =   [];
-            $point['title']                         = chr(64 + (++$letter)) ;
+            $point['title']                         = chr(64 + $letter) ;
             $point['action']                        = trans('requests.leave_package');
             $point['action_type']                   = RequestPoint::action_leave_package;
             $point['collect_value']                 = $order->prepaid ? null : $order->order_amount ;
@@ -126,6 +126,8 @@ class DispatchRepository
 
             // if any order is not prepaid, should return
             if(!$order->prepaid) $formRequest->return_to_start  =   true ;
+
+            $letter += 1;
             
         }
         //dd($formRequest->points);
