@@ -152,19 +152,21 @@ class DispatchRepository
             if($paymentMethods){
                 // first dispatch for billing
                 $paymentMode = array_reduce($paymentMethods, function($carry, $item){
-                    if($item['key'] == 'payment_billing') return \RequestCharging::PAYMENT_MODE_BILLING;
+                    if($item['key'] == 'payment_billing') $carry = \RequestCharging::PAYMENT_MODE_BILLING;
+                    return $carry;
                 });
 
                 // then balance
                 if(!$paymentMode){
                     $paymentMode = array_reduce($paymentMethods, function($carry, $item){
-                        if($item['key'] == 'payment_balance') return \RequestCharging::PAYMENT_MODE_BALANCE;
+                        if($item['key'] == 'payment_balance') $carry = \RequestCharging::PAYMENT_MODE_BALANCE;
+                        return $carry;
                     });
                 }
 
                 // or the first one active
                 if(!$paymentMode && $paymentMethods){
-                    return \Settings::getPaymentMethodIndex($paymentMethods[0]->key);
+                    return \Settings::getPaymentMethodIndex($paymentMethods[0]['key']);
                 }
             }
         }
