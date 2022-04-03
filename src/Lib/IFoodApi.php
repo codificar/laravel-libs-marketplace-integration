@@ -2,241 +2,113 @@
 
 namespace Codificar\MarketplaceIntegration\Lib;
 
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
-use GuzzleHttp\Exception\ClientException;
+use Exception;
 use Carbon\Carbon;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use GuzzleHttp\Exception\ClientException;
+use Codificar\MarketplaceIntegration\Models\Shops;
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
 
+#TODO pass to folder lib/clients with Ifood class name
 class IFoodApi
 {
-  protected $clientId;
-  protected $clientSecret;
-  protected $baseUrl;
-  protected $access_token;
-  protected $headers;
-  protected $client;
+    protected $client;
 
-  #status
-
-  /**
-   * Instantiate a new iFoodApi instance with common variables and configuration.
-   */
-  function __construct()
-  {
-    $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
-    $this->client       = new Client([
-      'base_uri'  => $this->baseUrl
-    ]);    
-    //get the marketplace toe=ken
-    $key = \Settings::getMarketPlaceToken('ifood_auth_token');
-
-    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
-    //initialize a common variable
-    $this->access_token = $key;
-    //initialize a common variable
-    $this->headers    = [
-      'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$key
-    ];
-  }
-
-  public function send($requestType, $route, $headers, $body = null, $retry = 0)
-  {
-    \Log::debug("requestType: ". print_r($requestType, 1));
-    \Log::debug("route: ". print_r($route, 1));
-    \Log::debug("headers: ". print_r($headers,1));
-    \Log::debug("body: ". print_r($body,1));
-
-    try {
-      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-      \Log::debug("Code: ". $response->getStatusCode());
+    public function __construct()
+    {
+        $this->baseUrl      = 'https://merchant-api.ifood.com.br/';
     }
-    catch(Exception $ex){
-      // reautenticacao caso a chave tenha dado 401 e um novo retry
-      if($ex->getCode() == 401 && $retry < 3){
-        $clientId          = \Settings::findByKey('ifood_client_id');
-        $clientSecret      = \Settings::findByKey('ifood_client_secret');
-        $this->auth($clientId, $clientSecret);
 
-        return $this->send($requestType, $route, $headers, $body, ++$retry);
-      }  
+    public function auth(string|int $clientId, string|int $clientSecret): array|Exception
+    {
+        try {
+            $body       = [
+              'grantType'     => 'client_credentials',
+              'clientId'      => $clientId,
+              'clientSecret'  => $clientSecret,
+            ];
+            
+            $response = $this->oAuthPost('authentication/v1.0/oauth/token', $body);     
+            # TODO COLOCAR A DURATION DO TOKEN NA SESSION PARA EXPIRAR
+            # TODO PERSONALIZAR OS ERRORS       
+            Session::put('accessToken', $response['accessToken']);
+
+            return $response;
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+
+    public function findMerchant(string|int $id): array|Exception
+    {
+        try {
+            $response = $this->get('merchant/v1.0/merchants/', ['id'=> $id]);  
+
+            return $response;
+        } catch (Exception $e) {
+           return $e;
+        }
+    }
+
+    # TODO Chamar em um cron que faz a call a cada 30s para receber os eventos
+    # TODO Pegar o caso de success na DOC para criar o teste Mock 
+    # TODO AO RECEBER MANDAR UM Acknowledgmen para não receber novamente
+    public function getOrders(): array|Exception
+    {
+         try {            
+            $response = $this->get('order/v1.0/events:polling');
+            return $response;
+        } catch (Exception $e) {
+            return $e;
+        }
+        
     }
     
-    return $response->getBody()->getContents();
-  }
 
-  /**
-   * Authenticate and save updated keys
-   */
-  public function auth($clientId, $clientSecret)
-  {
-    \Log::debug('clientId:'.print_r($clientId,1));
-    \Log::debug('clientSecret:'.print_r($clientSecret,1));
-    try
+    private function get(string $route, array $body = [], $retry = 0)
     {
-      $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
-      $body       = [
-          'grantType'     => 'client_credentials',
-          'clientId'      => $clientId,
-          'clientSecret'  => $clientSecret,
-      ];
-      $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
-      $res=json_decode($res);
-      $this->access_token = $res->accessToken;
-      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
-      \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
+        $route = $this->baseUrl.$route;
+        $accessToken = Session::get('accessToken');
+        if(empty($accessToken)) return ['error' => 'Access token not found'];
 
-      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
-      \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
+        $header = ['accept' => 'application/json', 'Authorization' => 'Bearer '.$accessToken];
 
-      return $res;
+        try {
+            $response =  Http::withHeaders($header)->get($route, $body);
+            return $response->json();
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
-    catch (\Exception $e)
+
+    private function post(string $route, array $headers, array $body = [], $retry = 0)
     {
-      //  \Log::error($e->getMessage());
-      return $e;
+        $route = $this->baseUrl.$route;
+        $accessToken = Session::get('accessToken');
+        if(empty($accessToken)) return ['error' => 'Access token not found'];
+
+        $header = ['accept' => 'application/json', 'Authorization' => 'Bearer '.$accessToken];
+
+        try {
+            $response =  Http::withHeaders($header)->post($route, $body);
+             return $response->json();
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
-  }
 
-  public function getOrders($token)
-  {
-    \Log::debug('TOKEN: '. $token);
-    $headers = [
-      'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
-    ];
-    return $this->send('GET','order/v1.0/events:polling', $headers);
-    
-  }
+    private function oAuthPost(string $route, array $body = [], $retry = 0): array
+    {
+        $route = $this->baseUrl.$route;
 
-  public function getAcknowledgment($token, $data)
-  { 
-    \Log::debug("getAcknowledgment: ".print_r($data, 1));
-    $headers    = [
-      'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
-    ];
-    $object = array(
-      (object)
-        array(
-          'id'                => $data->id,
-          'code'              => $data->code,
-          'full_code'         => $data->fullCode,
-          'order_id'          => $data->orderId,
-          'created_at_ifood'  => $data->createdAt
-        )
-      );
-      $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [
-        'headers'   => $headers,
-        'body'      => json_encode($object)
-      ]);
-      $response = json_decode($res->getBody()->getContents());
-      
-      return $response;
-  }
-  
-  public function getOrderDetails($id, $token)
-  {
-    $headers = [
-      'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
-    ];
-    return $this->send('GET', 'order/v1.0/orders/'.$id, $headers);
-  }
-
-  public function confirmOrderApi($id, $token)
-  {
-    $headers = [
-      'headers'   => [
-        'Authorization' => 'Bearer '.$token
-      ]
-    ];
-    try {
-      return $this->send('POST', 'order/v1.0/orders/'.$id.'/confirm', $headers);
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
-      return FALSE;
+        try {
+            $response =  Http::asForm()->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])->post($route, $body);
+            return $response->json();
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
-  }
-
-  public function cancelOrderApi($id)
-  {
-    $headers = [
-      'headers'   => [
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
-      ]
-    ];
-    $object = array(
-      'reason'                        => 'PEDIDO FORA DA ÁREA DE ENTREGA',
-      'cancellationCode'              => '506'
-    );    
-    try {
-      return $this->send('POST', 'order/v1.0/orders/'.$id.'/requestCancellation', $headers, json_encode($object));
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
-      return FALSE;
-    }
-  }
-  /**
-   * Dispatch a order status to ifood
-   * 
-   * @param id
-   * 
-   */
-  public function dspOrder($id, $token)
-  {
-    try {
-      $headers = $this->headers;
-      $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
-      // $headers = [
-      //   'Content-Type' => 'application/x-www-form-urlencoded',
-      //   'Authorization' => 'Bearer '.$this->access_token
-      // // ];
-      //[
-      //     'id'     => $id,
-      //   ];
-      return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
-
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
-      return FALSE;
-    }
-  }
-
-  /**
-   * getMerchantDetails
-   * Use a protected or private variable to store token instead of pass by params
-   * 
-   */
-  public function getMerchantDetails($token, $id)
-  {    
-    \Log::debug("ID Merchant: ".$id);
-    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->access_token);
-    $headers = [
-      'accept' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
-    ];
-    try {
-      $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
-      if (is_object($res)) {
-        return $res;
-      } else {
-        return [
-          'code'    => 401,
-          'message' =>  "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
-        ];
-      }
-    } catch (ClientException $e) {
-      \Log::debug("Erro: ".$e->getCode());
-      \Log::debug("Erro Content: ".$e->getMessage());
-      // \Log::debug('Message: '. $e->getResponse());
-      return [
-        'code'      => $e->getCode(),
-        'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
-      ];
-    }
-  }
 }
