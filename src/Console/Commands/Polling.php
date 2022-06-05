@@ -2,9 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
+use Codificar\MarketplaceIntegration\Lib\IFoodLib;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
@@ -59,25 +57,10 @@ class Polling extends Command
     {
         \Log::notice(__FUNCTION__);
     
-        $factory = new IFoodController();
-        
-        
-        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
-        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-            $factory->auth();
-        }
+        $lib = new IFoodLib();
 
-        $res = $factory->getOrders();                   
+        $lib->newOrders();                   
         
-        if ($res) {
-            foreach ($res as $i => $v) {
-                $acknowledgment = $factory->getAcknowledgment($v);
-                if ($res) {
-                    $factory->getOrderDetails($v->orderId);
-                }
-                
-            }
-        } 
         
     }
 }

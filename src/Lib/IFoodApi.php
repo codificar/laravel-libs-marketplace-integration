@@ -2,8 +2,6 @@
 
 namespace Codificar\MarketplaceIntegration\Lib;
 
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
@@ -29,6 +27,7 @@ class IFoodApi
     $this->client       = new Client([
       'base_uri'  => $this->baseUrl
     ]);    
+
     //get the marketplace toe=ken
     $key = \Settings::getMarketPlaceToken('ifood_auth_token');
 
@@ -64,7 +63,7 @@ class IFoodApi
       }  
     }
     
-    return $response->getBody()->getContents();
+    return json_decode($response->getBody()->getContents());
   }
 
   /**
@@ -95,29 +94,31 @@ class IFoodApi
     }
     catch (\Exception $e)
     {
-      //  \Log::error($e->getMessage());
+      \Log::debug($e->getMessage());
       return $e;
     }
   }
 
-  public function getOrders($token)
+  public function getOrders()
   {
-    \Log::debug('TOKEN: '. $token);
+    \Log::debug('TOKEN: '. $this->access_token);
     $headers = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
+      'Authorization' => 'Bearer '.$this->access_token
     ];
     return $this->send('GET','order/v1.0/events:polling', $headers);
     
   }
 
-  public function getAcknowledgment($token, $data)
+  public function acknowledgment($data)
   { 
+
     \Log::debug("getAcknowledgment: ".print_r($data, 1));
     $headers    = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
+      'Authorization' => 'Bearer '.$this->access_token
     ];
+
     $object = array(
       (object)
         array(
@@ -128,21 +129,25 @@ class IFoodApi
           'created_at_ifood'  => $data->createdAt
         )
       );
+
       $res = $this->client->request('POST','order/v1.0/events/acknowledgment', [
         'headers'   => $headers,
         'body'      => json_encode($object)
       ]);
+
       $response = json_decode($res->getBody()->getContents());
       
       return $response;
   }
   
-  public function getOrderDetails($id, $token)
+  public function orderDetails($id)
   {
+
     $headers = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$token
+      'Authorization' => 'Bearer '.$this->access_token
     ];
+
     return $this->send('GET', 'order/v1.0/orders/'.$id, $headers);
   }
 
