@@ -82,7 +82,7 @@ class IFoodApi
           'clientSecret'  => $clientSecret,
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
-      $res=json_decode($res);
+      
       $this->access_token = $res->accessToken;
       $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
@@ -99,7 +99,7 @@ class IFoodApi
     }
   }
 
-  public function getOrders()
+  public function newOrders()
   {
     \Log::debug('TOKEN: '. $this->access_token);
     $headers = [
@@ -126,7 +126,7 @@ class IFoodApi
           'code'              => $data->code,
           'full_code'         => $data->fullCode,
           'order_id'          => $data->orderId,
-          'created_at_ifood'  => $data->createdAt
+          'created_at_marketplace'  => $data->createdAt
         )
       );
 
@@ -185,24 +185,19 @@ class IFoodApi
       return FALSE;
     }
   }
+
   /**
    * Dispatch a order status to ifood
    * 
    * @param id
    * 
    */
-  public function dspOrder($id, $token)
+  public function dispatch($id)
   {
     try {
       $headers = $this->headers;
       $headers['Content-Type'] = 'application/x-www-form-urlencoded';  
-      // $headers = [
-      //   'Content-Type' => 'application/x-www-form-urlencoded',
-      //   'Authorization' => 'Bearer '.$this->access_token
-      // // ];
-      //[
-      //     'id'     => $id,
-      //   ];
+     
       return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
 
     }catch (\Exception $e){
@@ -225,7 +220,7 @@ class IFoodApi
       'Authorization' => 'Bearer '.$this->access_token
     ];
     try {
-      $res = json_decode($this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers));
+      $res = $this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers);
       if (is_object($res)) {
         return $res;
       } else {

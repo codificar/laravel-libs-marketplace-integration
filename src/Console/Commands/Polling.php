@@ -60,7 +60,5 @@ class Polling extends Command
         $lib = new IFoodLib();
 
         $lib->newOrders();                   
-        
-        
     }
 }

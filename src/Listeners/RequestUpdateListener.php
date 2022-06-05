@@ -3,9 +3,9 @@
 namespace Codificar\MarketplaceIntegration\Listeners;
 
 use App\Events\RequestUpdate;
-use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
+use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
+
 
 class RequestUpdateListener implements ShouldQueue
 {
@@ -29,10 +29,9 @@ class RequestUpdateListener implements ShouldQueue
     public function handle(RequestUpdate $request)
     {
         $data = $request->broadcastWith();
-        $ifood = new IFoodController();
-        foreach ($data['points'] as $key => $value) {
-            \Log::debug(__FUNCTION__.'::points in foreach');
-            $ifood->updateOrderRequestListener($value, $request->request->is_cancelled);
+        
+        foreach ($data['points'] as $key => $point) {
+            MarketplaceRepository::updateOrder($point->request_id, $point->id, $point->start_time, $point->finish_time, $request->request->is_cancelled);
         }
     }
 

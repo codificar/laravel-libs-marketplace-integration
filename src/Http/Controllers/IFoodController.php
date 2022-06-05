@@ -42,129 +42,7 @@ class IFoodController extends Controller
     
     }
 
-    public static function getOrders()
-    {
-        $res        = new IFoodApi;
-        $response   = json_decode($res->getOrders(\Settings::findByKey('ifood_auth_token')));
-
-        if ($response) {
-            foreach ($response as $key => $value) {
-                $timestamp = strtotime($value->createdAt);
-                $createdAt = date('Y-m-d H:i:s', $timestamp);
-                
-                $order = OrderDetails::updateOrCreate([
-                        'order_id'       => $value->orderId,
-                    ],
-                    [
-                        'order_id'          => $value->orderId,
-                        'code'              => $value->code,
-                        'full_code'         => $value->fullCode,
-                        'ifood_id'          => $value->id,
-                        'created_at_ifood'  => $createdAt
-                    ]
-                );
-            }
-        }
-
-        return $response;
-    }
-
-    public static function getOrderDetails($order_id)
-    {
-        \Log::debug('MarketID: '. $order_id);
-        
-        $res        = new IFoodApi;
-        $response   = json_decode($res->getOrderDetails($order_id, \Settings::findByKey('ifood_auth_token')));
-
-        if ($response) {
-            
-            \Log::debug('Details 0: '.print_r($response,1));
-
-            $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->first();
-
-            $timestamp = strtotime($response->createdAt);
-            $createdAt = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
-            $timestamp = strtotime($response->preparationStartDateTime);
-            $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('Name:: '.print_r($response->customer->name, 1));
-
-            $order = OrderDetails::updateOrCreate([
-                    'order_id'                      => $response->id
-                ],[
-                    'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                    'order_id'                      => $response->id,
-                    'client_name'                   => $response->customer->name,
-                    'merchant_id'                   => $response->merchant->id,
-                    'created_at_ifood'              => $createdAt,
-                    'order_type'                    => $response->orderType,
-                    'display_id'                    => $response->displayId,
-                    'preparation_start_date_time'   => $preparationStartDateTime,
-                    'customer_id'                   => $response->customer->id,
-                    'sub_total'                     => $response->total->subTotal,
-                    'delivery_fee'                  => $response->total->deliveryFee,
-                    'benefits'                      => $response->total->benefits,
-                    'order_amount'                  => $response->total->orderAmount,
-                    'method_payment'                => $response->payments->methods[0]->method,
-                    'prepaid'                       => $response->payments->methods[0]->prepaid,
-                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
-                    'card_brand'                     => $response->payments->methods[0]->method == 'CREDIT' ? $response->payments->methods[0]->card->brand : NULL,
-                    'extra_info'                    => isset($response->extraInfo) ? $response->extraInfo : ''
-                ]
-            );
-            
-            if (isset($response->delivery)) 
-            {
-
-                $calculatedDistance = 0 ;
-
-                if($marketConfig) {
-                    $diffDistance = \DB::select( \DB::raw(
-                        "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
-                    ));
-                    \Log::debug("DISTANCE: ".print_r($diffDistance,1));
-                    $calculatedDistance = $diffDistance[0]->diffDistance ;
-                }
-
-                $complement = property_exists($response->delivery->deliveryAddress,'complement') ? $response->delivery->deliveryAddress->complement : null;
-                if(!$complement && property_exists($response->delivery->deliveryAddress,'reference')) 
-                    $complement = $response->delivery->deliveryAddress->reference;
-                elseif($complement && property_exists($response->delivery->deliveryAddress,'reference'))
-                    $complement = $complement . ' - ' . $response->delivery->deliveryAddress->reference;
-
-                $address = DeliveryAddress::updateOrCreate([
-                    'order_id'                      => $response->id
-                ],[
-                    'customer_id'                   => $response->customer->id,
-                    'stree_name'                    => $response->delivery->deliveryAddress->streetName,
-                    'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
-                    'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
-                    'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                    'complement'                    => $complement,
-                    'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
-                    'city'                          => $response->delivery->deliveryAddress->city,
-                    'state'                         => $response->delivery->deliveryAddress->state,
-                    'country'                       => $response->delivery->deliveryAddress->country,
-                    'latitude'                      => $response->delivery->deliveryAddress->coordinates->latitude,
-                    'longitude'                     => $response->delivery->deliveryAddress->coordinates->longitude,
-                    'distance'                      => $calculatedDistance,
-                ]);
-                if(!$address)
-                    \Log::error(__FUNCTION__.'::Error to save Delivery Address: getOrderDetails response => '.print_r($response));
-
-
-                
-            } else {
-                \Log::error(__FUNCTION__.'::Error to save Delivery Address: getOrderDetails without delivery data, see response => '.print_r($response));
-            }
-        }
-    }
-
-    public static function getAcknowledgment($data)
-    {
-        $res        = new IFoodApi;
-        $acknowledgment = $res->getAcknowledgment(\Settings::findByKey('ifood_auth_token'), $data);
-    }
+    
 
     public static function getOrdersDataBase(Request $request, $id = NULL)
     {
@@ -235,7 +113,7 @@ class IFoodController extends Controller
                 $order = OrderDetails::where('order_id', '=', $request->s_id)->first();
                 \Log::debug("Order: ". print_r($order, 1));
                 $order->merchant_id               = $ifoodData->merchant->id;
-                $order->created_at_ifood          = $createdAt;
+                $order->created_at_marketplace          = $createdAt;
                 $order->order_type                 = $ifoodData->orderType;
                 $order->display_id                 = $ifoodData->displayId;
                 $order->code                        = 'CFM';
@@ -278,7 +156,7 @@ class IFoodController extends Controller
                 $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
                 $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
                 $order->merchant_id               = $ifoodData->merchant->id;
-                $order->created_at_ifood          = $createdAt;
+                $order->created_at_marketplace          = $createdAt;
                 $order->order_type                 = $ifoodData->orderType;
                 $order->display_id                 = $ifoodData->displayId;
                 $order->code                        = 'CAN';
@@ -333,7 +211,7 @@ class IFoodController extends Controller
         try {
             $market     = Shops::where('id', $request->id)->first();
             $res = new IFoodApi;
-            $response = $res->dspOrder($request->s_id, \Settings::findByKey('ifood_auth_token'));
+            $response = $res->dispatch($request->s_id);
             \Log::debug('Controller 1: '.print_r($response,1));
             // if ($response) {
                 $ifoodData = json_decode($res->getOrderDetails($request->s_id, \Settings::findByKey('ifood_auth_token')));
@@ -344,7 +222,7 @@ class IFoodController extends Controller
                 $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
                 $order = OrderDetails::where(['order_id'                   => $request->s_id])->first();
                 $order->merchant_id               = $ifoodData->merchant->id;
-                $order->created_at_ifood          = $createdAt;
+                $order->created_at_marketplace          = $createdAt;
                 $order->order_type                 = $ifoodData->orderType;
                 $order->display_id                 = $ifoodData->displayId;
                 $order->code                        = 'RTP';
@@ -385,49 +263,5 @@ class IFoodController extends Controller
         return $response;
     }
 
-    public function updateOrderRequestListener($point, $is_cancelled)
-    {
-        \Log::debug("is_cancelled TRUE: ".$is_cancelled);
-        \Log::debug("point BLA: ".print_r($point, 1));
-        $order = OrderDetails::where('request_id', '=', $point->request_id)
-                                ->where('point_id', '=', $point->id)
-                                ->first();
-        
-        \Log::debug("ORDER GET BY POINT_ID BLA: ".print_r($order, 1));
-        if ($order) 
-        {
-            $request_status='';
-            $code='';
-            $full_code='';
-            if (!$is_cancelled) {
-                \Log::debug("IF ");
-                if ($point->start_time != NULL && $order->code != 'DSP') {
-                    \Log::debug("IF point->start_time".$point->start_time);
-                    $ifood = new IFoodApi;
-                    $res = $ifood->dspOrder($order->order_id,\Settings::findByKey('ifood_auth_token'));
-                    $request_status = 0;
-                    $code = "DSP";
-                    $full_code = "DISPATCHED";
-                }
-                if ($point->finish_time) {
-                    \Log::debug("IF point->finish_time". $point->finish_time);
-                    $request_status = 0;
-                    $code = "CON";
-                    $full_code = "CONCLUDED";
-                }
-            } else {
-                \Log::debug("ELSE");
-                $request_status = 1;
-                $code = "CAN";
-                $full_code = "CANCELLED";
-            }
-            if (isset($request_status) && isset($code) && $code !='') {
-                \Log::debug("IF UPDATE ORDER");
-                $order->request_status    = $request_status;
-                $order->code              = $code;
-                $order->full_code         = $full_code;
-                $order->update();
-            }
-        }
-    }
+    
 }

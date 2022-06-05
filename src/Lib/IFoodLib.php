@@ -7,6 +7,7 @@ use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
+use Carbon\Carbon;
 
 class IFoodLib
 {
@@ -18,8 +19,8 @@ class IFoodLib
         $clientId          = \Settings::findByKey('ifood_client_id');
         $clientSecret      = \Settings::findByKey('ifood_client_secret');
 
-        \Log::debug("IFoodController::auth -> client_id: ". print_r($clientId, 1));
-        \Log::debug("IFoodController::auth -> client_secret: ". print_r($clientSecret, 1));
+        \Log::debug("IFoodLib::auth -> client_id: ". print_r($clientId, 1));
+        \Log::debug("IFoodLib::auth -> client_secret: ". print_r($clientSecret, 1));
 
         $this->api = new IFoodApi;
 
@@ -29,17 +30,15 @@ class IFoodLib
         }
     }
     
-    public function getNewOrders()
+    public function newOrders()
     {
-        $response   = $this->api->getOrders();
+        $response   = $this->api->newOrders();
 
         if ($response) {
             foreach ($response as $key => $value) {
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
                 
-                #TODO miration para mudar ifood_id para marketplace_id
-                #TODO miration para mudar created_at_ifood para created_at_marketplace
                 #TODO miration para criar o marketplace em questao e agregador
                 $order = OrderDetails::updateOrCreate([
                         'order_id'       => $value->orderId,
@@ -48,8 +47,8 @@ class IFoodLib
                         'order_id'          => $value->orderId,
                         'code'              => $value->code,
                         'full_code'         => $value->fullCode,
-                        'ifood_id'          => $value->id,
-                        'created_at_ifood'  => $createdAt
+                        'marketplace_order_id'      => $value->id,
+                        'created_at_marketplace'    => $createdAt
                     ]
                 );
 
@@ -68,16 +67,13 @@ class IFoodLib
 
         if ($response) {
             
-            \Log::debug('Details 0: '.print_r($response,1));
-
             $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->first();
 
             $timestamp = strtotime($response->createdAt);
             $createdAt = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('Cash:: '.print_r($response->payments->methods[0], 1));
+            
             $timestamp = strtotime($response->preparationStartDateTime);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
-            \Log::debug('Name:: '.print_r($response->customer->name, 1));
 
             $order = OrderDetails::updateOrCreate([
                     'order_id'                      => $response->id
@@ -86,7 +82,7 @@ class IFoodLib
                     'order_id'                      => $response->id,
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
-                    'created_at_ifood'              => $createdAt,
+                    'created_at_marketplace'        => $createdAt,
                     'order_type'                    => $response->orderType,
                     'display_id'                    => $response->displayId,
                     'preparation_start_date_time'   => $preparationStartDateTime,
@@ -150,5 +146,9 @@ class IFoodLib
                 \Log::warning(__FUNCTION__.'::Error to save Delivery Address: getOrderDetails without delivery data, see response => '.print_r($response));
             }
         }
+    }
+
+    public function dispatch($orderId){
+        return $this->api->dispatch($orderId);
     }
 }
