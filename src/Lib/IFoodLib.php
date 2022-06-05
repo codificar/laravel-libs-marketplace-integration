@@ -4,6 +4,7 @@ namespace Codificar\MarketplaceIntegration\Lib;
 
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
@@ -39,20 +40,21 @@ class IFoodLib
                 $timestamp = strtotime($value->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
                 
-                #TODO miration para criar o marketplace em questao e agregador
                 $order = OrderDetails::updateOrCreate([
                         'order_id'       => $value->orderId,
                     ],
                     [
-                        'order_id'          => $value->orderId,
-                        'code'              => $value->code,
-                        'full_code'         => $value->fullCode,
+                        'order_id'                  => $value->orderId,
+                        'code'                      => $value->code,
+                        'full_code'                 => $value->fullCode,
                         'marketplace_order_id'      => $value->id,
-                        'created_at_marketplace'    => $createdAt
+                        'created_at_marketplace'    => $createdAt,
+                        'marketplace'               => MarketplaceFactory::IFOOD
                     ]
                 );
 
                 $acknowledgment = $this->api->acknowledgment($value);
+
                 if ($acknowledgment) {
                     $this->orderDetails($value->orderId);
                 }
@@ -83,6 +85,7 @@ class IFoodLib
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_marketplace'        => $createdAt,
+                    'marketplace'                   => MarketplaceFactory::IFOOD,
                     'order_type'                    => $response->orderType,
                     'display_id'                    => $response->displayId,
                     'preparation_start_date_time'   => $preparationStartDateTime,

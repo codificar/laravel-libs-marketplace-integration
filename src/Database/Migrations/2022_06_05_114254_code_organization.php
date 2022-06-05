@@ -34,9 +34,19 @@ class CodeOrganization extends Migration
             });
         }
 
-        Schema::table('order_detail', function (Blueprint $table) {
-            $table->string('marketplace')->after('tracking_route')->nullable()->default('ifood');
-        });
+        if (!Schema::hasColumn('order_detail', 'marketplace'))
+        {
+            Schema::table('order_detail', function (Blueprint $table) {
+                $table->string('marketplace')->after('tracking_route')->nullable()->default('ifood');
+            });
+        }
+
+        if (!Schema::hasColumn('order_detail', 'aggregator'))
+        {
+            Schema::table('order_detail', function (Blueprint $table) {
+                $table->string('aggregator')->after('marketplace')->nullable();
+            });
+        }
 
        
     }
