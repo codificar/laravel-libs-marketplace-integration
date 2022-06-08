@@ -20,11 +20,11 @@ class ShopsController extends Controller
         $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
         \Log::debug(__CLASS__.__FUNCTION__.'$shops:=>  '.print_r($shops,1));
 
-        foreach ($shops as $key => $value) 
+        foreach ($shops as $key => $value)
         {
-            if ($value->getConfig) 
+            if ($value->getConfig)
             {
-                foreach ($value->getConfig as $key => $item) 
+                foreach ($value->getConfig as $key => $item)
                 {
                     $deliveryFactory = new DeliveryFactory();
                     \Log::debug('$v: '.print_r($item,1));
@@ -38,7 +38,7 @@ class ShopsController extends Controller
     }
 
     public function store(ShopsFormRequest $request)
-    {        
+    {
         $user = \Auth::guard('web_corp')->user();
         $shop = Shops::create([
             'name'          => $request->name,
@@ -70,7 +70,7 @@ class ShopsController extends Controller
             'institution_id'=> $user->AdminInstitution->institution_id,
         ]);
         $data = Shops::where('id', $request->id)->get();
-        
+
         foreach ($data as $key => $value) {
             $value->getConfig;
         }
@@ -100,11 +100,11 @@ class ShopsController extends Controller
         }
         $response = $res->getMerchantDetails($request->id, $request);
         \Log::debug('response: getMerchantDetails=> '.print_r($response,1));
-        if (is_object($response)) 
+        if (is_object($response))
         {
             \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($request->merchant_name ,1));
 
-            
+
             $marketConfig = MarketConfig::create([
                 'shop_id'       => $request->id,
                 'merchant_id'   => $request->merchant_id,
@@ -121,17 +121,17 @@ class ShopsController extends Controller
             return $marketConfig;
         } else if (is_array($response)) {
             \Log::debug('response: '.print_r($response,1));
-            
+
             \DB::rollBack();
             return $response;
         }
-        
+
     }
 
     /**
-     * 
+     *
      * Update market configuration
-     * 
+     *
      * @return ShopResource
      */
     public function updateMarketConfig(Request $request)
@@ -148,7 +148,7 @@ class ShopsController extends Controller
                 'name'          => $request->merchant_name,
                 'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
                 'merchant_id'   => $request->merchant_id,
-                'address'       => json_encode($api->address) 
+                'address'       => json_encode($api->address)
             ]);
         } else {
             MarketConfig::where('id', $request->id)->update([
@@ -231,6 +231,13 @@ class ShopsController extends Controller
                 'message'   => 'Cadastre as cerdenciais iFood!'
             ];
         }
-        
+
+    }
+
+    public function handleWebhook(Request $request, $market)
+    {
+        \Log::debug($request);
+        \Log::debug("Market " . $market);
+
     }
 }
