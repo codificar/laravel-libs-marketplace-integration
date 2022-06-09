@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ShopsController extends Controller
 {
@@ -236,11 +237,11 @@ class ShopsController extends Controller
 
     public function handleWebhook(Request $request, $market)
     {
+        Log::debug($request);
+        Log::debug("Market " . $market);
         if($market != 'hubster') {
             dd($request);
         }
-        \Log::debug($request);
-        \Log::debug("Market " . $market);
 
     }
 }
