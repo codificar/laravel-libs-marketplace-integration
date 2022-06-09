@@ -238,7 +238,7 @@ class ShopsController extends Controller
     public function handleWebhook(Request $request, $market)
     {
         Log::debug($request);
-        Log::debug("Market " . $market);
+        Log::info("Market " . $market);
         if($market != 'hubster') {
             dd($request);
         }
