@@ -67,6 +67,7 @@ class HubsterApi {
 	}
 
 	function createOrder(Request $request) {
+		Log::info("Creating order");
 		$order = OrderDetails::create([
 			"store_id" => $request->metadata["storeId"],
 			"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
@@ -76,8 +77,8 @@ class HubsterApi {
 			"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
 		]);
 
-		return $order;
 		$this->notifyRequest($request);
+		return $order;
 	}
 
 
