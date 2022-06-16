@@ -62,7 +62,7 @@ class HubsterApi {
 
 		$headers = $this->headers;
 		$headers["X-Event-Id"] = $data->eventId;
-		$ref_id = $request->metadata["payload"]["deliveryReferenceId"];
+		$ref_id = $data->metadata["payload"]["deliveryReferenceId"];
 		$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, $requestData);
 	}
 
