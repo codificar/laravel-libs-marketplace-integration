@@ -68,30 +68,33 @@ class HubsterApi {
 
 	function createOrder(Request $request) {
 		Log::info("Creating order");
-		$order = OrderDetails::create([
-			"store_id" => $request->metadata["storeId"],
-			"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
-			"order_type" => "DELIVERY",
-			"preparation_start_date_time" => $request->eventTime,
-			"order_amount" => $request->metadata["payload"]["orderSubTotal"],
-			"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
-		]);
+		$order = OrderDetails::where(["order_id" => $request->metadata["payload"]["deliveryReferenceId"]])->first();
+		if(!$order) {
+			$order = OrderDetails::create([
+				"store_id" => $request->metadata["storeId"],
+				"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
+				"order_type" => "DELIVERY",
+				"preparation_start_date_time" => $request->eventTime,
+				"order_amount" => $request->metadata["payload"]["orderSubTotal"],
+				"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
+			]);
+			$this->notifyRequest($request);
+		}
 
-		$this->notifyRequest($request);
 		return $order;
 	}
 
 
 	public function send($requestType, $route, $headers, $body = null, $retry = 0)
 	{
-		Log::debug("requestType: ". print_r($requestType, 1));
-		Log::debug("route: ". print_r($route, 1));
-		Log::debug("headers: ". print_r($headers,1));
-		Log::debug("body: ". print_r($body,1));
+		Log::info("requestType: ". print_r($requestType, 1));
+		Log::info("route: ". print_r($route, 1));
+		Log::info("headers: ". print_r($headers,1));
+		Log::info("body: ". print_r($body,1));
 
 		try {
-			$response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-			Log::debug("Code: ". $response->getStatusCode());
+			$response = $this->client->request($requestType, $route, ['headers' => $headers, 'form_params' => $body]);
+			Log::info("Code: ". $response->getStatusCode());
 		}
 		catch(\Exception $ex){
 			// reautenticacao caso a chave tenha dado 401 e um novo retry
@@ -103,7 +106,7 @@ class HubsterApi {
 
 			//	return $this->send($requestType, $route, $headers, $body, ++$retry);
 			//}
-			Log::info('erro send', $ex->getMessage());
+			Log::info('erro send: ' . $ex->getMessage());
 		}
 
 		return json_decode($response->getBody()->getContents());
