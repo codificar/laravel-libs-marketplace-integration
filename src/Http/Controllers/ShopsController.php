@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 
 use Carbon\Carbon;
+use Codificar\MarketplaceIntegration\Lib\HubsterApi;
 use Illuminate\Support\Facades\Log;
 
 class ShopsController extends Controller
@@ -237,10 +238,20 @@ class ShopsController extends Controller
 
     public function handleWebhook(Request $request, $market)
     {
-        Log::info($request);
         Log::info("Market " . $market);
         if($market != 'hubster') {
             dd($request);
+        } else {
+            //Salvar
+            $hubsterApi = new HubsterApi;
+            Log::info($request);
+            if($request->eventType == "delivery.request_quote") {
+                $newOrder = $hubsterApi->createOrder($request);
+                return 'ok';
+            } else {
+                return $request->all(); //Para testes
+            }
+
         }
 
     }
