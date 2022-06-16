@@ -49,7 +49,7 @@ class HubsterApi {
 	public function notifyRequest($data)
 	{
 		$requestData = [
-			"createdAt" => date('Y-m-d\TH:i:s'),
+			"createdAt" => date('Y-m-d\TH:i:sP'),
 			"cost" =>  [
 				"baseCost" =>  4.99, //TODO configurar
 				"extraCost" =>  0
@@ -91,7 +91,7 @@ class HubsterApi {
 		Log::info("route: ". print_r($route, 1));
 		Log::info("headers: ". print_r($headers,1));
 		Log::info("body: ". print_r($body,1));
-
+		$response = null;
 		try {
 			$response = $this->client->request($requestType, $route, ['headers' => $headers, 'form_params' => $body]);
 			Log::info("Code: ". $response->getStatusCode());
