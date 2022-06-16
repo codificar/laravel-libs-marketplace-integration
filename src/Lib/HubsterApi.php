@@ -63,7 +63,7 @@ class HubsterApi {
 		$headers = $this->headers;
 		$headers["X-Event-Id"] = $data->eventId;
 		$ref_id = $data->metadata["payload"]["deliveryReferenceId"];
-		$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, $requestData);
+		$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, json_encode($requestData));
 	}
 
 	function createOrder(Request $request) {
