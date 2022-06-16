@@ -49,7 +49,7 @@ class HubsterApi {
 	public function notifyRequest($data)
 	{
 		$requestData = [
-			"createdAt" => date('Y-m-d\TH-i-s'),
+			"createdAt" => date('Y-m-d\TH:i:s'),
 			"cost" =>  [
 				"baseCost" =>  4.99, //TODO configurar
 				"extraCost" =>  0
