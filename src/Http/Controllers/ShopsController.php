@@ -235,24 +235,4 @@ class ShopsController extends Controller
         }
 
     }
-
-    public function handleWebhook(Request $request, $market)
-    {
-        Log::info("Market " . $market);
-        if($market != 'hubster') {
-            dd($request);
-        } else {
-            //Salvar
-            $hubsterApi = new HubsterApi;
-            Log::info($request);
-            if($request->eventType == "delivery.request_quote") {
-                $newOrder = $hubsterApi->createOrder($request);
-                return 'ok';
-            } else {
-                return $request->all(); //Para testes
-            }
-
-        }
-
-    }
 }
