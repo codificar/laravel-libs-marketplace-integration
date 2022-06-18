@@ -2,7 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
-use Illuminate\Routing\Controller;
+use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;

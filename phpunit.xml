@@ -27,6 +27,11 @@
   </testsuites>
   <php>
     <env name="CACHE_DRIVER" value="array"/>
+    <env name="DB_CONNECTION" value="mysql"/>
+    <env name="DB_HOST" value="127.0.0.1"/>
+    <env name="DB_DATABASE" value="entregas"/>
+    <env name="DB_USERNAME" value="root"/>
+    <env name="DB_PASSWORD" value="password"/>
     <env name="APP_DEBUG" value="true"/>
   </php>
 </phpunit>

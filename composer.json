@@ -30,12 +30,13 @@
     },
     "autoload": {
         "psr-4": {
+            "App\\": "../../../app/",
             "Codificar\\MarketplaceIntegration\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Codificar\\MarketplaceIntegration\\Test\\": "tests"
+            "Codificar\\MarketplaceIntegration\\Test\\": "tests/"
         }
     },
     "scripts": {

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\Settings;
 
 class HubsterApi {
 	protected $clientId;
@@ -30,7 +31,7 @@ class HubsterApi {
 		]);
 
 		//get the marketplace token
-		$key = \Settings::getMarketPlaceToken('hubster_auth_token');
+		$key = Settings::getMarketPlaceToken('hubster_auth_token');
 
 		//\Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
 		//initialize a common variable
@@ -64,10 +65,10 @@ class HubsterApi {
 			$res = $this->send('POST', 'v1/auth/token', $headers, $body);
 			
 			$this->accessToken = $res->access_token;
-			$test = \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
+			$test = Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
 			\Log::debug("updateOrCreateByKey: hubster_auth_token ". print_r($test,1));
 
-			$test = \Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
+			$test = Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
 			\Log::debug("updateOrCreateByKey: hubster_expiry_token ". print_r($test,1));
 
 			return $res;
@@ -93,8 +94,8 @@ class HubsterApi {
 		catch(\Exception $ex){
 			//reautenticacao caso a chave tenha dado 401 e um novo retry
 			if($ex->getCode() == 401 && $retry < 3){
-				$clientId          = \Settings::findByKey('hubster_client_id');
-				$clientSecret      = \Settings::findByKey('hubster_client_secret');
+				$clientId          = Settings::findByKey('hubster_client_id');
+				$clientSecret      = Settings::findByKey('hubster_client_secret');
 				$this->auth($clientId, $clientSecret);
 
 				return $this->send($requestType, $route, $headers, $body, ++$retry);

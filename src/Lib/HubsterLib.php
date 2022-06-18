@@ -9,6 +9,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Carbon\Carbon;
+use App\Models\Settings;
 
 class HubsterLib
 {
@@ -17,12 +18,12 @@ class HubsterLib
 
     public function __construct(){
         #TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId          = \Settings::findByKey('hubster_client_id');
-        $clientSecret      = \Settings::findByKey('hubster_client_secret');
+        $clientId          = Settings::findByKey('hubster_client_id');
+        $clientSecret      = Settings::findByKey('hubster_client_secret');
 
         $this->api = new HubsterApi;
 
-        $expiryToken  = \Settings::findByKey('hubster_expiry_token');
+        $expiryToken  = Settings::findByKey('hubster_expiry_token');
         if (($clientId && $clientSecret) && ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now())) {
             $this->api->auth($clientId, $clientSecret);
         }
