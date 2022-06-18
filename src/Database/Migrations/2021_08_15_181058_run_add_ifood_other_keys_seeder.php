@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Carbon\Carbon;
+//use App\Models\LibSettings;
 
 class RunAddIfoodOtherKeysSeeder extends Migration
 {
@@ -15,13 +16,13 @@ class RunAddIfoodOtherKeysSeeder extends Migration
     public function up()
     {
         try{
-            \Settings::updateOrCreate(array('key' => 'ifood_auth_token', 'value' => 'n/a'));
+             \Settings::updateOrCreate(array('key' => 'ifood_auth_token', 'value' => 'n/a'));
         }
         catch(Exception $ex){
 
         }
         try{
-            \Settings::updateOrCreate(array('key' => 'ifood_expiry_token', 'value' => Carbon::now()->addHours(-6)));
+             \Settings::updateOrCreate(array('key' => 'ifood_expiry_token', 'value' => Carbon::now()->addHours(-6)));
         
         }
         catch(Exception $ex){

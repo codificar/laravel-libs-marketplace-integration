@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
 use Carbon\Carbon;
+//use App\Models\LibSettings;
 
 class IFoodApi
 {
@@ -29,7 +30,7 @@ class IFoodApi
     ]);    
 
     //get the marketplace toe=ken
-    $key = \Settings::getMarketPlaceToken('ifood_auth_token');
+    $key =  \Settings::getMarketPlaceToken('ifood_auth_token');
 
     \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
     //initialize a common variable
@@ -58,8 +59,8 @@ class IFoodApi
     catch(Exception $ex){
       // reautenticacao caso a chave tenha dado 401 e um novo retry
       if($ex->getCode() == 401 && $retry < 3){
-        $clientId          = \Settings::findByKey('ifood_client_id');
-        $clientSecret      = \Settings::findByKey('ifood_client_secret');
+        $clientId          =  \Settings::findByKey('ifood_client_id');
+        $clientSecret      =  \Settings::findByKey('ifood_client_secret');
         $this->auth($clientId, $clientSecret);
 
         return $this->send($requestType, $route, $headers, $body, ++$retry);
@@ -87,10 +88,10 @@ class IFoodApi
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
       
       $this->accessToken = $res->accessToken;
-      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
+      $test =  \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
 
-      $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
+      $test =  \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
       \Log::debug("Ifood API updateOrCreateByKey: ifood_expiry_token ". print_r($test,1));
 
       return $res;

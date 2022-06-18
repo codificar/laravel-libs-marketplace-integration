@@ -10,6 +10,7 @@ use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Http\Resources\OrdersResource;
+//use App\Models\LibSettings;
 
 class IFoodController extends Controller
 {
@@ -28,8 +29,8 @@ class IFoodController extends Controller
 
     public static function auth($id = null)
     {
-        $clientId          = \Settings::findByKey('ifood_client_id');
-        $clientSecret      = \Settings::findByKey('ifood_client_secret');
+        $clientId          =  \Settings::findByKey('ifood_client_id');
+        $clientSecret      =  \Settings::findByKey('ifood_client_secret');
         \Log::debug("IFoodController::auth -> client_id: ". print_r($clientId, 1));
         \Log::debug("IFoodController::auth -> client_secret: ". print_r($clientSecret, 1));
 
@@ -37,8 +38,8 @@ class IFoodController extends Controller
         $res = $api->auth($clientId, $clientSecret);
         // \Log::debug("auth: ". print_r($res->accessToken, 1));
         
-        // \Settings::updateOrCreateByKey('ifood_auth_token', $res->accessToken);
-        // \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
+        //  \Settings::updateOrCreateByKey('ifood_auth_token', $res->accessToken);
+        //  \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
     
     }
     
@@ -98,12 +99,12 @@ class IFoodController extends Controller
             \Log::debug('s_id: '.$request->s_id);
             \Log::debug('id: '.$request->id);
             $res        = new IFoodApi;
-            $response   = $res->confirmOrderApi($request->s_id, \Settings::findByKey('ifood_auth_token'));
+            $response   = $res->confirmOrderApi($request->s_id,  \Settings::findByKey('ifood_auth_token'));
             
             // $order = '';
             // if ($response) {
                 \Log::debug('Controller 1: '.print_r($response,1));
-                $ifoodData = json_decode($res->getOrderDetails($request->s_id, \Settings::findByKey('ifood_auth_token')));
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id,  \Settings::findByKey('ifood_auth_token')));
                 \Log::debug('entrou 1: '.print_r($ifoodData->createdAt,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
@@ -213,7 +214,7 @@ class IFoodController extends Controller
             $response = $res->dispatch($request->s_id);
             \Log::debug('Controller 1: '.print_r($response,1));
             // if ($response) {
-                $ifoodData = json_decode($res->getOrderDetails($request->s_id, \Settings::findByKey('ifood_auth_token')));
+                $ifoodData = json_decode($res->getOrderDetails($request->s_id,  \Settings::findByKey('ifood_auth_token')));
                 \Log::debug('entrou 1: '.print_r($ifoodData,1));
                 $timestamp = strtotime($ifoodData->createdAt);
                 $createdAt = date('Y-m-d H:i:s', $timestamp);
@@ -256,7 +257,7 @@ class IFoodController extends Controller
     {
         
         $res = new IFoodApi;
-        $response = $res->getMerchantDetails(\Settings::findByKey('ifood_auth_token'), $request->merchant_id);
+        $response = $res->getMerchantDetails( \Settings::findByKey('ifood_auth_token'), $request->merchant_id);
         \Log::debug("MerchantDetails: ".print_r($response,1));
         
         return $response;

@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Lib\HubsterApi;
 use Illuminate\Support\Facades\Log;
 
+//use App\Models\LibSettings;
+
 class ShopsController extends Controller
 {
     public function index()
@@ -196,11 +198,11 @@ class ShopsController extends Controller
     public function iFoodCredentials(Request $request)
     {
         \Log::debug('Credentials: '.print_r($request->all(), 1));
-        $client_id          = \Settings::updateOrCreate([
+        $client_id          =  \Settings::updateOrCreate([
             'key'   =>  'ifood_client_id'],[
             'value' => $request->ifood_client_id
         ]);
-        $client_secret      = \Settings::updateOrCreate([
+        $client_secret      =  \Settings::updateOrCreate([
             'key'   =>  'ifood_client_secret'],[
             'value' => $request->ifood_client_secret
         ]);
@@ -220,8 +222,8 @@ class ShopsController extends Controller
 
     public function getIfoodCredentials()
     {
-        $client_id          = \Settings::where('key', 'ifood_client_id')->first();
-        $client_secret      = \Settings::where('key', 'ifood_client_secret')->first();
+        $client_id          =  \Settings::where('key', 'ifood_client_id')->first();
+        $client_secret      =  \Settings::where('key', 'ifood_client_secret')->first();
         if ($client_secret && $client_id) {
             return [
                 'ifood_client_id'       => $client_id,

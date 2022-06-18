@@ -9,6 +9,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Carbon\Carbon;
+//use App\Models\LibSettings;
 
 class IFoodLib
 {
@@ -17,15 +18,15 @@ class IFoodLib
 
     public function __construct(){
         #TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId          = \Settings::findByKey('ifood_client_id');
-        $clientSecret      = \Settings::findByKey('ifood_client_secret');
+        $clientId          =  \Settings::findByKey('ifood_client_id');
+        $clientSecret      =  \Settings::findByKey('ifood_client_secret');
 
         \Log::debug("IFoodLib::auth -> client_id: ". print_r($clientId, 1));
         \Log::debug("IFoodLib::auth -> client_secret: ". print_r($clientSecret, 1));
 
         $this->api = new IFoodApi;
 
-        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
+        $expiryToken  =  \Settings::findByKey('ifood_expiry_token');
         if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
             $this->api->auth($clientId, $clientSecret);
         }

@@ -6,6 +6,7 @@ use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
+//use App\Models\LibSettings;
 
 class Polling extends Command
 {
@@ -41,7 +42,7 @@ class Polling extends Command
     public function handle()
     {
         // just polling if has the proper configurations
-        if(\Settings::findByKey('ifood_client_id') && \Settings::findByKey('ifood_client_secret')){
+        if( \Settings::findByKey('ifood_client_id') &&  \Settings::findByKey('ifood_client_secret')){
             $this->polling();
             sleep(30);
             $this->polling();

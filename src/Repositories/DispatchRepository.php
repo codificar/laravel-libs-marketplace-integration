@@ -13,6 +13,7 @@ use App\Models\RequestPoint ;
 
 use Carbon\Carbon;
 
+//use App\Models\LibSettings;
 
 /**
  * Class DispatchRepository
@@ -168,7 +169,7 @@ class DispatchRepository
 
                 // or the first one active
                 if(!$paymentMode && $paymentMethods){
-                    return \Settings::getPaymentMethodIndex($paymentMethods[0]['key']);
+                    return  \Settings::getPaymentMethodIndex($paymentMethods[0]['key']);
                 }
             }
         }
@@ -242,7 +243,7 @@ class DispatchRepository
         }
         else {
 
-            $settings = \Settings::findByKey('dispatch_wait_time_limit');
+            $settings =  \Settings::findByKey('dispatch_wait_time_limit');
 
             if ($settings)
                 return $settings;
