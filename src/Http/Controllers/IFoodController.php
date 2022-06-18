@@ -41,9 +41,8 @@ class IFoodController extends Controller
         // \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(6));
     
     }
-
     
-
+    #TODO move query to repository
     public static function getOrdersDataBase(Request $request, $id = NULL)
     {
         \Log::warning("Request: ".print_r($request->all(),1));

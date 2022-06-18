@@ -38,6 +38,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 
 
 Route::group(['namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => 'libs/marketplace-integration/'], function() {
-    Route::get('/{market}/webhook', 'ShopsController@handleWebhook');
-    Route::post('/{market}/webhook', 'ShopsController@handleWebhook');
+    Route::get('/{market}/webhook', 'MarketplaceController@webhook');
+    Route::post('/{market}/webhook', 'MarketplaceController@webhook');
 });

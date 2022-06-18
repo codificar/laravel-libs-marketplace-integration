@@ -2,7 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Lib\IFoodLib;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
@@ -54,11 +54,9 @@ class Polling extends Command
      * @return mixed
      */
     public function polling()
-    {
-        \Log::notice(__FUNCTION__);
-    
-        $lib = new IFoodLib();
-
-        $lib->newOrders();                   
+    {   
+        #TODO criar um foreach para cada marketplace que faz polling e disparar
+        $factory = MarketplaceFactory::create();
+        $factory->newOrders();                   
     }
 }

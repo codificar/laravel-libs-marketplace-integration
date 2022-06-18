@@ -14,7 +14,7 @@ class HubsterApi {
 	protected $clientId;
 	protected $clientSecret;
 	protected $baseUrl;
-	protected $access_token;
+	protected $accessToken;
 	protected $headers;
 	protected $client;
 
@@ -30,85 +30,117 @@ class HubsterApi {
 		]);
 
 		//get the marketplace token
-		//$key = \Settings::getMarketPlaceToken('ifood_auth_token');
-		$key = "BW_qzZS3JvzvJoGKeUe6n0GFiIhNozSRPlX3VpDXN30.X6JQyfska1CUpjkoH_hsY7zmUlcEaQIm9glDePp1e9I"; //TODO colocar para puxar do oauth
+		$key = \Settings::getMarketPlaceToken('hubster_auth_token');
 
 		//\Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
 		//initialize a common variable
-		$this->access_token = $key;
+		$this->accessToken = $key;
 		//initialize a common variable
 		$this->headers    = [
 			'Content-Type' => 'application/json',
 			'Authorization' => 'Bearer '.$key,
 			'X-Application-Id' => "f0d58c67-646f-495f-b5ae-9bde99b37a2c", //TODO vem na request mas não vi mudar
-			'X-Store-Id' => '1234', //TODO padrão para teste,
+			//'X-Store-Id' => '1234', //TODO padrão para teste,
 			//'X-Event-Id' => '', //setado na hora de enviar
 		];
 	}
 
-	public function notifyRequest($data)
+	/**
+	 * Authenticate and save updated keys
+	 */
+	public function auth($clientId, $clientSecret)
 	{
-		$requestData = [
-			"createdAt" => date('Y-m-d\TH:i:sP'),
-			"cost" =>  [
-				"baseCost" =>  4.99, //TODO configurar
-				"extraCost" =>  0
-			],
-			"provider" =>  "codificar",
-			"minPickupDuration" =>  5, //TODO configurar
-			"maxPickupDuration" =>  10,
-			"currencyCode" =>  "BRL"
-		];
+		\Log::debug('clientId:'.print_r($clientId,1));
+		\Log::debug('clientSecret:'.print_r($clientSecret,1));
+		try
+		{
+			$headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
+			$body       = [
+				'grantType'     => 'client_credentials',
+				'clientId'      => $clientId,
+				'clientSecret'  => $clientSecret,
+				'scope'			=> 'ping orders.update orders.delivery_info_update orders.status_update'
+			];
+			$res = $this->send('POST', 'v1/auth/token', $headers, $body);
+			
+			$this->accessToken = $res->access_token;
+			$test = \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
+			\Log::debug("updateOrCreateByKey: hubster_auth_token ". print_r($test,1));
 
-		$headers = $this->headers;
-		$headers["X-Event-Id"] = $data->eventId;
-		$ref_id = $data->metadata["payload"]["deliveryReferenceId"];
-		$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, json_decode(json_encode($requestData), true));
-	}
+			$test = \Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
+			\Log::debug("updateOrCreateByKey: hubster_expiry_token ". print_r($test,1));
 
-	function createOrder(Request $request) {
-		Log::info("Creating order");
-		$order = OrderDetails::where(["order_id" => $request->metadata["payload"]["deliveryReferenceId"]])->first();
-		if(!$order) {
-			$order = OrderDetails::create([
-				"store_id" => $request->metadata["storeId"],
-				"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
-				"order_type" => "DELIVERY",
-				"preparation_start_date_time" => $request->eventTime,
-				"order_amount" => $request->metadata["payload"]["orderSubTotal"],
-				"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
-			]);
-			$this->notifyRequest($request);
+			return $res;
 		}
-
-		return $order;
+		catch (\Exception $e)
+		{
+			\Log::debug($e->getMessage());
+			return $e;
+		}
 	}
 
-
+	 /**
+	 * Api Client send data and get json return
+	 */
 	public function send($requestType, $route, $headers, $body = null, $retry = 0)
 	{
-		Log::info("requestType: ". print_r($requestType, 1));
-		Log::info("route: ". print_r($route, 1));
-		Log::info("headers: ". print_r($headers,1));
-		Log::info("body: ". print_r($body,1));
+		
 		$response = null;
 		try {
 			$response = $this->client->request($requestType, $route, ['headers' => $headers, 'form_params' => $body]);
-			Log::info("Code: ". $response->getStatusCode());
+			\Log::info("Code: ". $response->getStatusCode());
 		}
 		catch(\Exception $ex){
-			// reautenticacao caso a chave tenha dado 401 e um novo retry
-			//TODO implementar reautenticação em para o hubster
-			//if($ex->getCode() == 401 && $retry < 3){
-			//	$clientId          = \Settings::findByKey('ifood_client_id');
-			//	$clientSecret      = \Settings::findByKey('ifood_client_secret');
-			//	$this->auth($clientId, $clientSecret);
+			//reautenticacao caso a chave tenha dado 401 e um novo retry
+			if($ex->getCode() == 401 && $retry < 3){
+				$clientId          = \Settings::findByKey('hubster_client_id');
+				$clientSecret      = \Settings::findByKey('hubster_client_secret');
+				$this->auth($clientId, $clientSecret);
 
-			//	return $this->send($requestType, $route, $headers, $body, ++$retry);
-			//}
+				return $this->send($requestType, $route, $headers, $body, ++$retry);
+			}
 			Log::info('erro send: ' . $ex->getMessage());
 		}
 
 		return json_decode($response->getBody()->getContents());
 	}
+
+	// public function notifyRequest($data)
+	// {
+	// 	$requestData = [
+	// 		"createdAt" => date('Y-m-d\TH:i:sP'),
+	// 		"cost" =>  [
+	// 			"baseCost" =>  4.99, //TODO configurar
+	// 			"extraCost" =>  0
+	// 		],
+	// 		"provider" =>  "codificar",
+	// 		"minPickupDuration" =>  5, //TODO configurar
+	// 		"maxPickupDuration" =>  10,
+	// 		"currencyCode" =>  "BRL"
+	// 	];
+
+	// 	$headers = $this->headers;
+	// 	$headers["X-Event-Id"] = $data->eventId;
+	// 	$ref_id = $data->metadata["payload"]["deliveryReferenceId"];
+	// 	$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, json_decode(json_encode($requestData), true));
+	// }
+
+	// function createOrder(Request $request) {
+	// 	Log::info("Creating order");
+	// 	$order = OrderDetails::where(["order_id" => $request->metadata["payload"]["deliveryReferenceId"]])->first();
+	// 	if(!$order) {
+	// 		$order = OrderDetails::create([
+	// 			"store_id" => $request->metadata["storeId"],
+	// 			"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
+	// 			"order_type" => "DELIVERY",
+	// 			"preparation_start_date_time" => $request->eventTime,
+	// 			"order_amount" => $request->metadata["payload"]["orderSubTotal"],
+	// 			"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
+	// 		]);
+	// 		$this->notifyRequest($request);
+	// 	}
+
+	// 	return $order;
+	// }
+
 }

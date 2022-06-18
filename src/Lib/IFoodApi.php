@@ -12,7 +12,7 @@ class IFoodApi
   protected $clientId;
   protected $clientSecret;
   protected $baseUrl;
-  protected $access_token;
+  protected $accessToken;
   protected $headers;
   protected $client;
 
@@ -33,7 +33,7 @@ class IFoodApi
 
     \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
     //initialize a common variable
-    $this->access_token = $key;
+    $this->accessToken = $key;
     //initialize a common variable
     $this->headers    = [
       'Content-Type' => 'application/json',
@@ -41,6 +41,9 @@ class IFoodApi
     ];
   }
 
+   /**
+   * Api Client send data and get json return
+   */
   public function send($requestType, $route, $headers, $body = null, $retry = 0)
   {
     \Log::debug("requestType: ". print_r($requestType, 1));
@@ -83,8 +86,8 @@ class IFoodApi
       ];
       $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
       
-      $this->access_token = $res->accessToken;
-      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->access_token);
+      $this->accessToken = $res->accessToken;
+      $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
       \Log::debug("Ifood API updateOrCreateByKey: ifood_auth_token ". print_r($test,1));
 
       $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
@@ -101,10 +104,10 @@ class IFoodApi
 
   public function newOrders()
   {
-    \Log::debug('TOKEN: '. $this->access_token);
+    \Log::debug('TOKEN: '. $this->accessToken);
     $headers = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$this->accessToken
     ];
     return $this->send('GET','order/v1.0/events:polling', $headers);
     
@@ -116,7 +119,7 @@ class IFoodApi
     \Log::debug("getAcknowledgment: ".print_r($data, 1));
     $headers    = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$this->accessToken
     ];
 
     $object = array(
@@ -145,7 +148,7 @@ class IFoodApi
 
     $headers = [
       'Content-Type' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$this->accessToken
     ];
 
     return $this->send('GET', 'order/v1.0/orders/'.$id, $headers);
@@ -171,7 +174,7 @@ class IFoodApi
     $headers = [
       'headers'   => [
         'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$this->access_token
+        'Authorization' => 'Bearer '.$this->accessToken
       ]
     ];
     $object = array(
@@ -214,10 +217,10 @@ class IFoodApi
   public function getMerchantDetails($token, $id)
   {    
     \Log::debug("ID Merchant: ".$id);
-    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->access_token);
+    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->accessToken);
     $headers = [
       'accept' => 'application/json',
-      'Authorization' => 'Bearer '.$this->access_token
+      'Authorization' => 'Bearer '.$this->accessToken
     ];
     try {
       $res = $this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers);
