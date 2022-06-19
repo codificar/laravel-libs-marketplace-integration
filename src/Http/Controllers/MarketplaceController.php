@@ -19,6 +19,7 @@ class MarketplaceController extends Controller
      */
     public function webhook(Request $request, $market)
     {
+        \Log::debug('Entrou no webhook controller');
         $factory = MarketplaceFactory::create($market);
         return $factory->webhook($request);
     }

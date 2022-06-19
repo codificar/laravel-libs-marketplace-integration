@@ -50,6 +50,10 @@ class HubsterLib
     public function webhook($request)
     {
         $json = $request->json()->all();
+
+        \Log::debug('jsons');
+        \Log::debug($json);
+
         switch ($json['eventType']) {
             case 'orders.new_order' :
                 $storeId  = $json['metadata']['storeId'] ;
