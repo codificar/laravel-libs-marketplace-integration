@@ -48,6 +48,8 @@ class MarketplaceRepository
     const RECOMMENDED_PREPARATION_START = 'RPS' ; // Pedido começou a ser preparado
     const CONSUMER_CANCELLATION_DENIED = 'CCD' ;
 
+    const DELIVERY = 'DELIVERY' ;
+
     /**
      * @author Raphael Cangucu
      *

@@ -77,7 +77,7 @@ class HubsterLib
                         'merchant_id'                   => $storeId,
                         'marketplace'                   => $external['source'],
                         'aggregator'                    => MarketplaceFactory::HUBSTER,
-                        'order_type'                    => null,
+                        'order_type'                    => MarketplaceFactory::DELIVERY,
                         'display_id'                    => $external['friendlyId'],
                         'preparation_start_date_time'   => null,
                         'customer_id'                   => $customer['personalIdentifiers']['taxIdentificationNumber'] ,
