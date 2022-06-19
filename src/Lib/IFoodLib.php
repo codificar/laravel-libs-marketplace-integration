@@ -9,7 +9,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use Carbon\Carbon;
-//use App\Models\LibSettings;
+
 
 class IFoodLib
 {
@@ -127,7 +127,7 @@ class IFoodLib
                     'order_id'                      => $response->id
                 ],[
                     'customer_id'                   => $response->customer->id,
-                    'stree_name'                    => $response->delivery->deliveryAddress->streetName,
+                    'street_name'                    => $response->delivery->deliveryAddress->streetName,
                     'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
                     'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
                     'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,

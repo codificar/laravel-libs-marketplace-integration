@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Codificar\MarketplaceIntegration\Models\MarketConfig ;
+use Codificar\MarketplaceIntegration\Models\Shops ;
+
+use Location\Coordinate;
+use Location\Distance\Vincenty;
 
 class OrderDetails extends Model
 {
@@ -24,11 +28,13 @@ class OrderDetails extends Model
         'full_code',
         'code',
         'marketplace_order_id',
+        'marketplace',
+        'aggregator',
         'order_type',
         'display_id',
         'preparation_start_date_time',
         'customer_id',
-        'subtotal',
+        'sub_total',
         'delivery_fee',
         'benefits',
         'order_amount',
@@ -66,6 +72,16 @@ class OrderDetails extends Model
 
 
     /**
+     * Get the market_config that owns the merchant_id.
+     * @return Shops
+     */
+    public function shop()
+    {
+        return $this->hasOne(Shops::class, 'id', 'shop_id');
+    }
+
+
+    /**
      * Get the address associated with the market_config 
      * @return string market_address
      */
@@ -86,5 +102,20 @@ class OrderDetails extends Model
         if($this->aggregator) return $this->aggregator;
 
         return $this->marketplace;
+    }
+
+    /**
+     * Get distance from the shop to the destination
+     * @return float distance
+     */
+    public function getDistanceAttribute(){
+        $distance =  0 ;
+
+        if($this->shop && $this->address) {
+            $calculator = new Vincenty();
+            $distance = $calculator->getDistance(new Coordinate($this->shop->latitude, $this->shop->longitude), new Coordinate($this->address->latitude, $this->address->longitude));
+        }
+
+        return $distance ;
     }
 }

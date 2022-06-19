@@ -11,7 +11,9 @@ use Codificar\MarketplaceIntegration\Models\Shops;
 use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
 
 use Carbon\Carbon;
-//use App\Models\LibSettings;
+
+use Location\Coordinate;
+use Location\Distance\Vincenty;
 
 class HubsterLib
 {
@@ -68,13 +70,12 @@ class HubsterLib
                         'marketplace_order_id'          => $external['id'],
                         'code'                          => MarketplaceRepository::CONFIRMED,
                         'full_code'                     => MarketplaceRepository::mapFullCode(MarketplaceRepository::CONFIRMED),
-                        'created_at_marketplace'        => $json['metadata']['payload']['orderedAt'],
+                        'created_at_marketplace'        => Carbon::parse($json['metadata']['payload']['orderedAt']),
                         'point_id'                      => null,
                         'request_id'                    => null,
                         'client_name'                   => $customer['name'] ,
                         'merchant_id'                   => $storeId,
-                        'created_at_marketplace'        => $json['metadata']['payload']['orderedAt'],
-                        'marketplace'                   => MarketplaceFactory::IFOOD,
+                        'marketplace'                   => $external['source'],
                         'aggregator'                    => MarketplaceFactory::HUBSTER,
                         'order_type'                    => null,
                         'display_id'                    => $external['friendlyId'],
@@ -92,38 +93,25 @@ class HubsterLib
                     ]
                 );
 
-                $calculatedDistance = 0 ;
+                $calculatedDistance = ($order->shop ? $order->shop->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
 
-                if($marketConfig) {
-                    #TODO mudar calculo de distancia para lib PHP ao inves de consultar banco
-                    $diffDistance = \DB::select( \DB::raw(
-                        "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(".$marketConfig->longitude." ".$marketConfig->latitude.")'), ST_GeomFromText('POINT(".$response->delivery->deliveryAddress->coordinates->longitude." ".$response->delivery->deliveryAddress->coordinates->latitude.")')) AS diffDistance"
-                    ));
-                    \Log::debug("DISTANCE: ".print_r($diffDistance,1));
-                    $calculatedDistance = $diffDistance[0]->diffDistance ;
-                }
-
-                $complement = property_exists($response->delivery->deliveryAddress,'complement') ? $response->delivery->deliveryAddress->complement : null;
-                if(!$complement && property_exists($response->delivery->deliveryAddress,'reference')) 
-                    $complement = $response->delivery->deliveryAddress->reference;
-                elseif($complement && property_exists($response->delivery->deliveryAddress,'reference'))
-                    $complement = $complement . ' - ' . $response->delivery->deliveryAddress->reference;
+                $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 
                 $address = DeliveryAddress::updateOrCreate([
-                    'order_id'                      => $response->id
+                    'order_id'                      => $external['id']
                 ],[
-                    'customer_id'                   => $response->customer->id,
-                    'stree_name'                    => $response->delivery->deliveryAddress->streetName,
-                    'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
-                    'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
-                    'neighborhood'                  => $response->delivery->deliveryAddress->neighborhood,
-                    'complement'                    => $complement,
-                    'postal_code'                   => $response->delivery->deliveryAddress->postalCode,
-                    'city'                          => $response->delivery->deliveryAddress->city,
-                    'state'                         => $response->delivery->deliveryAddress->state,
-                    'country'                       => $response->delivery->deliveryAddress->country,
-                    'latitude'                      => $response->delivery->deliveryAddress->coordinates->latitude,
-                    'longitude'                     => $response->delivery->deliveryAddress->coordinates->longitude,
+                    'customer_id'                   => $customer['personalIdentifiers']['taxIdentificationNumber'],
+                    'street_name'                   => $address['street_name'],
+                    'street_number'                 => $address['street_number'],
+                    'formatted_address'             => $delivery['destination']['fullAddress'],
+                    'neighborhood'                  => $address['neighborhood'],
+                    'complement'                    => $delivery['note'],
+                    'postal_code'                   => $delivery['destination']['postalCode'],
+                    'city'                          => $delivery['destination']['city'],
+                    'state'                         => $delivery['destination']['state'],
+                    'country'                       => $delivery['destination']['countryCode'],
+                    'latitude'                      => $delivery['destination']['location']['latitude'],
+                    'longitude'                     => $delivery['destination']['location']['longitude'],
                     'distance'                      => $calculatedDistance,
                 ]);
 
@@ -132,6 +120,33 @@ class HubsterLib
             default: 
                 break;
         }
+
         return $json;
     }
+
+  
+    /**
+     * Function to parse addres
+     * @return array with street_name, neighborhood, zipcode, street_number
+     */
+    public static function parseAddress($srcAddress){
+	
+        preg_match(
+            "/([A-Za-z_ ]*)(.*),([A-Za-z_ ]*),([A-Za-z_ ]*)([0-9]*)(-([0-9]{4})){0,1}/",
+            $srcAddress,
+            $matches
+        );
+
+        list($original, $name, $street, $city, $state, $zipcode) = $matches;
+        list($number, $neighborhood) = explode(' ', $street);
+
+        $return = [
+			'street_name' 		=> $street ,
+			'neighborhood' 		=> $neighborhood ,
+			'zipcode' 			=> $zipcode ,
+			'street_number' 	=> $number
+		];
+
+		return $return ;
+	}
 }
