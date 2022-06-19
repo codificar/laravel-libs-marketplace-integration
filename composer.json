@@ -53,8 +53,8 @@
     "require": {
         "friendsofphp/php-cs-fixer": "^3.8",
         "guzzlehttp/guzzle": "^7.4",
-        "illuminate/http": "^8.6",
-        "illuminate/session": "^8.6",
-        "illuminate/testing": "^8.6"
+        "illuminate/http": "*",
+        "illuminate/session": "*",
+        "illuminate/testing": "*"
     }
 }
