@@ -76,4 +76,15 @@ class OrderDetails extends Model
             return sprintf('%s - %s', $decoded->street, $decoded->district);
         }
     }
+
+
+    /**
+     * Get the factory string
+     * @return string marketplace factiro
+     */
+    public function getFactoryAttribute(){
+        if($this->aggregator) return $this->aggregator;
+
+        return $this->marketplace;
+    }
 }

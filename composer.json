@@ -47,7 +47,8 @@
     },
     "require-dev": {
         "orchestra/testbench": "^7.2",
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^9",
+        "codificar/phpgeo": "1.0.3"
     },
     "require": {
         "friendsofphp/php-cs-fixer": "^3.8",

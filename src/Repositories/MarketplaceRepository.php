@@ -63,7 +63,7 @@ class MarketplaceRepository
         
         if ($order) 
         {
-            $factory = MarketplaceFactory::create($order->marketplace);
+            $factory = MarketplaceFactory::create($order->factory);
 
             $request_status='';
             $code='';
@@ -108,7 +108,7 @@ class MarketplaceRepository
      */
     public static function mapFullCode($value)
     {
-        $class = new ReflectionClass(__CLASS__);
+        $class = new \ReflectionClass(__CLASS__);
         $constants = array_flip($class->getConstants());
 
         return $constants[$value];
