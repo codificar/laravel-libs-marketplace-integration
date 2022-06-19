@@ -333,8 +333,6 @@ class WebhookTest extends TestCase
         
 
         $response = $this->postJson('/libs/marketplace-integration/hubster/webhook', json_decode($body, true))->assertStatus(200);
-
-        dd($response);
     }
 
    
