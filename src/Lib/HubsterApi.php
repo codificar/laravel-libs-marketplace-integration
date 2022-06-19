@@ -33,17 +33,30 @@ class HubsterApi {
 		//get the marketplace token
 		$key =  \Settings::getMarketPlaceToken('hubster_auth_token');
 
-		//\Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
-		//initialize a common variable
+		$applicationId =  \Settings::findByKey('hubster_application_id', "f0d58c67-646f-495f-b5ae-9bde99b37a2c");
+
 		$this->accessToken = $key;
-		//initialize a common variable
+
 		$this->headers    = [
 			'Content-Type' => 'application/json',
 			'Authorization' => 'Bearer '.$key,
-			'X-Application-Id' => "f0d58c67-646f-495f-b5ae-9bde99b37a2c", //TODO vem na request mas não vi mudar
-			//'X-Store-Id' => '1234', //TODO padrão para teste,
+			'X-Application-Id' => $applicationId, //TODO vem na request mas não vi mudar
 			//'X-Event-Id' => '', //setado na hora de enviar
 		];
+	}
+
+	/**
+	 * Set X-Store-Id header
+	 */
+	public function setStoreId($storeId) {
+		$this->headers['X-Store-Id'] = $storeId;
+	}
+
+	/**
+	 *  Set X-Application-Id header
+	 */
+	public function setApplicationId($applicationId) {
+		$this->headers['X-Application-Id'] = $applicationId;
 	}
 
 	/**
@@ -80,13 +93,22 @@ class HubsterApi {
 		}
 	}
 
-	 /**
+	/**
+	 * get new orders
+	 */
+	public function newOrders()
+	{
+		return $this->send('GET','manager/order/v1/orders', $this->headers);
+	}
+
+	/**
 	 * Api Client send data and get json return
 	 */
 	public function send($requestType, $route, $headers, $body = null, $retry = 0)
 	{
 		
 		$response = null;
+
 		try {
 			$response = $this->client->request($requestType, $route, ['headers' => $headers, 'form_params' => $body]);
 			\Log::info("Code: ". $response->getStatusCode());

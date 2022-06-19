@@ -56,8 +56,9 @@ class Polling extends Command
      */
     public function polling()
     {   
-        #TODO criar um foreach para cada marketplace que faz polling e disparar
-        $factory = MarketplaceFactory::create();
-        $factory->newOrders();                   
+        foreach (MarketplaceFactory::$pollingMarketplaces as $market) {
+            $factory = MarketplaceFactory::create($market);
+            $factory->newOrders();                   
+        }
     }
 }

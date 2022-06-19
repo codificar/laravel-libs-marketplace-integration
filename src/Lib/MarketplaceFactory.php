@@ -11,6 +11,8 @@ class MarketplaceFactory
     const HUBSTER       = 'hubster';
     const ZEDELIVERY    = 'zedelivery';
 
+    public static $pollingMarketplaces = [self::IFOOD, self::HUBSTER];
+
     public static function create($marketPlaceType = null)
     {         
             

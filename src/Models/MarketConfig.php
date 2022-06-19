@@ -22,5 +22,11 @@ class MarketConfig extends Model
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
-
+    /**
+     * Get the store_id that is the same of merchant id string
+     * @return string store id for hubster
+     */
+    public function getStoreIdAttribute(){
+        return $this->merchant_id;
+    }
 }
