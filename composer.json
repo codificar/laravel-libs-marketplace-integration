@@ -54,7 +54,7 @@
         "friendsofphp/php-cs-fixer": "^3.8",
         "guzzlehttp/guzzle": "^7.4",
         "illuminate/http": "^9.6",
-        "illuminate/session": "^9.6",
-        "illuminate/testing": "^9.6"
+        "illuminate/session": "^8.6",
+        "illuminate/testing": "^8.6"
     }
 }
