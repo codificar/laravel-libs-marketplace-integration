@@ -4,6 +4,9 @@ namespace Codificar\MarketplaceIntegration\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Location\Coordinate;
+use Location\Distance\Vincenty;
+
 class MarketConfig extends Model
 {
     protected $table = 'market_config';
