@@ -99,6 +99,13 @@ class HubsterLib
         $total    = $payload['orderTotal'] ;
         $totalV2  = $payload['orderTotalV2'] ;
 
+        if($totalV2) {
+            $prePaid = $totalV2['customerPayment']['customerPrepayment'] ;
+        }
+        else {
+            $prePaid = 0;
+        }
+
         if($payload['customerPayments']) {
             $payment  = $payload['customerPayments'][0] ;
             $paymentMethod = $payment['paymentMethod'];
@@ -135,7 +142,7 @@ class HubsterLib
                 'benefits'                      => 0,
                 'order_amount'                  => $total['total'],
                 'method_payment'                => $paymentMethod,
-                'prepaid'                       => $totalV2['customerPayment']['customerPrepayment'],
+                'prepaid'                       => $prePaid,
                 'change_for'                    => $paymentChange,
                 'card_brand'                    => null,
                 'extra_info'                    => null
