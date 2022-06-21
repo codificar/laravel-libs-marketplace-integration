@@ -163,7 +163,7 @@ class HubsterLib
         $address = DeliveryAddress::updateOrCreate([
             'order_id'                      => $external['id']
         ],[
-            'customer_id'                   => $customer['personalIdentifiers']['taxIdentificationNumber'],
+            'customer_id'                   => $customerId,
             'street_name'                   => $address['street_name'],
             'street_number'                 => $address['street_number'],
             'formatted_address'             => $delivery['destination']['fullAddress'],
@@ -202,6 +202,7 @@ class HubsterLib
                 'street_number' 	=> null
             ];
         }
+
         list($original, $name, $street, $city, $state, $zipcode) = $matches;
         list($number, $neighborhood) = explode(' ', $street);
 
