@@ -156,7 +156,7 @@ class HubsterLib
             ]
         );
 
-        $calculatedDistance = ($order->shop ? $order->shop->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
+        $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
 
         $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 

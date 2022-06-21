@@ -29,4 +29,17 @@ class MarketConfig extends Model
     public function getStoreIdAttribute(){
         return $this->merchant_id;
     }
+
+    /**
+     * Get distance from the shop to the destination
+     * @return float distance
+     */
+    public function calculateDistance(Coordinate $destination){
+        $distance =  0 ;
+
+        $calculator = new Vincenty();
+        $distance = $calculator->getDistance(new Coordinate($this->latitude, $this->longitude), $destination);
+
+        return $distance ;
+    }
 }
