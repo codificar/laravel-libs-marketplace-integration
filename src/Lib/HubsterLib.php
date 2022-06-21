@@ -22,8 +22,8 @@ class HubsterLib
 
     public function __construct(){
         #TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId          =  \Settings::findByKey('hubster_client_id');
-        $clientSecret      =  \Settings::findByKey('hubster_client_secret');
+        $clientId          =  \Settings::findByKey('hubster_client_id', 'f0d58c67-646f-495f-b5ae-9bde99b37a2c');
+        $clientSecret      =  \Settings::findByKey('hubster_client_secret', 'WLRADY3XT2IMUHEE4ENA');
 
         $this->api = new HubsterApi;
 
@@ -36,7 +36,7 @@ class HubsterLib
     public function newOrders()
     {
         $markets = MarketConfig::where('market', MarketplaceFactory::HUBSTER)->get();
-
+        $orderArray = [] ;
         foreach ($markets as $market) {
             $this->api->setStoreId($market->store_id);
 
@@ -47,6 +47,8 @@ class HubsterLib
                 }
             }
         }
+
+        return $orderArray ;
     }
 
     public function orderDetails($orderId)
@@ -64,14 +66,21 @@ class HubsterLib
 
         \Log::debug('jsons');
         \Log::debug($json);
+        $storeId  = $json['metadata']['storeId'] ;
+        $payload  = $json['metadata']['payload'] ; 
 
         switch ($json['eventType']) {
             case 'orders.new_order' :
-                $storeId  = $json['metadata']['storeId'] ;
-                $payload  = $json['metadata']['payload'] ; 
+                
 
                 $order = $this->orderFromPayload($storeId, $payload);
 
+                break ;
+
+            case 'delivery.request_quote' :
+
+
+                break ;
             default: 
                 break;
         }
@@ -79,14 +88,26 @@ class HubsterLib
         return $json;
     }
 
-
+    /**
+     * Save order from payload.
+     * event order.create
+     */
     public function orderFromPayload($storeId , $payload) {
         $external = $payload['externalIdentifiers'] ;
         $customer = $payload['customer'] ;
         $delivery = $payload['deliveryInfo'] ;
         $total    = $payload['orderTotal'] ;
         $totalV2  = $payload['orderTotalV2'] ;
-        $payment  = $payload['customerPayments'][0] ;
+
+        if($payload['customerPayments']) {
+            $payment  = $payload['customerPayments'][0] ;
+            $paymentMethod = $payment['paymentMethod'];
+            $paymentChange = $payment['value'] - $total['total'] ;
+        }
+        else {
+            $paymentMethod = 'CASH' ;
+            $paymentChange = null ;
+        }
 
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->first();
 
@@ -113,9 +134,9 @@ class HubsterLib
                 'delivery_fee'                  => $total['deliveryFee'],
                 'benefits'                      => 0,
                 'order_amount'                  => $total['total'],
-                'method_payment'                => $payment['paymentMethod'],
+                'method_payment'                => $paymentMethod,
                 'prepaid'                       => $totalV2['customerPayment']['customerPrepayment'],
-                'change_for'                    => $payment['paymentMethod'] == 'CASH' ? ($payment['value'] - $total['total']) : null,
+                'change_for'                    => $paymentChange,
                 'card_brand'                    => null,
                 'extra_info'                    => null
             ]
