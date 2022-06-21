@@ -194,6 +194,14 @@ class HubsterLib
             $matches
         );
 
+        if(!$matches) {
+            return  [
+                'street_name' 		=> $srcAddress ,
+                'neighborhood' 		=> null ,
+                'zipcode' 			=> null ,
+                'street_number' 	=> null
+            ];
+        }
         list($original, $name, $street, $city, $state, $zipcode) = $matches;
         list($number, $neighborhood) = explode(' ', $street);
 
