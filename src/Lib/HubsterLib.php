@@ -113,7 +113,7 @@ class HubsterLib
         }
         else {
             $paymentMethod = 'CASH' ;
-            $paymentChange = null ;
+            $paymentChange = 0 ;
         }
 
         if(isset($customer['personalIdentifiers']['taxIdentificationNumber'] )){
