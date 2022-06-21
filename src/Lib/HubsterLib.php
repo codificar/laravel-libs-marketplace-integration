@@ -116,6 +116,13 @@ class HubsterLib
             $paymentChange = null ;
         }
 
+        if(isset($customer['personalIdentifiers']['taxIdentificationNumber'] )){
+            $customerId = $customer['personalIdentifiers']['taxIdentificationNumber'] ;
+        }
+        else {
+            $customerId = $customer['phone'];
+        }
+
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->first();
 
         $order = OrderDetails::updateOrCreate([
@@ -136,7 +143,7 @@ class HubsterLib
                 'order_type'                    => MarketplaceRepository::DELIVERY,
                 'display_id'                    => $external['friendlyId'],
                 'preparation_start_date_time'   => null,
-                'customer_id'                   => $customer['personalIdentifiers']['taxIdentificationNumber'] ,
+                'customer_id'                   => $customerId ,
                 'sub_total'                     => $total['subtotal'],
                 'delivery_fee'                  => $total['deliveryFee'],
                 'benefits'                      => 0,
