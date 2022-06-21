@@ -77,7 +77,7 @@ class HubsterApi {
 				'grant_type'     	=> 'client_credentials',
 				'client_id'     	=> $clientId,
 				'client_secret'  	=> $clientSecret,
-				'scope'				=> 'manager.orders'
+				'scope'				=> 'ping'
 			];
 
 			$response = $this->send('POST', 'v1/auth/token', $headers, $body);
