@@ -104,18 +104,4 @@ class OrderDetails extends Model
         return $this->marketplace;
     }
 
-    /**
-     * Get distance from the shop to the destination
-     * @return float distance
-     */
-    public function getDistanceAttribute(){
-        $distance =  0 ;
-
-        if($this->shop && $this->address) {
-            $calculator = new Vincenty();
-            $distance = $calculator->getDistance(new Coordinate($this->shop->latitude, $this->shop->longitude), new Coordinate($this->address->latitude, $this->address->longitude));
-        }
-
-        return $distance ;
-    }
 }

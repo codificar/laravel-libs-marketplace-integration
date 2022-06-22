@@ -13,7 +13,7 @@ use Codificar\MarketplaceIntegration\Lib\HubsterApi;
 class PollingTest extends TestCase
 {
     
-    private $api ;
+    private $api , $lib;
 
     public function setUp(): void
     {
@@ -23,6 +23,7 @@ class PollingTest extends TestCase
         $clientSecret      =  \Settings::findByKey('hubster_client_secret');
 
         $this->api = new HubsterApi;
+        $this->lib = new HubsterLib();
 
         $expiryToken  =  \Settings::findByKey('hubster_expiry_token');
         if (($clientId && $clientSecret) && ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now())) {
@@ -31,11 +32,11 @@ class PollingTest extends TestCase
     }    
 
     /** @test */
-    public function test_newOrders()
+    public function test_libNewOrders()
     {       
-      // $lib = new HubsterLib();
-      // $orderArray = $lib->newOrders();
-
+      $orderArray = $this->lib->newOrders();
+      $this->assertIsArray($orderArray);
+      $this->assertTrue(count($orderArray) > 0);
     }
 
 
@@ -44,7 +45,12 @@ class PollingTest extends TestCase
       $this->api->setStoreId('1234');
       $response = $this->api->newOrders();
 
+      $this->assertIsObject($response);
+      $this->assertIsArray($response->orders);
+
     }
+
+
 
    
 }

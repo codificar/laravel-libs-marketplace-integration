@@ -33,6 +33,8 @@ class AlterOrderDetails extends Migration
                 $table->integer('request_status')->nullable()->change();         
             });
         }
+
+        DB::statement("ALTER TABLE `market_config` CHANGE COLUMN `market` `market` ENUM('ifood', 'rappi', '99food', 'hubster', 'aiqfome', 'zedelivery') CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ; ");
     }
 
     /**

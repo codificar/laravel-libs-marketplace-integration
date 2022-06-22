@@ -23,7 +23,7 @@ class HubsterLib
     public function __construct(){
         #TODO ter settings proprias ao inves de usar a do projeto pai
         $clientId          =  \Settings::findByKey('hubster_client_id', 'f0d58c67-646f-495f-b5ae-9bde99b37a2c');
-        $clientSecret      =  \Settings::findByKey('hubster_client_secret', 'WLRADY3XT2IMUHEE4ENA');
+        $clientSecret      =  \Settings::findByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
 
         $this->api = new HubsterApi;
 
@@ -36,14 +36,19 @@ class HubsterLib
     public function newOrders()
     {
         $markets = MarketConfig::where('market', MarketplaceFactory::HUBSTER)->get();
+        //var_dump($markets);
         $orderArray = [] ;
         foreach ($markets as $market) {
             $this->api->setStoreId($market->store_id);
 
             $response   = $this->api->newOrders();
 
-            if ($response) {
-                foreach ($response as $key => $value) {
+            if ($response && $response->orders) {
+                foreach ($response->orders as $key => $order) {
+                    var_dump($order);
+                    $payload = json_decode(json_encode($order), true);
+                    $orderDetail = $this->orderFromPayload($market->store_id, $payload);
+                    $orderArray[] = $orderDetail;
                 }
             }
         }
@@ -72,8 +77,7 @@ class HubsterLib
         switch ($json['eventType']) {
             case 'orders.new_order' :
                 
-
-                $order = $this->orderFromPayload($storeId, $payload);
+                $orderDetail = $this->orderFromPayload($storeId, $payload);
 
                 break ;
 
@@ -116,15 +120,21 @@ class HubsterLib
             $paymentChange = 0 ;
         }
 
-        if(isset($customer['personalIdentifiers']['taxIdentificationNumber'] )){
-            $customerId = $customer['personalIdentifiers']['taxIdentificationNumber'] ;
-        }
-        else {
+        $customerId = null ;
+        $customerName = 'N/A';
+        if($customer) {
+            $customerName = $customer['name'];
             $customerId = $customer['phone'];
         }
 
+        if(isset($customer['personalIdentifiers']['taxIdentificationNumber'] )){
+            $customerId = $customer['personalIdentifiers']['taxIdentificationNumber'] ;
+        }
+        
+
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->first();
 
+    
         $order = OrderDetails::updateOrCreate([
             'order_id'                          => $external['id']
             ],[
@@ -136,7 +146,7 @@ class HubsterLib
                 'created_at_marketplace'        => Carbon::parse($payload['orderedAt']),
                 'point_id'                      => null,
                 'request_id'                    => null,
-                'client_name'                   => $customer['name'] ,
+                'client_name'                   => $customerName ,
                 'merchant_id'                   => $storeId,
                 'marketplace'                   => $external['source'],
                 'aggregator'                    => MarketplaceFactory::HUBSTER,
@@ -156,29 +166,33 @@ class HubsterLib
             ]
         );
 
-        $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
+        // somente salva o endereço se for de delivery, que é o que interessa para a plataforma
+        if($delivery && isset($delivery['destination'])) {
+            $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
 
-        $address = self::parseAddress($delivery['destination']['fullAddress']) ;
+            $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 
-        $address = DeliveryAddress::updateOrCreate([
-            'order_id'                      => $external['id']
-        ],[
-            'customer_id'                   => $customerId,
-            'street_name'                   => $address['street_name'],
-            'street_number'                 => $address['street_number'],
-            'formatted_address'             => $delivery['destination']['fullAddress'],
-            'neighborhood'                  => $address['neighborhood'],
-            'complement'                    => $delivery['note'],
-            'postal_code'                   => $delivery['destination']['postalCode'],
-            'city'                          => $delivery['destination']['city'],
-            'state'                         => $delivery['destination']['state'],
-            'country'                       => $delivery['destination']['countryCode'],
-            'latitude'                      => $delivery['destination']['location']['latitude'],
-            'longitude'                     => $delivery['destination']['location']['longitude'],
-            'distance'                      => $calculatedDistance,
-        ]);
-
+            $address = DeliveryAddress::updateOrCreate([
+                'order_id'                      => $external['id']
+            ],[
+                'customer_id'                   => $customerId,
+                'street_name'                   => $address['street_name'],
+                'street_number'                 => $address['street_number'],
+                'formatted_address'             => $delivery['destination']['fullAddress'],
+                'neighborhood'                  => $address['neighborhood'],
+                'complement'                    => $delivery['note'],
+                'postal_code'                   => $delivery['destination']['postalCode'],
+                'city'                          => $delivery['destination']['city'],
+                'state'                         => $delivery['destination']['state'],
+                'country'                       => $delivery['destination']['countryCode'],
+                'latitude'                      => $delivery['destination']['location']['latitude'],
+                'longitude'                     => $delivery['destination']['location']['longitude'],
+                'distance'                      => $calculatedDistance,
+            ]);
+        }
+        
         return $order;
+        
     }
 
   

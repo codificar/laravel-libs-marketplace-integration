@@ -30,8 +30,11 @@ class HubsterApi {
 			'base_uri'  => $this->baseUrl
 		]);
 
+		#TODO remove reset
+		$clientSecret      =  \Settings::updateOrCreateByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
+
 		//get the marketplace token
-		$key =  \Settings::getMarketPlaceToken('hubster_auth_token');
+		$key =  \Settings::findByKey('hubster_auth_token');
 
 		$applicationId =  \Settings::findByKey('hubster_application_id', "f0d58c67-646f-495f-b5ae-9bde99b37a2c");
 
@@ -43,6 +46,13 @@ class HubsterApi {
 			'X-Application-Id' => $applicationId, //TODO vem na request mas não vi mudar
 			//'X-Event-Id' => '', //setado na hora de enviar
 		];
+	}
+
+	/**
+	 * Set Authorization header
+	 */
+	private function setAuthorization($token) {
+		$this->headers['Authorization'] = 'Bearer '.$token;
 	}
 
 	/**
@@ -66,7 +76,6 @@ class HubsterApi {
 	{
 
 		//dd(func_get_args());
-
 		\Log::debug('clientId:'.print_r($clientId,1));
 		\Log::debug('clientSecret:'.print_r($clientSecret,1));
 
@@ -77,10 +86,16 @@ class HubsterApi {
 				'grant_type'     	=> 'client_credentials',
 				'client_id'     	=> $clientId,
 				'client_secret'  	=> $clientSecret,
-				'scope'				=> 'ping'
+				'scope'				=> 'ping manager.orders'
 			];
 
-			$response = $this->send('POST', 'v1/auth/token', $headers, $body);
+			$options['headers'] 	=  $headers ;
+			$options['form_params'] =  $body ;
+
+			$response = $this->client->request('POST', 'v1/auth/token', $options);
+			$response = json_decode($response->getBody()->getContents());
+
+			$this->setAuthorization($response->access_token);
 
 			$this->accessToken = $response->access_token;
 			$test =  \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
@@ -93,6 +108,9 @@ class HubsterApi {
 		}
 		catch (\Exception $e)
 		{
+
+			echo Psr7\Message::toString($e->getRequest());
+    		echo Psr7\Message::toString($e->getResponse());
 			\Log::debug($e->getMessage());
 			return $e;
 		}
@@ -103,10 +121,11 @@ class HubsterApi {
 	 */
 	public function newOrders()
 	{
+		#TODO set to minutes
 		$body = [ 
 			'limit' => '10' ,
-			'minDateTime' => Carbon::now()->addMinutes(-10),
-			'maxDateTime' => Carbon::now()
+			'minDateTime' => Carbon::now()->addDays(-10)->toIso8601String(),
+			'maxDateTime' => Carbon::now()->toIso8601String()
 		];
 
 		return $this->send('GET','manager/order/v1/orders', $this->headers, $body);
@@ -133,13 +152,15 @@ class HubsterApi {
 		catch(\Exception $ex){
 			
 			//reautenticacao caso a chave tenha dado 401 e um novo retry
-			if(in_array($ex->getCode(), [401,403]) && $retry < 3){
+			if(in_array($ex->getCode(), [401]) && $retry < 3){
 				$clientId          =  \Settings::findByKey('hubster_client_id', 'f0d58c67-646f-495f-b5ae-9bde99b37a2c');
-				$clientSecret      =  \Settings::findByKey('hubster_client_secret', 'WLRADY3XT2IMUHEE4ENA');
+				$clientSecret      =  \Settings::findByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
 				$this->auth($clientId, $clientSecret);
 
 				return $this->send($requestType, $route, $headers, $body, ++$retry);
 			}
+
+			//dd($ex->getMessage());
 
 			Log::info('erro send: ' . $ex->getMessage());
 		}
