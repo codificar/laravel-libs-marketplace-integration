@@ -86,7 +86,7 @@ class HubsterApi {
 				'grant_type'     	=> 'client_credentials',
 				'client_id'     	=> $clientId,
 				'client_secret'  	=> $clientSecret,
-				'scope'				=> 'ping manager.orders'
+				'scope'				=> 'ping'
 			];
 
 			$options['headers'] 	=  $headers ;
