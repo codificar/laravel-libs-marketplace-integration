@@ -31,12 +31,12 @@ class HubsterApi {
 		]);
 
 		#TODO remove reset
-		$clientSecret      =  \Settings::updateOrCreateByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
+		$clientSecret      =  \Settings::updateOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 
 		//get the marketplace token
 		$key =  \Settings::findByKey('hubster_auth_token');
 
-		$applicationId =  \Settings::findByKey('hubster_application_id', "f0d58c67-646f-495f-b5ae-9bde99b37a2c");
+		$applicationId =  \Settings::findByKey('hubster_application_id', "c8f9a164-ac52-486f-bb85-74c3c7cc0518");
 
 		$this->accessToken = $key;
 
@@ -153,8 +153,8 @@ class HubsterApi {
 			
 			//reautenticacao caso a chave tenha dado 401 e um novo retry
 			if(in_array($ex->getCode(), [401]) && $retry < 3){
-				$clientId          =  \Settings::findByKey('hubster_client_id', 'f0d58c67-646f-495f-b5ae-9bde99b37a2c');
-				$clientSecret      =  \Settings::findByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
+				$clientId          =  \Settings::findByKey('hubster_client_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
+				$clientSecret      =  \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 				$this->auth($clientId, $clientSecret);
 
 				return $this->send($requestType, $route, $headers, $body, ++$retry);

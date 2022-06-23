@@ -22,8 +22,8 @@ class HubsterLib
 
     public function __construct(){
         #TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId          =  \Settings::findByKey('hubster_client_id', 'f0d58c67-646f-495f-b5ae-9bde99b37a2c');
-        $clientSecret      =  \Settings::findByKey('hubster_client_secret', 'DINWOGZDKMK6L4IAICBA');
+        $clientId          =  \Settings::findByKey('hubster_client_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
+        $clientSecret      =  \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 
         $this->api = new HubsterApi;
 
