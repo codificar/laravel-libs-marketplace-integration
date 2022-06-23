@@ -32,7 +32,6 @@ class IFoodApi
     //get the marketplace toe=ken
     $key =  \Settings::getMarketPlaceToken('ifood_auth_token');
 
-    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
     //initialize a common variable
     $this->accessToken = $key;
     //initialize a common variable
@@ -47,16 +46,18 @@ class IFoodApi
    */
   public function send($requestType, $route, $headers, $body = null, $retry = 0)
   {
-    \Log::debug("requestType: ". print_r($requestType, 1));
+  
+    \Log::debug("headers: ". print_r($headers, 1));
     \Log::debug("route: ". print_r($route, 1));
-    \Log::debug("headers: ". print_r($headers,1));
-    \Log::debug("body: ". print_r($body,1));
+
 
     try {
-      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-      \Log::debug("Code: ". $response->getStatusCode());
+      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);      
     }
     catch(Exception $ex){
+
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
+
       // reautenticacao caso a chave tenha dado 401 e um novo retry
       if($ex->getCode() == 401 && $retry < 3){
         $clientId          =  \Settings::findByKey('ifood_client_id');
@@ -75,8 +76,7 @@ class IFoodApi
    */
   public function auth($clientId, $clientSecret)
   {
-    \Log::debug('clientId:'.print_r($clientId,1));
-    \Log::debug('clientSecret:'.print_r($clientSecret,1));
+    
     try
     {
       $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
@@ -96,20 +96,21 @@ class IFoodApi
 
       return $res;
     }
-    catch (\Exception $e)
+    catch (\Exception $ex)
     {
-      \Log::debug($e->getMessage());
-      return $e;
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
     }
   }
 
   public function newOrders()
   {
-    \Log::debug('TOKEN: '. $this->accessToken);
+   
+    \Log::debug("newOrders > accessToken ". print_r($this->accessToken,1));
     $headers = [
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
     ];
+
     return $this->send('GET','order/v1.0/events:polling', $headers);
     
   }
@@ -117,7 +118,7 @@ class IFoodApi
   public function acknowledgment($data)
   { 
 
-    \Log::debug("getAcknowledgment: ".print_r($data, 1));
+
     $headers    = [
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
@@ -140,6 +141,8 @@ class IFoodApi
       ]);
 
       $response = json_decode($res->getBody()->getContents());
+
+      \Log::debug("getAcknowledgment > response: ".print_r($response, 1));
       
       return $response;
   }

@@ -21,9 +21,6 @@ class IFoodLib
         $clientId          =  \Settings::findByKey('ifood_client_id');
         $clientSecret      =  \Settings::findByKey('ifood_client_secret');
 
-        \Log::debug("IFoodLib::auth -> client_id: ". print_r($clientId, 1));
-        \Log::debug("IFoodLib::auth -> client_secret: ". print_r($clientSecret, 1));
-
         $this->api = new IFoodApi;
 
         $expiryToken  =  \Settings::findByKey('ifood_expiry_token');
@@ -35,6 +32,8 @@ class IFoodLib
     public function newOrders()
     {
         $response   = $this->api->newOrders();
+
+        \Log::debug("newOrders > response". print_r($response,1));
 
         if ($response) {
             foreach ($response as $key => $value) {
@@ -48,17 +47,19 @@ class IFoodLib
                         'order_id'                  => $value->orderId,
                         'code'                      => $value->code,
                         'full_code'                 => $value->fullCode,
+                        'merchant_id'               => $value->merchantId,
                         'marketplace_order_id'      => $value->id,
                         'created_at_marketplace'    => $createdAt,
                         'marketplace'               => MarketplaceFactory::IFOOD
                     ]
                 );
 
+                \Log::debug("order". $order);
+
                 $acknowledgment = $this->api->acknowledgment($value);
 
-                if ($acknowledgment) {
-                    $this->orderDetails($value->orderId);
-                }
+                $this->orderDetails($value->orderId);
+                
             }
         }  
     }
@@ -117,7 +118,7 @@ class IFoodLib
                     $calculatedDistance = $diffDistance[0]->diffDistance ;
                 }
 
-                $complement = property_exists($response->delivery->deliveryAddress,'complement') ? $response->delivery->deliveryAddress->complement : null;
+                $complement = property_exists($response->delivery->deliveryAddress,'complement') ? $response->delivery->deliveryAddress->complement : '';
                 if(!$complement && property_exists($response->delivery->deliveryAddress,'reference')) 
                     $complement = $response->delivery->deliveryAddress->reference;
                 elseif($complement && property_exists($response->delivery->deliveryAddress,'reference'))
