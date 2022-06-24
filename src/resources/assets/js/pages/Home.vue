@@ -245,11 +245,11 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             data: {
                 pagination: {
                     actual : 1,
-                    itensPerPage : 10
+                    itensPerPage : 100
                 },
                 filters: {
                     institution: '',
-                    ItensPerPage: 10
+                    ItensPerPage: 100
                 },
                 order: {
                     field: '',
@@ -331,12 +331,12 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             getShop(){
                 console.log("getShops");
                 this.$store.dispatch('getShops');
-                this.$store.dispatch('getOrders');
             },
             addShop(){
                 this.$store.dispatch('showModal', {key: 'addShop', data: ''})
             },
             getOrders() {
+                this.fetch();
                 if (this.$store.state.orders) {
                     this.loading = !this.loading;
                     
