@@ -85,26 +85,13 @@ class ShopsController extends Controller
 
     public function storeMarketConfig(Request $request)
     {
-        // \Log::debug(__CLASS__.__FUNCTION__."request=>".print_r($request->all(),1));
 
         \DB::beginTransaction();
 
-        // $marketConfig = MarketConfig::create([
-        //     'shop_id'       => $request->id,
-        //     'merchant_id'   => $request->merchant_id,
-        //     'name'          => $request->merchant_name,
-        //     'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
-        // ]);
-        // // \Log::debug(__CLASS__.__FUNCTION__."marketConfig =>".print_r($marketConfig ,1));
-
         $shop = Shops::find($request->id);
-        $res = new DeliveryFactory();
-        if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
-            \Log::debug(__CLASS__.__FUNCTION__."Entrou: ".Carbon::now());
-            $res->auth($shop->id);
-        }
-        $response = $res->getMerchantDetails($request->id, $request);
-        \Log::debug('response: getMerchantDetails=> '.print_r($response,1));
+       
+        $factory = MarketplaceFactory::create(($request->select == 1) ? 'ifood' : 'hubster');
+        $response = $factory->merchantDetails($marketConfig->merchant_id);
         if (is_object($response))
         {
             \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($request->merchant_name ,1));
@@ -114,13 +101,11 @@ class ShopsController extends Controller
                 'shop_id'       => $request->id,
                 'merchant_id'   => $request->merchant_id,
                 'name'          => $request->merchant_name,
-                'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
+                'market'        => ($request->select == 1) ? 'ifood' : 'hubster',
                 'latitude'      => $response->address->latitude,
                 'longitude'     => $response->address->longitude,
                 'address'       => json_encode($response->address),
             ]);
-
-            // \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($marketConfig ,1));
 
             \DB::commit();
             return $marketConfig;
@@ -142,7 +127,7 @@ class ShopsController extends Controller
     public function updateMarketConfig(Request $request)
     {
         $api = new IFoodApi;
-        $api = json_encode($api->getMerchantDetails('',$request->merchant_id));
+        $api = json_encode($api->merchantDetails($request->merchant_id));
 
         \Log::debug("  request -> ". print_r($request->all(),1));
 
