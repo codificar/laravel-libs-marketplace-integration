@@ -95,7 +95,7 @@
                                             class="mr-5"
                                         >
                                             <v-img
-                                                src="/vendor/codificar/marketplace-integration/img/ifood.jpg"
+                                                :src="'/vendor/codificar/marketplace-integration/img/' + order.factory + '.jpg'"
                                                 alt="iFood"
                                             />
                                         </v-avatar>
