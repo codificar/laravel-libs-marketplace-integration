@@ -172,6 +172,12 @@ class HubsterLib
 
             $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 
+            if ($delivery['destination']['addressLines']) {
+                $address['street_name'] = $delivery['destination']['addressLines'][0];
+            }
+
+            if(!isset($delivery['destination']['fullAddress'])) $delivery['destination']['fullAddress'] = $address['street_name'] ;
+
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                      => $external['id']
             ],[
