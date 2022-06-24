@@ -17,7 +17,7 @@
                                 class="mr-5"
                             >
                                 <v-img
-                                :src="require('../../img/ifood.jpg')"
+                                src="/vendor/codificar/marketplace-integration/img/ifood.jpg"
                                 alt="iFood"
                                 />
                             </v-avatar>

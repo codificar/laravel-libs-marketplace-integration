@@ -95,13 +95,13 @@
                                             class="mr-5"
                                         >
                                             <v-img
-                                                :src="require('../../img/ifood.jpg')"
+                                                src="/vendor/codificar/marketplace-integration/img/ifood.jpg"
                                                 alt="iFood"
                                             />
                                         </v-avatar>
                                     </div>
                                     <div class="font-weight-medium ml-5">
-                                        {{$store.state.shops.filter(element => element.id == order.shop_id)[0].name}}
+                                        {{order.market_name}}
                                     </div>
                                 </td>
                                 <td class="font-weight-black">
