@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Lib\HubsterApi;
 use Illuminate\Support\Facades\Log;
 
-
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 
 class ShopsController extends Controller
 {
@@ -26,15 +26,16 @@ class ShopsController extends Controller
 
         foreach ($shops as $key => $value)
         {
+            
             if ($value->getConfig)
             {
-                foreach ($value->getConfig as $key => $item)
+                foreach ($value->getConfig as $key => $marketConfig)
                 {
-                    $deliveryFactory = new DeliveryFactory();
-                    \Log::debug('$v: '.print_r($item,1));
-                    $res = $deliveryFactory->getMerchantDetails($value->id, (object)['merchant_id' => $item->merchant_id, 'id' => $item->shop_id]);
+                    $factory = MarketplaceFactory::create($marketConfig->market);
+                    $res = $factory->merchantDetails($marketConfig->merchant_id);
+
                     \Log::debug("Status: ".print_r($res,1));
-                    $item->status = isset($res->status) ? $res->status : "UNAVIABLE";
+                    $marketConfig->status = isset($res->status) ? $res->status : "CLOSED";
                 }
             }
         }
@@ -76,7 +77,7 @@ class ShopsController extends Controller
         $data = Shops::where('id', $request->id)->get();
 
         foreach ($data as $key => $value) {
-            $value->getConfig;
+            $value->marketConfigs;
         }
 
         return $data[0];

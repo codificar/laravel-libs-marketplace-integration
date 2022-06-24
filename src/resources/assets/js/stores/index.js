@@ -413,7 +413,7 @@ const store = new Vuex.Store({
 					})
 				})
 		},
-		getOrders({ commit }, id, page = 1) {
+		getOrders({ commit }, id = '', page = 1) {
 			console.log("Entrou getOrders", id);
 			commit('CLEAR_ORDERS')
 			var status = this.state.selectedShop.status_reload == 1 ? true : false;
@@ -688,26 +688,7 @@ const store = new Vuex.Store({
 					commit('FETCH_SELECTED_SHOP', res.data[0])
 					console.log("Data: ", this.state.selectedShop);
 					console.log("Shops: ", res);
-					if (res.status == 200 && res.data.length > 0) {
-						res.data.forEach(element => {
-							this.dispatch('getOrders', element.id);
-							// if (element.get_config.length == 0) {
-							//   Vue.swal.fire({
-							//     title: 'Atenção!',
-							//     text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',
-							//     icon: 'warning',
-							//     confirmButtonText: 'OK'
-							//   });
-							// }
-						});
-						// Vue.swal.fire({
-						//   title: 'Sucesso!',
-						//   text: "Salvo com sucesso!",
-						//   icon: 'success',
-						//   confirmButtonText: 'OK'
-						// });
-
-					} else if (res.data == 0) {
+					if (res.data == 0) {
 						Vue.swal.fire({
 							title: 'Atenção!',
 							text: 'Sem lojas cadastradas. Adicione sua primeira Loja!',

@@ -17,6 +17,10 @@ class Shops extends Model
     ];
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
+     /**
+     * Get the market_configs associations with the shpw.
+     * @return MarketConfig
+     */
     public function getConfig()
     {
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\MarketConfig', 'shop_id');

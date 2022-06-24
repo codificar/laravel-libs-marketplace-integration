@@ -156,4 +156,9 @@ class IFoodLib
     public function dispatch($orderId){
         return $this->api->dispatch($orderId);
     }
+
+    public function merchantDetails($merchantId)
+    {
+        return $this->api->merchantDetails($merchantId);
+    }
 }

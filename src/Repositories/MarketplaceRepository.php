@@ -103,6 +103,52 @@ class MarketplaceRepository
     }
 
     /**
+     * Get orders from database
+     * @return Collection of orders
+     */
+    public static function getOrders($shopId = null, $marketId = null, $startTime = null, $endTime = null){
+        
+        \Log::warning("startTime: ".print_r($startTime,1));
+
+        $query = OrderDetails::query();
+
+        if (isset($startTime->date)) {
+            $query->where('order_detail.created_at', '>', $startTime->date);
+        } else if (isset($startTime->date) && $endTime) {
+            $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
+        } else {
+            $query->where('order_detail.created_at', '>', $startTime);
+        }
+
+        if (isset($shopId) && $shopId != null) {
+            $query->where('shop_id', $shopId);
+        }
+
+        if (isset($marketId) && $marketId != null) {
+            $query->join('shops', 'order_detail.shop_id', '=', 'shops.id');
+            $query->join('market_config', 'shops.id', '=', 'market_config.shop_id');
+            $query->where('market_config.id', $marketId);
+        }
+
+        $query->where(function($queryCode){
+                $queryCode->whereIn('code', ['CFM', 'RDA'])
+                ->orWhere(function($queryInner) {
+                        $queryInner->where('order_detail.code','DSP')
+                        ->where('order_detail.request_id','>',1);
+                });
+        })
+        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+
+        return   $query
+                        ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
+                        ->orderBy('delivery_address.neighborhood', 'ASC')
+                        ->orderBy('distance', 'DESC')
+                        ->orderBy('order_detail.display_id', 'ASC')
+                        ->orderBy('order_detail.client_name', 'ASC')
+                        ->paginate(200);
+    }
+
+    /**
      * Get error message of a value. It's actually the constant's name
      * @param integer $value
      * 

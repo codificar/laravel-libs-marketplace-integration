@@ -44,7 +44,7 @@
         <v-row class="col-sm-12 col-md-12 col-lg-12">
             <v-col cols="4" class="d-inline-flex float-left" v-if="$store.state.shops.length > 0">
                 <div class="search-wrapper panel-heading col-sm-12">
-                <select class="custom-select custom-select-lg col-sm-12 pa-2" name="shops" id="shops">
+                <select class="custom-select custom-select-lg col-sm-12 pa-2" name="shops" id="shops" v-model="data.marketId">
                     <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
                         <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
                     </optgroup>
@@ -64,7 +64,7 @@
             </v-col>
             <v-col cols="4" class="d-inline-flex float-right" v-if="$store.state.orders">
                 <div class="search-wrapper panel-heading col-sm-12">
-                    <input class="form-control" type="text" v-model="searchQuery" placeholder="Buscar por Pedido, Nome do Cliente ou Bairro" />
+                    <input class="form-control" type="text" v-model="data.keyword" placeholder="Buscar por Pedido, Nome do Cliente ou Bairro" />
                 </div>
             </v-col>
         </v-row>
@@ -258,7 +258,9 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 range: [
                     null,
                     null
-                ]
+                ],
+                keyword: '',
+                marketId : null 
             }
         }),
         created(){
@@ -286,7 +288,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 // então transformamos elas em string pra enviar ao backend
                 this.$store.commit('CLEAR_ORDERS');
                 this.data.pagination.page = page;
-                axios.post('/corp/api/orders/'+this.$store.state.selectedShop.id+'?page='+page, this.data)
+                axios.post('/corp/api/orders/?page='+page, this.data)
                 .then(
                     response => {
                         console.log('sucesso');
@@ -301,12 +303,13 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 this.$nextTick();
             },
             resultQuery(){
-                if(this.searchQuery){
+                console.log("resultquery > this.data.keyword:", this.data.keyword);
+                if(this.data.keyword){
                     console.log("filter");
                     return this.$store.state.orders.data.filter((item)=>{
-                        return this.searchQuery.toLowerCase().split(' ').every(v => item.display_id.toLowerCase().includes(v))
-                        || this.searchQuery.toLowerCase().split(' ').every(v => item.neighborhood.toLowerCase().includes(v)) 
-                        || this.searchQuery.toLowerCase().split(' ').every(v => item.client_name.toLowerCase().includes(v))
+                        return this.data.keyword.toLowerCase().split(' ').every(v => item.display_id.toLowerCase().includes(v))
+                        || this.data.keyword.toLowerCase().split(' ').every(v => item.neighborhood.toLowerCase().includes(v)) 
+                        || this.data.keyword.toLowerCase().split(' ').every(v => item.client_name.toLowerCase().includes(v))
                     });
                 }else{
                     console.log("filter else");
@@ -328,6 +331,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             getShop(){
                 console.log("getShops");
                 this.$store.dispatch('getShops');
+                this.$store.dispatch('getOrders');
             },
             addShop(){
                 this.$store.dispatch('showModal', {key: 'addShop', data: ''})
@@ -398,6 +402,11 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                     this.fetch();
                 },
                 deep: true
+            },
+            "data.marketId": {
+                handler: function(newVal, oldVal){
+                    this.fetch();
+                }
             }
         }
     }

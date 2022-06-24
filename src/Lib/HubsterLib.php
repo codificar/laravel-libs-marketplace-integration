@@ -229,4 +229,9 @@ class HubsterLib
 
 		return $return ;
 	}
+
+    public function merchantDetails($merchantId)
+    {
+        return null;
+    }
 }

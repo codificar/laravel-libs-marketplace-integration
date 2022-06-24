@@ -22,13 +22,14 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::get('/auth/ifood', 'DeliveryFactory@auth');
     // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
     Route::get('/ifood/events', 'DeliveryFactory@getOrders');
-    Route::post('/orders/{id}', 'DeliveryFactory@getOrdersDataBase');
     Route::post('/order/cancel', 'DeliveryFactory@cancelOrder');
     Route::post('/order/readyToPickup', 'DeliveryFactory@dspOrder');
     Route::post('/order/{id}/confirm', 'DeliveryFactory@confirmOrder');
     Route::post('/order/update', 'DeliveryFactory@updateOrderRequest');
     Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');
     // Route::post('/merchant/details', 'DeliveryFactory@getMerchantDetails');
+
+    Route::post('/orders/{shop_id?}', 'MarketplaceController@getOrders');
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
