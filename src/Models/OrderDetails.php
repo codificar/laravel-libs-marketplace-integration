@@ -46,6 +46,14 @@ class OrderDetails extends Model
         'extra_info'
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['shop_name', 'market_name', 'factory'];
+
+
     protected $dates = [
         'created_at',
         'updated_at',
@@ -102,6 +110,26 @@ class OrderDetails extends Model
         if($this->aggregator) return $this->aggregator;
 
         return $this->marketplace;
+    }
+
+    /**
+     * Get the shop name string
+     * @return string shop name
+     */
+    public function getShopNameAttribute(){
+        if($this->shop) return $this->shop->name;
+
+        return null;
+    }
+
+    /**
+     * Get the market name string
+     * @return string market name
+     */
+    public function getMarketNameAttribute(){
+        if($this->market) return $this->market->name;
+
+        return null;
     }
 
 }

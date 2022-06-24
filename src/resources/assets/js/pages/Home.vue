@@ -358,6 +358,7 @@ import RefreshScreen from "../components/RefreshScreen.vue";
             },
             showDetails(order) {
                 console.log("Sheet", this.$store.state.sheet);
+                console.log("order", order);
                 this.$store.dispatch('showDetail', { key: 'orderDetails', data: order})
             },
             trackingRoute(order) {
