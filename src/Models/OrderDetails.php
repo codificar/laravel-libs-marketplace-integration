@@ -127,7 +127,7 @@ class OrderDetails extends Model
      * @return string market name
      */
     public function getMarketNameAttribute(){
-        if($this->market) return $this->market->name;
+        if($this->market && isset($this->market->name)) return $this->market->name;
 
         return null;
     }
