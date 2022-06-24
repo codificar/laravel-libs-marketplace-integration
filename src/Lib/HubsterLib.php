@@ -170,13 +170,14 @@ class HubsterLib
         if($delivery && isset($delivery['destination'])) {
             $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
 
-            $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 
             if ($delivery['destination']['addressLines']) {
                 $address['street_name'] = $delivery['destination']['addressLines'][0];
+
+                if(!isset($delivery['destination']['fullAddress'])) $delivery['destination']['fullAddress'] = $delivery['destination']['addressLines'][0] ;
             }
 
-            if(!isset($delivery['destination']['fullAddress'])) $delivery['destination']['fullAddress'] = $address['street_name'] ;
+            $address = self::parseAddress($delivery['destination']['fullAddress']) ;
 
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                      => $external['id']
