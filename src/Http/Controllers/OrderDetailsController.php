@@ -26,9 +26,9 @@ class OrderDetailsController extends Controller
     public function getOrders(Request $request, $shopId = NULL)
     {
         
-        $startTime = $request['range'][0] != null ? $request['range'][0] : \Carbon\Carbon::now()->subDays(1);
+        $startTime = isset($request['range']) && $request['range'][0] != null ? $request['range'][0] : \Carbon\Carbon::now()->subDays(1);
 
-        $endTime = $request['range'][0] != null ? $request['range'][0] : null;
+        $endTime = isset($request['range']) && $request['range'][0] != null ? $request['range'][0] : null;
 
         $marketId = $request['marketId'] ;
 

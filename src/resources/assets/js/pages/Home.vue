@@ -282,28 +282,18 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 return date < today;
             },
             fetch(page = 1) {
-                console.log("Log in fetch");
-                var component = this;
-                // fazemos isso porque as datas são pegas como objetos
-                // então transformamos elas em string pra enviar ao backend
-                this.$store.commit('CLEAR_ORDERS');
+                
                 this.data.pagination.page = page;
-                axios.post('/corp/api/orders/?page='+page, this.data)
-                .then(
-                    response => {
-                        console.log('sucesso');
-                        console.log(response.data);
-                        component.$store.commit('CREATE_ORDER', response.data);
-                    },
-                    response => {
-                        //console.log(response.data);
-                    // error callback
-                    }
-                );
+                
+
+                this.$store.dispatch('getOrders', this.data, page);
+
+                
                 this.$nextTick();
             },
             resultQuery(){
-                console.log("resultquery > this.data.keyword:", this.data.keyword);
+                console.log("resultquery > this.$store.state.orders:", this.$store.state.orders.data);
+
                 if(this.data.keyword){
                     console.log("filter");
                     return this.$store.state.orders.data.filter((item)=>{
@@ -336,14 +326,13 @@ import RefreshScreen from "../components/RefreshScreen.vue";
                 this.$store.dispatch('showModal', {key: 'addShop', data: ''})
             },
             getOrders() {
-                this.fetch();
+                
                 if (this.$store.state.orders) {
                     this.loading = !this.loading;
                     
                 }
-                if (this.$store.state.orders.length == 0) {
-                    console.log("Vazio");
-                }
+
+                this.fetch();
 
             },
             formatCurrency(value){

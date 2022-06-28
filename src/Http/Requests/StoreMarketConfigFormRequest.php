@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 
 use Codificar\MarketplaceIntegration\Http\Rules\MerchantDetailsRule;
 
-
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 
 

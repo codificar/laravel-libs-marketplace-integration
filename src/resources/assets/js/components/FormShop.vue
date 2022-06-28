@@ -113,7 +113,7 @@ export default {
         }       
       ],
       form: {
-        id: '',
+        shop_id: '',
         name: '',
         marketplace: null,
         client_id: '',
@@ -125,7 +125,7 @@ export default {
     mounted(){
       console.log("Props: ", this.data);
       if (this.$store.state.modalContent == 'editShop') {
-        this.form.id = this.data.data.id;
+        this.form.shop_id = this.data.data.id;
         this.form.name = this.data.data.name;        
         this.items.forEach(element => {
           if (element.name.toLowerCase() == this.data.data.get_config[0].market) {
@@ -138,20 +138,21 @@ export default {
         this.form.merchant_name = this.data.data.get_config[0].merchant_name;
         
       } else if (this.$store.state.modalContent == 'editMarketplace') {
-        this.form.id = this.data.data.id;
+        this.form.shop_id = this.data.data.id;
         this.form.name = this.data.data.name;        
         this.items.forEach(element => {
           if (element.name.toLowerCase() == this.data.data.market) {
             this.form.marketplace = element
           }
         });
+        
         this.form.client_id = this.data.data.client_id;
         this.form.client_secret = this.data.data.client_secret;
         this.form.merchant_id = this.data.data.merchant_id;
         this.form.merchant_name = this.data.data.merchant_name;
         
       } else if (this.$store.state.modalContent == 'addMarketplace') {
-        this.form.id = this.data.data.id;
+        this.form.shop_id = this.data.data.id;
       }
     },
     methods: {

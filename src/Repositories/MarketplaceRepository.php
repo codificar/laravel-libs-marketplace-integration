@@ -108,7 +108,6 @@ class MarketplaceRepository
      */
     public static function getOrders($shopId = null, $marketId = null, $startTime = null, $endTime = null){
         
-        \Log::warning("startTime: ".print_r($startTime,1));
 
         $query = OrderDetails::query();
 
@@ -138,6 +137,8 @@ class MarketplaceRepository
                 });
         })
         ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
+
+        //dd(vsprintf(str_replace(['?'], ['\'%s\''], $query->toSql()), $query->getBindings()));
 
         return   $query
                         ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched

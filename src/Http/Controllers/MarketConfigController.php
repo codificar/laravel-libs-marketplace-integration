@@ -32,18 +32,19 @@ class MarketConfigController extends Controller
         $longitude  = null;
         $address    = null;
 
-        $latitude = $request->merchantDetails->address->latitude ;
-        $longitude = $request->merchantDetails->address->longitude ;
-        $address = json_encode($response->address) ;
-    
+        $latitude = $request->merchantDetails['data']->address->latitude ;
+        $longitude = $request->merchantDetails['data']->address->longitude ;
+        $address = json_encode($request->merchantDetails['data']) ;
 
-        $address = MarketConfig::updateOrCreate([
-            'id'            => $request->id
+        $marketConfig = MarketConfig::updateOrCreate([
+            'shop_id'       => $request->shop_id,
+            'market'        => $request->marketplace ,
+            'merchant_id'   => $request->merchant_id
         ],[
             'shop_id'       => $request->shop_id,
             'merchant_id'   => $request->merchant_id,
             'name'          => $request->merchant_name,
-            'market'        => $request->select ,
+            'market'        => $request->marketplace ,
             'latitude'      => $latitude,
             'longitude'     => $longitude,
             'address'       => $address,

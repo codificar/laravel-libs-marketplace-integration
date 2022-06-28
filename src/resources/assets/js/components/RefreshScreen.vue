@@ -56,10 +56,10 @@ export default {
   },
   methods: {
     onChangeEnable(data){
-      // this.sliderValue = 30; 
-      console.log("Data: ", data);
-      this.$store.dispatch('saveRealodStatus', data)
-      this.countTime();
+      
+      clearInterval(this.timer);
+      this.timer = setInterval(this.countTime, 1000);
+
     },
     async onFinish() {
       if(this.ReloadScreen){
@@ -69,20 +69,19 @@ export default {
       }
     },
     countTime() {
-      setInterval(() => {
-        console.log("Enebled 2: ", this.enable);
-        if (window.location.pathname != '/corp/marketplace/integration') {
-          this.enabled = false;
+    
+      if (window.location.pathname != '/corp/marketplace/integration') {
+        this.enabled = false;
+      }
+      if (this.enabled) {
+        if (this.sliderValue < this.CountLimit) {
+          this.sliderValue = this.sliderValue + 1;
+        } else {
+          this.sliderValue = 0;
+          this.onFinish();
         }
-        if (this.enabled) {
-          if (this.sliderValue < this.CountLimit) {
-            this.sliderValue = this.sliderValue + 1;
-          } else {
-            this.sliderValue = 0;
-            this.onFinish();
-          }
-        }
-      }, 1000);
+      }
+      
     },
   },
   mounted() {
