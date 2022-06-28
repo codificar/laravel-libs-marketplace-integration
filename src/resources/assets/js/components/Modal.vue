@@ -8,17 +8,17 @@
       <form-component
       />
     </div>
-    <div v-if="$store.state.modalContent == 'edit_shop'">
+    <div v-if="$store.state.modalContent == 'editShop'">
       <form-component
         :data="$store.state.dataShop"
       />
     </div>
-    <div v-if="$store.state.modalContent == 'edit_marketPlace'">
+    <div v-if="$store.state.modalContent == 'editMarketplace'">
       <form-component
         :data="$store.state.dataShop"
       />
     </div>
-    <div v-if="$store.state.modalContent == 'add_marketPlace'">
+    <div v-if="$store.state.modalContent == 'addMarketplace'">
       <form-component
         :data="$store.state.dataShop"
       />

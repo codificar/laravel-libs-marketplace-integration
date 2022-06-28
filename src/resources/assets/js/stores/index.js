@@ -451,44 +451,27 @@ const store = new Vuex.Store({
 				}
 				);
 		},
-		saveShopConfigs({ commit }, data) {
-			data.data.status_reload = this.state.status_reload
+		storeShop({ commit }, data) {
+			
 			console.log("Entrou dispatch", data);
-			console.log("Status", this.state.status_reload);
-			axios.post('/corp/api/shop', data.data)
+			
+			axios.post('/libs/marketplace-integration/shop/store', data)
 				.then(res => {
 					console.log('Save ', res.data);
-					console.log(res);
-					if (res.status == 201 || res.status == 200) {
-						if (!res.data.code) {
-							commit('FETCH_SELECTED_SHOP', res.data[0]);
-							commit('CREATE_SHOP', res.data[0]);
-							commit('showDetails', data.key);
-							Vue.swal.fire({
-								title: 'Sucesso!',
-								text: "Salvo com sucesso!",
-								icon: 'success',
-								showConfirmButton: false,
-								timer: 1500
-							});
-							// this.dispatch('getOrders', res.data.id);
-						} else if (res.data.code == 401) {
-							Vue.swal.fire({
-								title: 'Atenção!',
-								text: res.data.message,
-								icon: 'warning',
-								confirmButtonText: 'OK'
-							});
-						}
-					} else if (res.data.data) {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data.errors,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						});
-					}
+					
+					commit('FETCH_SELECTED_SHOP', res.data[0]);
+					commit('CREATE_SHOP', res.data[0]);
+					commit('showDetails', data.key);
+					Vue.swal.fire({
+						title: 'Sucesso!',
+						text: "Salvo com sucesso!",
+						icon: 'success',
+						showConfirmButton: false,
+						timer: 1500
+					});
+					
 				}).catch(err => {
+					if(err.response.data && err.response.data.errors) err =  err.response.data.errors;
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
@@ -497,113 +480,26 @@ const store = new Vuex.Store({
 					});
 				});
 		},
-		editShopConfigs({ commit }, data) {
-			data.status_reload = this.state.status_reload
-			console.log("Entrou dispatch", data);
-			console.log("Status", this.state.status_reload);
-			axios.put('/corp/api/shop/update', data)
-				.then(res => {
-					console.log('Save ', res.data);
-
-					console.log(res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Salvo com sucesso!",
-							icon: 'success',
-							showConfirmButton: false,
-							timer: 1500
-						});
-						commit('UPDATE_SHOP', res.data);
-						commit('showDetails', data.key);
-					} else if (res.data.data) {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data.errors,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
-				}).catch(err => {
-					Vue.swal.fire({
-						title: 'Error!',
-						text: err,
-						icon: 'error',
-						confirmButtonText: 'OK'
-					})
-				})
-		},
-		addMarketConfig({ commit }, data) {
+		storeMarketConfig({ commit }, data) {
 			data.status_reload = this.state.status_reload
 			console.log("Entrou addMarketConfig", data);
 			console.log("Status", this.state.status_reload);
-			axios.post('/corp/api/market/store', data)
+			axios.post('/libs/marketplace-integration/market_config/store', data)
 				.then(res => {
 					console.log('Save ', res.data);
 					console.log(res);
-					if (res.status == 201 || res.status == 200) {
-						if (!res.data.code) {
-							Vue.swal.fire({
-								title: 'Sucesso!',
-								text: "Salvo com sucesso!",
-								icon: 'success',
-								showConfirmButton: false,
-								timer: 1500
-							});
-							commit('showDetails', data.key);
-							// window.location.reload();
-						} else {
-							Vue.swal.fire({
-								title: 'Atenção!',
-								html: res.data.message,
-								icon: 'warning',
-								confirmButtonText: 'OK'
-							});
-						}
-					} else if (res.data) {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data.errors,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
-				}).catch(err => {
+			
 					Vue.swal.fire({
-						title: 'Error!',
-						text: err,
-						icon: 'error',
-						confirmButtonText: 'OK'
-					})
-				})
-		},
-		editMarketConfig({ commit }, data) {
-			data.status_reload = this.state.status_reload
-			console.log("Entrou dispatch", data);
-			console.log("Status", this.state.status_reload);
-			axios.put('/corp/api/market/update', data)
-				.then(res => {
-					console.log('Save ', res.data);
-					console.log(res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Salvo com sucesso!",
-							icon: 'success',
-							showConfirmButton: false,
-							timer: 1500
-						});
-						commit('showDetails', data.key);
-						window.location.reload();
-					} else if (res.data) {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data.errors,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
+						title: 'Sucesso!',
+						text: "Salvo com sucesso!",
+						icon: 'success',
+						showConfirmButton: false,
+						timer: 1500
+					});
+					commit('showDetails', data.key);
+					
 				}).catch(err => {
+					if(err.response.data && err.response.data.errors) err =  err.response.data.errors;
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
@@ -616,7 +512,7 @@ const store = new Vuex.Store({
 			// data.status_reload = this.state.status_reload
 			console.log("Entrou deleteMarketConfig", data);
 			// console.log("Status", this.state.status_reload);
-			axios.post('/corp/api/market/delete', data)
+			axios.delete('/corp/api/market/delete', data)
 				.then(res => {
 					console.log('deleteMarketConfig reponse data ', res.data);
 					console.log(res);

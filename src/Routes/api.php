@@ -15,9 +15,9 @@ use Illuminate\Http\Request;
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
-    Route::post('/market/store', 'ShopsController@storeMarketConfig');
-    Route::post('/market/delete', 'ShopsController@deleteMarketConfig');
-    Route::put('/market/update', 'ShopsController@updateMarketConfig');
+    
+    
+    
     Route::post('/shop/status', 'ShopsController@status');
     Route::get('/auth/ifood', 'DeliveryFactory@auth');
     // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
@@ -29,12 +29,31 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');
     // Route::post('/merchant/details', 'DeliveryFactory@getMerchantDetails');
 
-    Route::post('/orders/{shop_id?}', 'MarketplaceController@getOrders');
+    
+
 });
 
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/orders', 'middleware' => ['auth.corp_admin']), function () {
+    Route::post('/{shop_id?}', 'OrderDetailsController@getOrders');
+});
+
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/shop', 'middleware' => ['auth.corp_admin']), function () {
+
+    Route::post('/store', 'ShopsController@store');
+
+});
+
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/market_config', 'middleware' => ['auth.corp_admin']), function () {
+
+    Route::post('/store', 'MarketConfigController@store');
+    Route::delete('/delete', 'MarketConfigController@delete');
+    
+});
+
+
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
-    Route::post('/settings/credentials/save', array('as' => 'admin', 'uses' => 'ShopsController@iFoodCredentials'));
-    Route::post('/settings/get/credentials', array('as' => 'admin', 'uses' => 'ShopsController@getIfoodCredentials'));
+    Route::post('/settings/credentials/save', array('as' => 'admin', 'uses' => 'SettingsController@storeIFoodCredentials'));
+    Route::post('/settings/get/credentials', array('as' => 'admin', 'uses' => 'SettingsController@getIFoodCredentials'));
 });
 
 

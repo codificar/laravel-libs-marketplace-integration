@@ -37,7 +37,7 @@
                                     small
                                     depressed
                                     color="success"
-                                    @click="addShop('add_marketPlace', shop)"
+                                    @click="addShop('addMarketplace', shop)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -54,7 +54,7 @@
                                     small
                                     depressed
                                     color="cyan"
-                                    @click="addShop('edit_shop', shop)"
+                                    @click="addShop('editShop', shop)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -70,7 +70,7 @@
                                     small
                                     depressed
                                     color="red"
-                                    @click="deleteShop('delete_marketPlace', shop.id)"
+                                    @click="deleteShop('deleteShop', shop.id)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -103,7 +103,7 @@
                                                     small
                                                     depressed
                                                     color="cyan"
-                                                    @click="addShop('edit_marketPlace', item,shop.merchant_id)"
+                                                    @click="addShop('editMarketplace', item,shop.merchant_id)"
                                                     style="width:150px;"
                                                 >
                                                     <v-icon 
@@ -145,40 +145,41 @@
 <script>
 import FormShop from '../components/FormShop';
 import ModalComponent from "../components/Modal.vue";
-    export default {
-        components:{
-            FormShop,
-            ModalComponent
+
+export default {
+    components:{
+        FormShop,
+        ModalComponent
+    },
+    data: () => ({
+        sheet: false,
+        selectedItem: '',
+    }),
+    mounted() {
+        console.log('Component mounted.')
+        if (this.$store.state.shops == 0) {
+            this.listStores();
+        }
+        if (this.$store.state.status_reload) {
+            this.$store.commit('statusReload',!this.$store.state.status_reload)
+        }
+        console.log('Config: ', this.$store.state.shops);
+        console.log('Url: ', window);
+        console.log('Status Relaod: ', this.$store.state.status_reload);
+        // this.selectedItem = this.$store.state.shops[0].get_config[0];
+    },
+    methods: {
+        listStores(){
+            this.$store.dispatch('getShops');
         },
-        data: () => ({
-            sheet: false,
-            selectedItem: '',
-        }),
-        mounted() {
-            console.log('Component mounted.')
-            if (this.$store.state.shops == 0) {
-                this.listStores();
-            }
-            if (this.$store.state.status_reload) {
-                this.$store.commit('statusReload',!this.$store.state.status_reload)
-            }
-            console.log('Config: ', this.$store.state.shops);
-            console.log('Url: ', window);
-            console.log('Status Relaod: ', this.$store.state.status_reload);
-            // this.selectedItem = this.$store.state.shops[0].get_config[0];
+        addShop(key, data = null, merchant_id = null){
+            console.log("Data z:", data);
+            this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
         },
-        methods: {
-            listStores(){
-                this.$store.dispatch('getShops');
-            },
-            addShop(key, data = null, merchant_id = null){
-                console.log("Data z:", data);
-                this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
-            },
-            deleteShop(key, id){
-                console.log('deleteMarketConfig ', {key: key, market_id: id});
-                this.$store.dispatch('deleteMarketConfig', {key: key, id: id});
-            }
+        deleteShop(key, id){
+            console.log('deleteMarketConfig ', {key: key, market_id: id});
+            this.$store.dispatch('deleteMarketConfig', {key: key, id: id});
         }
     }
+}
 </script>

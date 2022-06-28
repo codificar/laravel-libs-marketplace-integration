@@ -157,8 +157,12 @@ class IFoodLib
         return $this->api->dispatch($orderId);
     }
 
+    /** 
+     * Get the merchant detail from the marketplace api, needs to return alway
+     * @return array [code ; data ; message] 
+    */
     public function merchantDetails($merchantId)
     {
-        return $this->api->merchantDetails($merchantId);
+        return $this->api->merchantDetails($merchantId);        
     }
 }

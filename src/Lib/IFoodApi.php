@@ -213,37 +213,42 @@ class IFoodApi
     }
   }
 
-  /**
-   * merchantDetails
-   * Use a protected or private variable to store token instead of pass by params
-   * 
-   */
+  /** 
+   * Get the merchant detail from the marketplace api, needs to return alway the array with code, data, and message
+   * @return array [code ; data ; message] 
+  */
   public function merchantDetails($merchantId)
   {    
-    \Log::debug("ID Merchant: ".$merchantId);
-    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->accessToken);
+    
     $headers = [
       'accept' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
     ];
+
     try {
-      $res = $this->send('GET', 'merchant/v1.0/merchants/'.$merchantId, $headers);
-      if (is_object($res)) {
-        return $res;
-      } else {
+      $data = $this->send('GET', 'merchant/v1.0/merchants/'.$merchantId, $headers);
+      if (is_object($data)) {
+        return [
+          'code' => 200 ,
+          'data' => $data ,
+          'message' => null 
+        ];
+      } 
+      else {
         return [
           'code'    => 401,
+          'data' => null ,
           'message' =>  "Infelizmente não temos acesso a sua loja com o ID $merchantId. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
         ];
       }
-    } catch (ClientException $e) {
-      \Log::debug("Erro: ".$e->getCode());
-      \Log::debug("Erro Content: ".$e->getMessage());
-      // \Log::debug('Message: '. $e->getResponse());
+    } 
+    catch (ClientException $e) {
       return [
         'code'      => $e->getCode(),
-        'message'   => "Infelizmente não temos acesso a sua loja com o ID $merchantId. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
+        'data'      => null ,
+        'message'   => "Infelizmente não temos acesso a sua loja com o ID $merchantId. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!".$e->getMessage()
       ];
     }
+
   }
 }
