@@ -40,13 +40,14 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/shop', 'middleware' => ['auth.corp_admin']), function () {
 
     Route::post('/store', 'ShopsController@store');
+    Route::delete('/delete/{shop_id}', 'ShopsController@delete');
 
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/market_config', 'middleware' => ['auth.corp_admin']), function () {
 
     Route::post('/store', 'MarketConfigController@store');
-    Route::delete('/delete', 'MarketConfigController@delete');
+    Route::delete('/delete/{market_config_id}', 'MarketConfigController@delete');
     
 });
 

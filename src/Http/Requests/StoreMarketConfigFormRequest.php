@@ -36,12 +36,17 @@ class StoreMarketConfigFormRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'merchant_name'         => 'required|string|min:4',
             'marketplace'           => ['required',Rule::in(MarketplaceFactory::$allMarketplaces)],
-            'merchant_id'           => 'required|string|min:4',
-            'merchant_config'       => [new MerchantDetailsRule($this->merchantDetails)]
+            'merchant_id'           => 'required|string|min:4'
         ];
+
+        if($this->marketplace == MarketplaceFactory::IFOOD){
+            $rules['merchant_config'] = [new MerchantDetailsRule($this->merchantDetails)] ;
+        }
+
+        return $rules;
     }
 
 

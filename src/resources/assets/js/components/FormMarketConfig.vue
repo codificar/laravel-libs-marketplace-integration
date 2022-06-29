@@ -3,9 +3,8 @@
     class="card card-outline-info"
   >
     <div class="modal-header">
-      <span v-if="$store.state.shop == undefined"> Adicionar Loja / Localização </span>
-      <span v-if="$store.state.shop != undefined"> Editar Loja / Localização </span>
-      
+      <span v-if="$store.state.marketConfig == undefined"> Adicionar configuração marketplace </span>
+      <span v-if="$store.state.marketConfig != undefined"> Editar configuração marketplace </span>
       <button type="button" @click="closeModal()"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="panel-body">
@@ -14,13 +13,37 @@
           ref="form"
           v-model="valid"
           lazy-validation
-          data-test="shop_form"
+          data-test="market_form"
         >
+        
+          <v-select
+            v-model="form.marketplace"
+            :items="items"
+            item-value="id"
+
+            data-test="marketplace_name"
+            item-text="name"
+            :rules="[v => !!v || 'Item é obrigatório']"
+            label="Marketplace"
+            required
+          >
+          </v-select>
+          
           <v-text-field
-            v-model="form.name"
-            :rules="nameRules"
-            label="Nome da Loja"
-            data-test="shop_name"
+            v-if="form.marketplace"
+            v-model="form.merchant_name"
+
+            data-test="merchant_name"
+            label="Nome da loja no marketplace"
+            required
+          >
+          </v-text-field>
+
+          <v-text-field
+            v-if="form.marketplace"
+            v-model="form.merchant_id"
+            data-test="merchant_id"
+            label="Id da loja no marketplace"
             required
           >
           </v-text-field>
@@ -28,9 +51,9 @@
           <v-btn
             :disabled="!valid"
             color="success"
-            data-test="saveShop"
+            data-test="storeMarketConfig"
             class="mr-0"
-            @click="saveShop"
+            @click="storeMarketConfig"
           >
             Salvar
           </v-btn>
@@ -78,7 +101,6 @@ export default {
       ],
       form: {
         shop_id: '',
-        name: '',
         marketplace: null,
         client_id: '',
         client_secret: '',
@@ -88,19 +110,18 @@ export default {
     }),
     mounted(){
       console.log("Props: ", this.data);
-      
-      if(this.data) {
-        this.form.shop_id = this.data.id;
-        this.form.name = this.data.name;        
-      }
 
+      if(this.data){
+        this.form.shop_id       = this.data.shop_id;
+        this.form.merchant_name = this.data.name;     
+        this.form.marketplace   = this.data.market;     
+        this.form.merchant_id   = this.data.merchant_id;     
+      }
+       
     },
     methods: {
-      saveShop() {
-        this.$store.dispatch('storeShop', this.form);
-      },
-      deleteShop(id){
-        this.$store.dispatch('deleteShop', id);
+      storeMarketConfig() {
+        this.$store.dispatch('storeMarketConfig', this.form);
       },
       validate () {
         this.$refs.form.validate()
@@ -111,12 +132,8 @@ export default {
       resetValidation () {
         this.$refs.form.resetValidation()
       },
-      checkAnswer(item) {
-        console.log(item);
-        console.log(this.form.marketplace);
-      },
       closeModal() {
-        this.$store.dispatch('showModal', this.$store.state.sheet)
+        this.$store.state.sheet = false ;
       }
     },
     watch: {

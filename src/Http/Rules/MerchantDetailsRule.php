@@ -25,7 +25,7 @@ class MerchantDetailsRule implements ImplicitRule
      */
     public function passes($attribute, $value)
     {
-        return $this->merchantDetails['code'] === 200;
+        return $this->merchantDetails && $this->merchantDetails['code'] === 200;
     }
 
     /**

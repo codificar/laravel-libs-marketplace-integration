@@ -32,9 +32,11 @@ class MarketConfigController extends Controller
         $longitude  = null;
         $address    = null;
 
-        $latitude = $request->merchantDetails['data']->address->latitude ;
-        $longitude = $request->merchantDetails['data']->address->longitude ;
-        $address = json_encode($request->merchantDetails['data']) ;
+        if($request->merchantDetails && $request->merchantDetails['data']) {
+            $latitude = $request->merchantDetails['data']->address->latitude ;
+            $longitude = $request->merchantDetails['data']->address->longitude ;
+            $address = json_encode($request->merchantDetails['data']) ;
+        }
 
         $marketConfig = MarketConfig::updateOrCreate([
             'shop_id'       => $request->shop_id,
@@ -59,16 +61,15 @@ class MarketConfigController extends Controller
      * Function to delete market config
      * @return 
      */
-    public function delete(Request $request)
+    public function delete($marketConfigId)
     {
         
         $response = ['success' => false];
 
-        $data = MarketConfig::find($request->id);
+        $destroy = MarketConfig::destroy($marketConfigId);
 
-        if (is_object($data))
+        if ($destroy)
         {
-            $data->delete();
             $response['success'] = true;
         }
 

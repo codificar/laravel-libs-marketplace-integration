@@ -27,7 +27,9 @@ class ShopsController extends Controller
     public function store(ShopsFormRequest $request)
     {
         $user = \Auth::guard('web_corp')->user();
-        $shop = Shops::create([
+        $shop = Shops::updateOrCreate([
+            'id'            => $request->shop_id
+        ],[
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
             'status_reload' => $request->status_reload ? $request->status_reload : 0,
@@ -61,14 +63,23 @@ class ShopsController extends Controller
         return $shops;
     }
 
-    public function status(Request $request)
+    /**
+     * Function to delete market config
+     * @return 
+     */
+    public function delete($shopId)
     {
-        $user = \Auth::guard('web_corp')->user();
-        $shop = Shops::where('institution_id', $user->AdminInstitution->institution_id)
-                    ->update([
-            'institution_id'=> $user->AdminInstitution->institution_id,
-            'status_reload' => $request->status_reload ? $request->status_reload : 0
-        ]);
+        
+        $response = ['success' => false];
+
+        $destroy = Shops::destroy($shopId);
+
+        if ($destroy)
+        {
+            $response['success'] = true;
+        }
+
+        return $response;
     }
 
 }
