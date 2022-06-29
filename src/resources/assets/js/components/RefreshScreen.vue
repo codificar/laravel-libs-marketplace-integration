@@ -1,21 +1,17 @@
 <template>
   <div class="text-center justify-end body-2">
-    <h5 class="m-b-0 text-white">Atualizar Pedidos</h5>
-    <h5 class="m-b-0 text-white">{{ sliderValue }}</h5>
     <v-row>
-      <v-col cols="4" xs="4" md="4">
-      </v-col>
-      <v-col cols="6" xs="6" md="6">
+      <v-col cols="2" xs="2" md="2" class="align-start d-flex">
         <v-switch
           v-model="enabled"
           :sync="true"
           @change="onChangeEnable"
-          class="justify-end text-white"
+          class="ma-0 pa-0"
         >
-          <template v-slot:label>
-            <span class="justify-end text-white">{{enabled ? 'Desabilitar' : 'Habilitar'}}</span>
-          </template>
         </v-switch>
+      </v-col>
+      <v-col class="align-start d-flex ">
+        <h5 class="m-b-0">Atualizar Pedidos ({{ sliderValue }})</h5>
       </v-col>
     </v-row>
   </div>
@@ -56,7 +52,7 @@ export default {
   },
   methods: {
     onChangeEnable(data){
-      // this.sliderValue = 30; 
+      // this.sliderValue = 30;
       console.log("Data: ", data);
       this.$store.dispatch('saveRealodStatus', data)
       this.countTime();
