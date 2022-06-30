@@ -32,7 +32,6 @@ class IFoodApi
     //get the marketplace toe=ken
     $key =  \Settings::getMarketPlaceToken('ifood_auth_token');
 
-    \Log::debug('IFoodApi::__Construct__ -> ifood_auth_token:'.print_r($key,1));
     //initialize a common variable
     $this->accessToken = $key;
     //initialize a common variable
@@ -47,16 +46,18 @@ class IFoodApi
    */
   public function send($requestType, $route, $headers, $body = null, $retry = 0)
   {
-    \Log::debug("requestType: ". print_r($requestType, 1));
+  
+    \Log::debug("headers: ". print_r($headers, 1));
     \Log::debug("route: ". print_r($route, 1));
-    \Log::debug("headers: ". print_r($headers,1));
-    \Log::debug("body: ". print_r($body,1));
+
 
     try {
-      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-      \Log::debug("Code: ". $response->getStatusCode());
+      $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);      
     }
     catch(Exception $ex){
+
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
+
       // reautenticacao caso a chave tenha dado 401 e um novo retry
       if($ex->getCode() == 401 && $retry < 3){
         $clientId          =  \Settings::findByKey('ifood_client_id');
@@ -75,8 +76,7 @@ class IFoodApi
    */
   public function auth($clientId, $clientSecret)
   {
-    \Log::debug('clientId:'.print_r($clientId,1));
-    \Log::debug('clientSecret:'.print_r($clientSecret,1));
+    
     try
     {
       $headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
@@ -96,20 +96,21 @@ class IFoodApi
 
       return $res;
     }
-    catch (\Exception $e)
+    catch (\Exception $ex)
     {
-      \Log::debug($e->getMessage());
-      return $e;
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
     }
   }
 
   public function newOrders()
   {
-    \Log::debug('TOKEN: '. $this->accessToken);
+   
+    \Log::debug("newOrders > accessToken ". print_r($this->accessToken,1));
     $headers = [
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
     ];
+
     return $this->send('GET','order/v1.0/events:polling', $headers);
     
   }
@@ -117,7 +118,7 @@ class IFoodApi
   public function acknowledgment($data)
   { 
 
-    \Log::debug("getAcknowledgment: ".print_r($data, 1));
+
     $headers    = [
       'Content-Type' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
@@ -140,6 +141,8 @@ class IFoodApi
       ]);
 
       $response = json_decode($res->getBody()->getContents());
+
+      \Log::debug("getAcknowledgment > response: ".print_r($response, 1));
       
       return $response;
   }
@@ -210,37 +213,42 @@ class IFoodApi
     }
   }
 
-  /**
-   * getMerchantDetails
-   * Use a protected or private variable to store token instead of pass by params
-   * 
-   */
-  public function getMerchantDetails($token, $id)
+  /** 
+   * Get the merchant detail from the marketplace api, needs to return alway the array with code, data, and message
+   * @return array [code ; data ; message] 
+  */
+  public function merchantDetails($merchantId)
   {    
-    \Log::debug("ID Merchant: ".$id);
-    \Log::debug("Token Merchant - getMerchantDetails-> IFOOD API: ".$this->accessToken);
+    
     $headers = [
       'accept' => 'application/json',
       'Authorization' => 'Bearer '.$this->accessToken
     ];
+
     try {
-      $res = $this->send('GET', 'merchant/v1.0/merchants/'.$id, $headers);
-      if (is_object($res)) {
-        return $res;
-      } else {
+      $data = $this->send('GET', 'merchant/v1.0/merchants/'.$merchantId, $headers);
+      if (is_object($data)) {
+        return [
+          'code' => 200 ,
+          'data' => $data ,
+          'message' => null 
+        ];
+      } 
+      else {
         return [
           'code'    => 401,
-          'message' =>  "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
+          'data' => null ,
+          'message' =>  "Infelizmente não temos acesso a sua loja com o ID $merchantId. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
         ];
       }
-    } catch (ClientException $e) {
-      \Log::debug("Erro: ".$e->getCode());
-      \Log::debug("Erro Content: ".$e->getMessage());
-      // \Log::debug('Message: '. $e->getResponse());
+    } 
+    catch (ClientException $e) {
       return [
         'code'      => $e->getCode(),
-        'message'   => "Infelizmente não temos acesso a sua loja com o ID $id. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!"
+        'data'      => null ,
+        'message'   => "Infelizmente não temos acesso a sua loja com o ID $merchantId. <br /> <a href='/page/ifood-market-permission' target='_blank'>Clique aqui</a>  para aprender como realizar essa permissão!".$e->getMessage()
       ];
     }
+
   }
 }

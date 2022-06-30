@@ -16,6 +16,9 @@ export default {
         mapMode: false,
     }
   },
+  mounted() {
+    this.$store.dispatch("getOrders");
+  }
 }
 </script>
 

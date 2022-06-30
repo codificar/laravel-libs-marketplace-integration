@@ -10,8 +10,11 @@ class MarketplaceFactory
     const IFOOD         = 'ifood';
     const HUBSTER       = 'hubster';
     const ZEDELIVERY    = 'zedelivery';
+    const FOOD99        = '99food';
+    const RAPPI         = 'rappi';
 
-    public static $pollingMarketplaces = [self::IFOOD, self::HUBSTER];
+    public static $allMarketplaces = [self::IFOOD, self::HUBSTER, self::ZEDELIVERY, self::FOOD99, self::RAPPI];
+    public static $pollingMarketplaces = [self::IFOOD];
 
     public static function create($marketPlaceType = null)
     {         

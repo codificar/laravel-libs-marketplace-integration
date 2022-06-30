@@ -43,55 +43,7 @@ class IFoodController extends Controller
     
     }
     
-    #TODO move query to repository
-    public static function getOrdersDataBase(Request $request, $id = NULL)
-    {
-        \Log::warning("Request: ".print_r($request->all(),1));
-        $startTime = $request
-                        ['range'][0] != null ? $request
-                                                ['range'][0] : \Carbon\Carbon::now()->subDays(1);
-
-        $endTime = $request
-                        ['range'][0] != null ? $request
-                                            ['range'][0] : null;
-
-
-        \Log::warning("startTime: ".print_r($startTime,1));
-
-        $query = OrderDetails::query();
-
-        if (isset($startTime->date)) {
-            $query->where('order_detail.created_at', '>', $startTime->date);
-        } else if (isset($startTime->date) && $endTime) {
-            $query->whereBetween('order_detail.created_at', [$startTime->date, $endTime]);
-        } else {
-            $query->where('order_detail.created_at', '>', $startTime);
-        }
-
-        if (isset($id) && $id != null) {
-            $query->where('shop_id', $id);
-        }
-
-        $query->where(function($queryCode){
-                $queryCode->whereIn('code', ['CFM', 'RDA'])
-                ->orWhere(function($queryInner) {
-                        $queryInner->where('order_detail.code','DSP')
-                        ->where('order_detail.request_id','>',1);
-                });
-        })
-        ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id');
-
-        $orders =   $query
-                        ->orderBy('order_detail.request_id', 'ASC')//order by reuqest to show first the orders without points id, so orders without dispatched
-                        ->orderBy('delivery_address.neighborhood', 'ASC')
-                        ->orderBy('distance', 'DESC')
-                        ->orderBy('order_detail.display_id', 'ASC')
-                        ->orderBy('order_detail.client_name', 'ASC')
-                        ->paginate(200);
-
-        return new OrdersResource($orders);
-    }
-
+   
     public static function confirmOrder(Request $request)
     {
         try {

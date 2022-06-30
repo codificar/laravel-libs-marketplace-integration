@@ -30,10 +30,13 @@ class HubsterApi {
 			'base_uri'  => $this->baseUrl
 		]);
 
-		//get the marketplace token
-		$key =  \Settings::getMarketPlaceToken('hubster_auth_token');
+		#TODO remove reset
+		$clientSecret      =  \Settings::updateOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 
-		$applicationId =  \Settings::findByKey('hubster_application_id', "f0d58c67-646f-495f-b5ae-9bde99b37a2c");
+		//get the marketplace token
+		$key =  \Settings::findByKey('hubster_auth_token');
+
+		$applicationId =  \Settings::findByKey('hubster_application_id', "c8f9a164-ac52-486f-bb85-74c3c7cc0518");
 
 		$this->accessToken = $key;
 
@@ -43,6 +46,13 @@ class HubsterApi {
 			'X-Application-Id' => $applicationId, //TODO vem na request mas não vi mudar
 			//'X-Event-Id' => '', //setado na hora de enviar
 		];
+	}
+
+	/**
+	 * Set Authorization header
+	 */
+	private function setAuthorization($token) {
+		$this->headers['Authorization'] = 'Bearer '.$token;
 	}
 
 	/**
@@ -64,30 +74,43 @@ class HubsterApi {
 	 */
 	public function auth($clientId, $clientSecret)
 	{
+
+		//dd(func_get_args());
 		\Log::debug('clientId:'.print_r($clientId,1));
 		\Log::debug('clientSecret:'.print_r($clientSecret,1));
+
 		try
 		{
 			$headers    = ['Content-Type' => 'application/x-www-form-urlencoded'];
 			$body       = [
-				'grantType'     => 'client_credentials',
-				'clientId'      => $clientId,
-				'clientSecret'  => $clientSecret,
-				'scope'			=> 'ping orders.update orders.delivery_info_update orders.status_update'
+				'grant_type'     	=> 'client_credentials',
+				'client_id'     	=> $clientId,
+				'client_secret'  	=> $clientSecret,
+				'scope'				=> 'ping'
 			];
-			$res = $this->send('POST', 'v1/auth/token', $headers, $body);
-			
-			$this->accessToken = $res->access_token;
+
+			$options['headers'] 	=  $headers ;
+			$options['form_params'] =  $body ;
+
+			$response = $this->client->request('POST', 'v1/auth/token', $options);
+			$response = json_decode($response->getBody()->getContents());
+
+			$this->setAuthorization($response->access_token);
+
+			$this->accessToken = $response->access_token;
 			$test =  \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
 			\Log::debug("updateOrCreateByKey: hubster_auth_token ". print_r($test,1));
 
 			$test =  \Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
 			\Log::debug("updateOrCreateByKey: hubster_expiry_token ". print_r($test,1));
 
-			return $res;
+			return $response;
 		}
 		catch (\Exception $e)
 		{
+
+			echo Psr7\Message::toString($e->getRequest());
+    		echo Psr7\Message::toString($e->getResponse());
 			\Log::debug($e->getMessage());
 			return $e;
 		}
@@ -98,7 +121,14 @@ class HubsterApi {
 	 */
 	public function newOrders()
 	{
-		return $this->send('GET','manager/order/v1/orders', $this->headers);
+		#TODO set to minutes
+		$body = [ 
+			'limit' => '10' ,
+			'minDateTime' => Carbon::now()->addDays(-10)->toIso8601String(),
+			'maxDateTime' => Carbon::now()->toIso8601String()
+		];
+
+		return $this->send('GET','manager/order/v1/orders', $this->headers, $body);
 	}
 
 	/**
@@ -110,18 +140,28 @@ class HubsterApi {
 		$response = null;
 
 		try {
-			$response = $this->client->request($requestType, $route, ['headers' => $headers, 'form_params' => $body]);
+			$options['headers'] =  $headers ;
+			
+			if(strtolower($requestType) == 'get') $options['query'] =  $body ;
+			else $options['form_params'] =  $body ;
+
+			$response = $this->client->request($requestType, $route, $options);
+			
 			\Log::info("Code: ". $response->getStatusCode());
 		}
 		catch(\Exception $ex){
+			
 			//reautenticacao caso a chave tenha dado 401 e um novo retry
-			if($ex->getCode() == 401 && $retry < 3){
-				$clientId          =  \Settings::findByKey('hubster_client_id');
-				$clientSecret      =  \Settings::findByKey('hubster_client_secret');
+			if(in_array($ex->getCode(), [401]) && $retry < 3){
+				$clientId          =  \Settings::findByKey('hubster_client_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
+				$clientSecret      =  \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 				$this->auth($clientId, $clientSecret);
 
 				return $this->send($requestType, $route, $headers, $body, ++$retry);
 			}
+
+			//dd($ex->getMessage());
+
 			Log::info('erro send: ' . $ex->getMessage());
 		}
 

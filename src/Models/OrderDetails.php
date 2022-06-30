@@ -46,6 +46,14 @@ class OrderDetails extends Model
         'extra_info'
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['shop_name', 'market_name', 'factory'];
+
+
     protected $dates = [
         'created_at',
         'updated_at',
@@ -105,17 +113,23 @@ class OrderDetails extends Model
     }
 
     /**
-     * Get distance from the shop to the destination
-     * @return float distance
+     * Get the shop name string
+     * @return string shop name
      */
-    public function getDistanceAttribute(){
-        $distance =  0 ;
+    public function getShopNameAttribute(){
+        if($this->shop) return $this->shop->name;
 
-        if($this->shop && $this->address) {
-            $calculator = new Vincenty();
-            $distance = $calculator->getDistance(new Coordinate($this->shop->latitude, $this->shop->longitude), new Coordinate($this->address->latitude, $this->address->longitude));
-        }
-
-        return $distance ;
+        return null;
     }
+
+    /**
+     * Get the market name string
+     * @return string market name
+     */
+    public function getMarketNameAttribute(){
+        if($this->market && isset($this->market->name)) return $this->market->name;
+
+        return null;
+    }
+
 }

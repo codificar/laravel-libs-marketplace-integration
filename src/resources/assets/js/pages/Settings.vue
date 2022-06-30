@@ -7,7 +7,7 @@
                 small
                 depressed
                 color="success"
-                @click="addShop('addShop')"
+                @click="showModalShop()"
                 style="width:100px;"
             >
                 <v-icon 
@@ -29,7 +29,7 @@
                     <div class="d-flex justify-space-between caption">
                         <div class="font-weight-black">
                             <h3>
-                                Nome: {{shop.name}}
+                                {{shop.name}}
                             </h3>
                             <div class="font-weight-white">
                                 <v-btn
@@ -37,7 +37,7 @@
                                     small
                                     depressed
                                     color="success"
-                                    @click="addShop('add_marketPlace', shop)"
+                                    @click="showModalMarketConfig(shop.id)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -54,7 +54,7 @@
                                     small
                                     depressed
                                     color="cyan"
-                                    @click="addShop('edit_shop', shop)"
+                                    @click="showModalShop(shop)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -70,7 +70,7 @@
                                     small
                                     depressed
                                     color="red"
-                                    @click="deleteShop('delete_marketPlace', shop.id)"
+                                    @click="deleteShop(shop.id)"
                                     style="width:150px;"
                                 >
                                     <v-icon 
@@ -103,7 +103,7 @@
                                                     small
                                                     depressed
                                                     color="cyan"
-                                                    @click="addShop('edit_marketPlace', item,shop.merchant_id)"
+                                                    @click="showModalMarketConfig(shop.id, item)"
                                                     style="width:150px;"
                                                 >
                                                     <v-icon 
@@ -119,7 +119,7 @@
                                                     small
                                                     depressed
                                                     color="red"
-                                                    @click="deleteShop('delete_marketPlace', item.id)"
+                                                    @click="deleteMarketConfig(item.id)"
                                                     style="width:150px;"
                                                 >
                                                     <v-icon 
@@ -145,40 +145,38 @@
 <script>
 import FormShop from '../components/FormShop';
 import ModalComponent from "../components/Modal.vue";
-    export default {
-        components:{
-            FormShop,
-            ModalComponent
+
+export default {
+    components:{
+        FormShop,
+        ModalComponent
+    },
+    data: () => ({
+        sheet: false,
+        selectedItem: '',
+    }),
+    mounted() {
+        console.log('Component mounted.')
+        if (this.$store.state.shops == 0) {
+            this.listStores();
+        }
+    },
+    methods: {
+        listStores(){
+            this.$store.dispatch('getShops');
         },
-        data: () => ({
-            sheet: false,
-            selectedItem: '',
-        }),
-        mounted() {
-            console.log('Component mounted.')
-            if (this.$store.state.shops == 0) {
-                this.listStores();
-            }
-            if (this.$store.state.status_reload) {
-                this.$store.commit('statusReload',!this.$store.state.status_reload)
-            }
-            console.log('Config: ', this.$store.state.shops);
-            console.log('Url: ', window);
-            console.log('Status Relaod: ', this.$store.state.status_reload);
-            // this.selectedItem = this.$store.state.shops[0].get_config[0];
+        showModalShop(shop = null){
+            this.$store.dispatch('showModal', {key: 'shop', shop: shop});
         },
-        methods: {
-            listStores(){
-                this.$store.dispatch('getShops');
-            },
-            addShop(key, data = null, merchant_id = null){
-                console.log("Data z:", data);
-                this.$store.dispatch('showModal', {key: key, data: data, merchant_id: merchant_id})
-            },
-            deleteShop(key, id){
-                console.log('deleteMarketConfig ', {key: key, market_id: id});
-                this.$store.dispatch('deleteMarketConfig', {key: key, id: id});
-            }
+        showModalMarketConfig(shopId = null, marketConfig = null){
+            this.$store.dispatch('showModal', {key: 'marketConfig', shopId : shopId, marketConfig: marketConfig});
+        },
+        deleteShop(id){
+            this.$store.dispatch('deleteShop', {id: id});
+        },
+        deleteMarketConfig(id){
+            this.$store.dispatch('deleteMarketConfig', {id: id});
         }
     }
+}
 </script>

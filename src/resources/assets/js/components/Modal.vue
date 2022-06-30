@@ -4,23 +4,15 @@
     class="card card-outline-info"
     width="800"
   >
-    <div v-if="$store.state.modalContent == 'addShop'">
-      <form-component
+   
+    <div v-if="$store.state.modalContent == 'shop'">
+      <form-shop
+        :data="$store.state.shop"
       />
     </div>
-    <div v-if="$store.state.modalContent == 'edit_shop'">
-      <form-component
-        :data="$store.state.dataShop"
-      />
-    </div>
-    <div v-if="$store.state.modalContent == 'edit_marketPlace'">
-      <form-component
-        :data="$store.state.dataShop"
-      />
-    </div>
-    <div v-if="$store.state.modalContent == 'add_marketPlace'">
-      <form-component
-        :data="$store.state.dataShop"
+    <div v-if="$store.state.modalContent == 'marketConfig'">
+      <form-market-config
+        :data="$store.state.marketConfig"
       />
     </div>
     <div v-if="$store.state.modalContent == 'orderDetails'">
@@ -30,11 +22,13 @@
 </template>
 
 <script>
-import FormComponent from "../components/FormShop.vue";
+import FormShop from "../components/FormShop.vue";
+import FormMarketConfig from "../components/FormMarketConfig.vue";
 import OrderDetails from "../components/OrderDetails.vue";
 export default {
   components: {
-    FormComponent,
+    FormShop,
+    FormMarketConfig,
     OrderDetails
   },
   mounted() {
