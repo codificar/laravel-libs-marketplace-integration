@@ -44,33 +44,7 @@
                     </div>
                 </div>
             </v-row>
-            <v-row class="col-sm-12 col-md-12 col-lg-12">
-                <v-col cols="4" class="d-inline-flex float-left" v-if="$store.state.shops.length > 0">
-                    <div class="search-wrapper panel-heading col-sm-12">
-                    <select class="custom-select custom-select-lg col-sm-12 pa-2" name="shops" id="shops">
-                        <optgroup v-for="item in $store.state.shops" v-bind:key="item.id" :label="item.name">
-                            <option v-for="market in item.get_config" v-bind:key="market.id" :value="market.id">{{market.name}} - {{market.status == 'AVAILABLE' ? 'ABERTA' : 'FECHADA' }}</option>
-                        </optgroup>
-                    </select>
-                    </div>
-                </v-col>
-                <v-col cols="4" class="d-inline-flex" >
-                    <DatePicker
-                        v-model="data.range"
-                        lang="pt-br"
-                        format="YYYY-MM-DD"
-                        formatted="YYYY-MM-DD"
-                        placeholder="Por período"
-                        range
-                        class="ma-auto"
-                    />
-                </v-col>
-                <v-col cols="4" class="d-inline-flex float-right" v-if="$store.state.orders">
-                    <div class="search-wrapper panel-heading col-sm-12">
-                        <input class="form-control" type="text" v-model="searchQuery" placeholder="Buscar por Pedido, Nome do Cliente ou Bairro" />
-                    </div>
-                </v-col>
-            </v-row>
+            <filter-orders :search-query="searchQuery" :data="data" />
 
             <div class="col-lg-12 w-100 h-50">
                 <v-card-text v-if="!loading && !$store.state.orders">
@@ -222,10 +196,13 @@
 <script>
 import ModalComponent from "../components/Modal.vue";
 import RefreshScreen from "../components/RefreshScreen.vue";
+import FilterOrders from "../components/FilterOrders.vue";
+
 export default {
     components: {
         ModalComponent,
-        RefreshScreen
+        RefreshScreen,
+        FilterOrders,
     },
     data: () => ({
         searchQuery: null,
