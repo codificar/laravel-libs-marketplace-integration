@@ -4,7 +4,6 @@
     class="card card-outline-info"
     width="800"
   >
-   
     <div v-if="$store.state.modalContent == 'shop'">
       <form-shop
         :data="$store.state.shop"
