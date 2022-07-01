@@ -25,6 +25,27 @@
           >
           </v-text-field>
 
+          <VueAddressAutocomplete
+              ref="address_autocomplete"
+              :PlaceHolderText="
+                trans('requests.type_and_select_address')
+              "
+              :AutocompleteParams="getAutocompleteParams"
+              :AutocompleteUrl="autocompleteUrl"
+              :GeocodeUrl="geocodeUrl"
+              :GetPlaceDetailsRoute="placeDetailUrl"
+              :MinLength="5"
+              :Delay="1000"
+              @addressSelected="setPlace"
+              :Address="address ? address : null"
+              
+              :NeedAddressNumberText="
+                trans('common_address.with_no_number')
+              "
+              :PurveyorPlaces="PurveyorPlaces"
+              :RefreshSessionDeflateSearch="this.defaultRefresh"
+          />
+
           <v-btn
             :disabled="!valid"
             color="success"
@@ -42,8 +63,14 @@
 </template>
 
 <script>
+
+import VueAddressAutocomplete from "vue-address-autocomplete";
+
 export default {
     name: 'FormShop',
+    components: {
+      VueAddressAutocomplete
+    },
     props: {
       data: {
         type: Object,
@@ -117,6 +144,17 @@ export default {
       },
       closeModal() {
         this.$store.dispatch('showModal', this.$store.state.sheet)
+      }
+    },
+    computed: {
+      autocompleteUrl() {
+        return  window.marketplaceSettings.autocompleteUrl ;
+      },
+      geocodeUrl() {
+        return  window.marketplaceSettings.geocodeUrl ;
+      },
+      placeDetailUrl() {
+        return  window.marketplaceSettings.placeDetailUrl ;
       }
     },
     watch: {
