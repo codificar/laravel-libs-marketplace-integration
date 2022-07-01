@@ -14,7 +14,8 @@
 require 'api.php';
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
-    Route::get('/marketplace/integration', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
+    Route::get('/marketplace/integration/list', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
+    Route::get('/marketplace/integration/map', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
     Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
 });
 
@@ -50,7 +51,7 @@ Route::get('/marketplace-integration/lang.trans/{files}', function ($files) {
 Route::get('/marketplace-integration/js/env.js', function () {
 
     app('debugbar')->disable();
-    
+
     ob_start();
     require __DIR__ . '/../resources/assets/php/marketplace.php';
     $content = ob_get_clean();

@@ -15,9 +15,9 @@ use Illuminate\Http\Request;
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
-    
-    
-    
+
+
+
     Route::post('/shop/status', 'ShopsController@status');
     Route::get('/auth/ifood', 'DeliveryFactory@auth');
     // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
@@ -29,7 +29,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
     Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');
     // Route::post('/merchant/details', 'DeliveryFactory@getMerchantDetails');
 
-    
+
 
 });
 
@@ -48,7 +48,7 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 
     Route::post('/store', 'MarketConfigController@store');
     Route::delete('/delete/{market_config_id}', 'MarketConfigController@delete');
-    
+
 });
 
 

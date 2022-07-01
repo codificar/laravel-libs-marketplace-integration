@@ -14,9 +14,14 @@
 								</div>
 							</div>
 							<div>
-								<v-list>
+								<v-list v-if="$store.state.orders.data.length">
 									<v-list-item :input-value="orderSelectedIndex(order) > -1" color="success" v-for="order in $store.state.orders.data" :key="order.id" @click="selectOrder(order)">
 										{{ orderSelectedIndex(order) > -1 ? '#' + (orderSelectedIndex(order) + 1) + ' ': '' }} Pedido #{{order.display_id}}
+									</v-list-item>
+								</v-list>
+								<v-list v-else>
+									<v-list-item>
+									Sem Pedidos para Mostrar
 									</v-list-item>
 								</v-list>
 							</div>
@@ -41,7 +46,7 @@
 										/>
 									</div>
 								</div>
-								<filter-orders :search-query="searchQuery" :data="data" :column="true"></filter-orders>
+								<filter-orders :column="true"></filter-orders>
 							</div>
 						</div>
 					</div>
@@ -50,24 +55,30 @@
 							<div class="pa-3 info-order align-left">
 								<div>
 									<h5>Distância estimada</h5>
-									<span>123,12 Km</span>
+									<span>{{estimed_distance}}</span>
 								</div>
 								<div>
 									<h5>Tempo estimado</h5>
-									<span>31 min</span>
+									<span>{{estimed_time}}</span>
 								</div>
-								<div>
+								<!--<div>
 									<h5>Valor</h5>
 									<span>R$ 16,54</span>
-								</div>
+								</div>-->
 								<div>
 									<v-btn color="success" @click="makeRequest('makeRequest')"><v-icon>mdi-motorbike</v-icon></v-btn>
-									<v-btn color="error"@click="makeRequest('makeManualRequest')"><v-icon>mdi-google-maps</v-icon></v-btn>
+									<v-btn color="error" @click="makeRequest('makeManualRequest')"><v-icon>mdi-google-maps</v-icon></v-btn>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				<vue-marker
+					:title="'Shop'"
+					:clickable="false"
+					:icon="{ url: shopMarker.url }"
+					:coordinates="shopMarker.coordinates"
+				></vue-marker>
 				<vue-marker
 					v-for="(marker, index) in (orderMarkers ? orderMarkers : [])"
 					:key="index"
@@ -96,7 +107,6 @@
 					</div>
 				</vue-marker>
 				<vue-polyline
-
 					:coordinates="this.polyline"
 					color="#02f"
 				/>
@@ -110,6 +120,7 @@ import ModalComponent from "../components/Modal.vue";
 import RefreshScreen from "../components/RefreshScreen.vue";
 import FilterOrders from "../components/FilterOrders.vue";
 import Icons from '../mixins/icons';
+import StoreMixin from "../mixins/StoreMixin";
 import { VueMaps, VueMarker, VueCallout, VuePolyline } from "vue-maps";
 import axios from 'axios';
 export default {
@@ -122,24 +133,22 @@ export default {
 		VueCallout,
 		VuePolyline,
 	},
-	mixins: [Icons],
+	mixins: [Icons, StoreMixin],
 	data: () => ({
-		searchQuery: "",
-		data: {},
+		loading: false,
 		showConfig: false,
 		center: {
 			lat: -20,
 			lng: -50
 		},
+		shopMarker: {},
 		selectedOrders: [],
 		polyline: [],
+		estimed_distance: "",
+		estimed_time: "",
     }),
-	created(){
-		this.getShop();
-	},
 	methods: {
 		setMapCenter(address) {
-			console.log("ERNDEASAD");
 			console.log(address);
 			if (address) {
 				this.center = {
@@ -148,11 +157,13 @@ export default {
 				}
 			}
 		},
-		getShop(){
-			this.$store.dispatch('getShops');
-			this.setMapCenter(this.$store.state.shops[0]);
-		},
+		//getShop(){
+		//	this.$store.dispatch('getShops');
+		//	this.setMapCenter(this.$store.state.shops[0]);
+		//	this.StoreMixin.getOrders();
+		//},
 		selectOrder(order) {
+			this.showConfig = false;
 			this.setMapCenter(this.$store.state.shops[0]);
 			let orderIndex = this.orderSelectedIndex(order);
 			console.log(orderIndex);
@@ -162,31 +173,22 @@ export default {
 				this.selectedOrders.push(order);
 			}
 
-			if(this.selectedOrders.length > 1) {
+			if(this.selectedOrders.length >= 1) {
 				this.drawRoute();
 			} else {
 				this.polyline = [];
 			}
 			this.orderMarkers;
 		},
-		makeRequest(type = 'makeRequest'){
-			this.$store.dispatch(type, this.selectedOrders);
-		},
-		getOrders() {
-			if (this.$store.state.orders) {
-				this.loading = !this.loading;
-			}
-			if (this.$store.state.orders.length == 0) {
-				console.log("Vazio");
-			}
-		},
 		orderSelectedIndex(order) {
 			return this.selectedOrders.findIndex(e => e.id == order.id);
 		},
 		drawRoute() {
+			let shop = this.$store.state.shops[0];
+			let shopCoord = `[${shop.latitude},${shop.longitude}]`;
 			let polylineParams = {
 				params: {
-					waypoints: '['+this.selectedOrders.reduce((result,current) => `${result}${result?',':''}[${current.latitude},${current.longitude}]`, '')+']',
+					waypoints: '['+this.selectedOrders.reduce((result,current) => `${result}${result?',':''}[${current.latitude},${current.longitude}]`, shopCoord)+']',
 					optimize_route: 0
 				}
 			};
@@ -195,23 +197,9 @@ export default {
 				axios
 					.get(polylineRoute, polylineParams)
 					.then((response) => {
-
 						if (response.data.success) {
-							// Se tiver optimize_route, sera necessario reorganizar os pontos de paradas (waypoints)
-							//let waypoint_order = response.data.waypoint_order;
-
-							//if (
-							//optimize_route &&
-							//waypoint_order &&
-							//waypoint_order.length > 0
-							//) {
-							//for (let k = 0; k < waypoint_order.length; k++) {
-							//	this.locations[k + 1] = aux[waypoint_order[k] + 1];
-							//}
-							////atualiza os titulos (A, B, C ...) dos pontos
-							//vm.updateLocationTitles();
-							//vm.$forceUpdate();
-							//}
+							this.estimed_distance = response.data.distance_text;
+							this.estimed_time = response.data.duration_text;
 							this.polyline = response.data.points;
 
 						} else {
@@ -237,23 +225,13 @@ export default {
 		orderMarkers: function() {
 			console.log('shops > ordermarkers',this.$store.state.shops);
 			let shop = this.$store.state.shops[0];
-			let markers = [
-				{
-					coordinates: {lat: shop.latitude, lng: shop.longitude},
-					display_id: shop.id,
-					address: shop.full_address,
-					client_name: 'Loja',
-					//platform: order.marketplace,
-					//type: provider.driverType,
-					url: this.icons["driver"],
-					//shadow: icon.shadow,
-					//providerId: provider.id,
-					//thumb: provider.thumb,
-					//first_name: provider.first_name,
-					//last_name: provider.last_name,
-					//phone: provider.phone,
-				}
-			];
+			this.shopMarker = {
+				coordinates: {lat: shop.latitude, lng: shop.longitude},
+				address: shop.full_address,
+				//client_name: 'Loja',
+				url: this.icons["start"].url,
+			};
+			let markers = [];
 			this.setMapCenter(shop);
 
 			for( let order of this.orders) {
@@ -266,14 +244,7 @@ export default {
 					address: order.formatted_address,
 					client_name: order.client_name,
 					platform: order.marketplace,
-					//type: provider.driverType,
 					url: icon.url,
-					//shadow: icon.shadow,
-					//providerId: provider.id,
-					//thumb: provider.thumb,
-					//first_name: provider.first_name,
-					//last_name: provider.last_name,
-					//phone: provider.phone,
 				};
 				markers.push(marker);
 			}
@@ -283,7 +254,14 @@ export default {
 			return this.$store.state.orders.data || [];
 		},
 		showConfirm: function() {
-			return this.selectedOrders.length >= 2;
+			return this.selectedOrders.length >= 1;
+		},
+	},
+
+	watch: {
+		orders() {
+			console.log("asdadasd");
+			this.selectedOrders = [];
 		}
 	}
 
