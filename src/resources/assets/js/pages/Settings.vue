@@ -172,10 +172,10 @@ export default {
             this.$store.dispatch('showModal', {key: 'marketConfig', shopId : shopId, marketConfig: marketConfig});
         },
         deleteShop(id){
-            this.$store.dispatch('deleteShop', {id: id});
+            this.$store.dispatch('deleteShop', id);
         },
         deleteMarketConfig(id){
-            this.$store.dispatch('deleteMarketConfig', {id: id});
+            this.$store.dispatch('deleteMarketConfig', id);
         }
     }
 }

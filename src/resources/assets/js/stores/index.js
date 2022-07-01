@@ -17,6 +17,7 @@ const store = new Vuex.Store({
 		selectedOrders: '',
 		status_reload: false,
 		shop: null,
+		shopId: null,
 		marketConfig: null,
 		dataOrder: '',
 		requestStatus: false,
@@ -303,8 +304,11 @@ const store = new Vuex.Store({
 			if(data.shop)
 				this.state.shop = data.shop;
 			
-			if(data.marketConfig)
+			if(data.marketConfig) 
 				this.state.marketConfig = data.marketConfig;
+
+			if(data.shopId) this.state.shopId = data.shopId;
+			else this.state.shopId = null ;
 		},
 		showDetail({ commit }, data) {
 			console.log("showDetail");
@@ -504,6 +508,7 @@ const store = new Vuex.Store({
 
 					this.state.sheet = false ;
 					this.state.marketConfig = null ;
+					this.state.shopId = null ;
 					
 					Vue.swal.fire({
 						title: 'Sucesso!',
@@ -523,7 +528,7 @@ const store = new Vuex.Store({
 					})
 				})
 		},
-		deleteShop({ commit }, shopId) {
+		deleteShop({ dispatch }, shopId) {
 			// data.status_reload = this.state.status_reload
 			console.log("Entrou deleteShop", shopId);
 			// console.log("Status", this.state.status_reload);
@@ -534,7 +539,7 @@ const store = new Vuex.Store({
 				
 					Vue.swal.fire({
 						title: 'Sucesso!',
-						text: "Salvo com sucesso!",
+						text: "Loja / localização removda com sucesso!",
 						icon: 'success',
 						showConfirmButton: false,
 						timer: 1500
@@ -553,7 +558,7 @@ const store = new Vuex.Store({
 				});
 			
 		},
-		deleteMarketConfig({ commit }, marketConfigId) {
+		deleteMarketConfig({ dispatch }, marketConfigId) {
 			
 			console.log("Entrou deleteMarketConfig", marketConfigId);
 			
@@ -565,7 +570,7 @@ const store = new Vuex.Store({
 
 					Vue.swal.fire({
 						title: 'Sucesso!',
-						text: "Removido com sucesso!",
+						text: "Configuração de marketplace removida com sucesso!",
 						icon: 'success',
 						showConfirmButton: false,
 						timer: 1500

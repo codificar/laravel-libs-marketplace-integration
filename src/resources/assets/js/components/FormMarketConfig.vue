@@ -111,11 +111,16 @@ export default {
     mounted(){
       console.log("Props: ", this.data);
 
+      console.log("shopId:", this.$store.state.shopId);
+
       if(this.data){
         this.form.shop_id       = this.data.shop_id;
         this.form.merchant_name = this.data.name;     
         this.form.marketplace   = this.data.market;     
         this.form.merchant_id   = this.data.merchant_id;     
+      }
+      else {
+        this.form.shop_id = this.$store.state.shopId ;
       }
        
     },
