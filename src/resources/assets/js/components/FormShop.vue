@@ -25,7 +25,9 @@
           >
           </v-text-field>
 
+
           <VueAddressAutocomplete
+              class="autocompleteAdress"
               ref="address_autocomplete"
               :PlaceHolderText="
                 trans('requests.type_and_select_address')
@@ -37,13 +39,13 @@
               :MinLength="5"
               :Delay="1000"
               @addressSelected="setPlace"
-              :Address="address ? address : null"
+              :Address="form.full_address"
               
               :NeedAddressNumberText="
                 trans('common_address.with_no_number')
               "
-              :PurveyorPlaces="PurveyorPlaces"
-              :RefreshSessionDeflateSearch="this.defaultRefresh"
+              :PurveyorPlaces="placesProvider"
+              :RefreshSessionDeflateSearch="true"
           />
 
           <v-btn
@@ -106,19 +108,21 @@ export default {
       form: {
         shop_id: '',
         name: '',
-        marketplace: null,
-        client_id: '',
-        client_secret: '',
-        merchant_id: '',
-        merchant_name: ''
+        full_address: '',
+        latitude: 0,
+        longitude: 0
       },
     }),
     mounted(){
       console.log("Props: ", this.data);
       
       if(this.data) {
-        this.form.shop_id = this.data.id;
-        this.form.name = this.data.name;        
+        this.form.shop_id       = this.data.id;
+        this.form.name          = this.data.name;   
+        this.form.full_address  = this.data.full_address;   
+        this.$refs.address_autocomplete.setPropsAdress(this.form.full_address);
+        this.form.latitude      = this.data.latitude;   
+        this.form.longitude     = this.data.longitude;        
       }
 
     },
@@ -144,7 +148,14 @@ export default {
       },
       closeModal() {
         this.$store.dispatch('showModal', this.$store.state.sheet)
-      }
+      },
+      setPlace(place) {
+        console.log('place:', place);
+        this.form.full_address  = place.address;
+        this.form.latitude      = place.latitude;
+        this.form.longitude     = place.longitude;
+        
+      },
     },
     computed: {
       autocompleteUrl() {
@@ -155,7 +166,24 @@ export default {
       },
       placeDetailUrl() {
         return  window.marketplaceSettings.placeDetailUrl ;
-      }
+      },
+      placesProvider() {
+        return  window.marketplaceSettings.placesProvider ;
+      },
+      fullAddress() {
+        return  form.full_address ;
+      },
+      getAutocompleteParams() {
+        const params = {
+          id: window.marketplaceSettings.userId,
+          user_id: window.marketplaceSettings.userId,
+          token: window.marketplaceSettings.userToken,
+          latitude: 25,
+          longitude: 45,
+        };
+
+        return params;
+      },
     },
     watch: {
         'form.marketplace': {
@@ -170,5 +198,16 @@ export default {
 </script>
 
 <style>
+
+  .autocompleteAdress .vs__dropdown-toggle{
+    border:none;
+    border-bottom: 1px solid black;
+    border-radius: 0 ;
+  } 
+
+
+  .autocompleteAdress .vs__dropdown-menu {
+    position:relative;
+  }
 
 </style>

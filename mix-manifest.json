@@ -3,7 +3,7 @@
     "/public/css/app.css": "/public/css/app.css",
     "/public/img/hubster.jpg": "/public/img/hubster.jpg",
     "/public/img/ifood.jpg": "/public/img/ifood.jpg",
+    "/public/vendor/codificar/marketplace-integration/js/app.js": "/public/vendor/codificar/marketplace-integration/js/app.js",
     "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js": "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js",
-    "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js.LICENSE.txt": "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js.LICENSE.txt",
-    "/public/vendor/codificar/marketplace-integration/js/app.js": "/public/vendor/codificar/marketplace-integration/js/app.js"
+    "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js.LICENSE.txt": "/public/vendor/codificar/marketplace-integration/js/marketplace-integration.js.LICENSE.txt"
 }

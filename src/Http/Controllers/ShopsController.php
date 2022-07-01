@@ -32,7 +32,11 @@ class ShopsController extends Controller
         ],[
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
-            'status_reload' => $request->status_reload ? $request->status_reload : 0,
+            'status_reload' =>  0,
+            'full_address'  => $request->full_address,
+            'latitude'      => $request->latitude,
+            'longitude'     => $request->longitude,
+            
         ]);
         
         return new ShopResource([$shop]);

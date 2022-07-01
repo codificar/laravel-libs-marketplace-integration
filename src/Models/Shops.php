@@ -11,6 +11,9 @@ class Shops extends Model
         'id',
         'name', 
         'institution_id',
+        'latitude',
+        'longitude',
+        'full_address',
         'status_reload',
         'token',
         'expiry_token'
