@@ -14,6 +14,8 @@
 require 'api.php';
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
+    Route::redirect('/marketplace/integration', '/corp/marketplace/integration/list');
+
     Route::get('/marketplace/integration/list', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
     Route::get('/marketplace/integration/map', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
     Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
