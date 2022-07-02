@@ -27,27 +27,34 @@
 						dark
 						fab
 						link
-						@click="fab = !fab"
-						:to="fab ? '/corp/marketplace/settings' : '/corp/marketplace/integration'"
+						:to="'/corp/marketplace/settings'"
 					>
 						<v-icon>
 							mdi-cart-variant
 						</v-icon>
 					</v-btn>
 					<v-btn
-						v-model="mapMode"
-						v-if="$route.name != 'credentials'"
+						v-if="$route.name != 'credentials' && $route.name != 'list' "
 						color="primary darken-2"
 						dark
 						fab
-						link
-						@click="mapMode = !mapMode"
-						:to="mapMode ? '/corp/marketplace/integration': '/corp/marketplace/integration?mapMode=1'"
+						link				
+						:to="'/corp/marketplace/integration/list'"
 					>
-						<v-icon v-if="mapMode">
+						<v-icon>
 							mdi-view-list
 						</v-icon>
-						<v-icon v-else>
+						
+					</v-btn>
+					<v-btn
+						v-if="$route.name != 'credentials' && $route.name != 'map' "
+						color="primary darken-2"
+						dark
+						fab
+						link				
+						:to="'/corp/marketplace/integration/map'"
+					>
+						<v-icon>
 							mdi-map
 						</v-icon>
 					</v-btn>
@@ -70,6 +77,9 @@ export default {
 			mapMode: this.$route.query.mapMode,
 		}
 	},
+	mounted() {
+		console.log('route', this.$route.name);
+	}
 }
 </script>
 
