@@ -56,15 +56,11 @@ class HubsterLib
         return $orderArray ;
     }
 
-    public function orderDetails($orderId)
-    {
-
-    }
-
-    public function dispatch($orderId){
-        return $this->api->dispatch($orderId);
-    }
-
+    /**
+     * Treat hubster webhooks
+     * events order.create
+     * @param FormRequest $request 
+     */
     public function webhook($request)
     {
         $json = $request->json()->all();
@@ -237,8 +233,44 @@ class HubsterLib
 		return $return ;
 	}
 
+    /** 
+     * order details
+     * @return object
+    */
+    public function orderDetails($orderId){
+        return $this->api->orderDetails($orderId);
+    }
+
+    /** 
+     * Get the merchant detail from the marketplace api, needs to return alway
+     * @return array [code ; data ; message] 
+    */
     public function merchantDetails($merchantId)
     {
-        return null;
+        return $this->api->merchantDetails($merchantId);        
+    }
+
+    /** 
+     * Dispatch order to api
+     * @return object
+    */
+    public function dispatchOrder($orderId){
+        return $this->api->dispatchOrder($orderId);
+    }
+
+    /** 
+     * confirm order to api
+     * @return object
+    */
+    public function confirmOrder($orderId){
+        return $this->api->confirmOrder($orderId);
+    }
+
+    /** 
+     * Cancel order to api
+     * @return object
+    */
+    public function cancelOrder($orderId){
+        return $this->api->cancelOrder($orderId);
     }
 }

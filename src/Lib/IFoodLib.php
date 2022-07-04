@@ -64,6 +64,10 @@ class IFoodLib
         }  
     }
 
+    /** 
+     * Get the order detail from the marketplace api, needs to return Orde
+     * @return OrderDetail $order
+    */
     public function orderDetails($orderId)
     {
 
@@ -153,9 +157,6 @@ class IFoodLib
         }
     }
 
-    public function dispatch($orderId){
-        return $this->api->dispatch($orderId);
-    }
 
     /** 
      * Get the merchant detail from the marketplace api, needs to return alway
@@ -164,5 +165,29 @@ class IFoodLib
     public function merchantDetails($merchantId)
     {
         return $this->api->merchantDetails($merchantId);        
+    }
+
+    /** 
+     * Dispatch order to api
+     * @return object
+    */
+    public function dispatchOrder($orderId){
+        return $this->api->dispatchOrder($orderId);
+    }
+
+    /** 
+     * confirm order to api
+     * @return object
+    */
+    public function confirmOrder($orderId){
+        return $this->api->confirmOrder($orderId);
+    }
+
+    /** 
+     * Cancel order to api
+     * @return object
+    */
+    public function cancelOrder($orderId){
+        return $this->api->cancelOrder($orderId);
     }
 }

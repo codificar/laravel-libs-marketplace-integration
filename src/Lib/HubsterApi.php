@@ -160,7 +160,6 @@ class HubsterApi {
 				return $this->send($requestType, $route, $headers, $body, ++$retry);
 			}
 
-			//dd($ex->getMessage());
 
 			Log::info('erro send: ' . $ex->getMessage());
 		}
@@ -168,42 +167,13 @@ class HubsterApi {
 		return json_decode($response->getBody()->getContents());
 	}
 
-	// public function notifyRequest($data)
-	// {
-	// 	$requestData = [
-	// 		"createdAt" => date('Y-m-d\TH:i:sP'),
-	// 		"cost" =>  [
-	// 			"baseCost" =>  4.99, //TODO configurar
-	// 			"extraCost" =>  0
-	// 		],
-	// 		"provider" =>  "codificar",
-	// 		"minPickupDuration" =>  5, //TODO configurar
-	// 		"maxPickupDuration" =>  10,
-	// 		"currencyCode" =>  "BRL"
-	// 	];
+	/** 
+   * Get the merchant detail from the marketplace api, needs to return alway the array with code, data, and message
+   * @return array [code ; data ; message] 
+  */
+  public function merchantDetails($merchantId)
+  {
+  }
 
-	// 	$headers = $this->headers;
-	// 	$headers["X-Event-Id"] = $data->eventId;
-	// 	$ref_id = $data->metadata["payload"]["deliveryReferenceId"];
-	// 	$this->send('POST', "v1/delivery/$ref_id/quotes", $headers, json_decode(json_encode($requestData), true));
-	// }
-
-	// function createOrder(Request $request) {
-	// 	Log::info("Creating order");
-	// 	$order = OrderDetails::where(["order_id" => $request->metadata["payload"]["deliveryReferenceId"]])->first();
-	// 	if(!$order) {
-	// 		$order = OrderDetails::create([
-	// 			"store_id" => $request->metadata["storeId"],
-	// 			"order_id" => $request->metadata["payload"]["deliveryReferenceId"],
-	// 			"order_type" => "DELIVERY",
-	// 			"preparation_start_date_time" => $request->eventTime,
-	// 			"order_amount" => $request->metadata["payload"]["orderSubTotal"],
-	// 			"method_payment" => $request->metadata["payload"]["customerPayments"][0]["paymentMethod"]
-	// 		]);
-	// 		$this->notifyRequest($request);
-	// 	}
-
-	// 	return $order;
-	// }
 
 }

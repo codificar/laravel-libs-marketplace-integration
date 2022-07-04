@@ -48,5 +48,13 @@ class MarketplaceController extends Controller
         return new OrdersResource($orders);
     }
 
+    /**
+     * Function to get merchantDetails
+     */
+    public function merchantDetails(Request $request, $market, $merchantId)
+    {
+        $factory = MarketplaceFactory::create($market);
+        return $factory->merchantDetails($merchantId);
+    }
  
 }

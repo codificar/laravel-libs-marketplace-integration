@@ -13,16 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
-    Route::resource('/shop', 'ShopsController');
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/shops', 'middleware' => ['auth.corp_admin']), function () {
+    Route::get('/', 'ShopsController@index');
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/order', 'middleware' => ['auth.corp_admin']), function () {
-    Route::post('/cancel', 'MarketplaceController@cancelOrder');
-    Route::post('/readyToPickup', 'MarketplaceController@dspOrder');
-    Route::post('/{id}/confirm', 'MarketplaceController@confirmOrder');
-    Route::post('/rtc', 'MarketplaceController@rtcOrder');
-
+    Route::post('/cancel', 'OrderDetailsController@cancel');
+    Route::post('/dispatch', 'OrderDetailsController@dispatchOrder');
+    Route::post('/confirm', 'OrderDetailsController@confirm');
     Route::post('/set-ride', 'OrderDetailsController@setRide');
 });
 
@@ -54,4 +52,6 @@ Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Control
 Route::group(['namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => 'libs/marketplace-integration/'], function() {
     Route::get('/{market}/webhook', 'MarketplaceController@webhook');
     Route::post('/{market}/webhook', 'MarketplaceController@webhook');
+    
+    Route::get('/{market}/merchant-details/{merchant_id}', 'MarketplaceController@merchantDetails');
 });

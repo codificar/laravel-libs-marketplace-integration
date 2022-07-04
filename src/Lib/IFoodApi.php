@@ -17,8 +17,6 @@ class IFoodApi
   protected $headers;
   protected $client;
 
-  #status
-
   /**
    * Instantiate a new iFoodApi instance with common variables and configuration.
    */
@@ -102,6 +100,12 @@ class IFoodApi
     }
   }
 
+  /**
+   * Get new orders from polling
+   * 
+   * @param data
+   * 
+   */
   public function newOrders()
   {
    
@@ -115,6 +119,12 @@ class IFoodApi
     
   }
 
+  /**
+   * acknowledgment events from polling
+   * 
+   * @param data
+   * 
+   */
   public function acknowledgment($data)
   { 
 
@@ -158,22 +168,37 @@ class IFoodApi
     return $this->send('GET', 'order/v1.0/orders/'.$id, $headers);
   }
 
-  public function confirmOrderApi($id, $token)
+  /**
+   * Confirm a order status to ifood
+   * 
+   * @param id
+   * 
+   */
+  public function confirmOrder($id)
   {
     $headers = [
       'headers'   => [
-        'Authorization' => 'Bearer '.$token
+        'Authorization' => 'Bearer '.$this->accessToken
       ]
     ];
     try {
       return $this->send('POST', 'order/v1.0/orders/'.$id.'/confirm', $headers);
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
+    }
+    catch(Exception $ex){
+
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
+
       return FALSE;
     }
   }
 
-  public function cancelOrderApi($id)
+  /**
+   * Cancel a order status to ifood
+   * 
+   * @param id
+   * 
+   */
+  public function cancelOrder($id)
   {
     $headers = [
       'headers'   => [
@@ -187,8 +212,11 @@ class IFoodApi
     );    
     try {
       return $this->send('POST', 'order/v1.0/orders/'.$id.'/requestCancellation', $headers, json_encode($object));
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
+    }
+    catch(Exception $ex){
+
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
+
       return FALSE;
     }
   }
@@ -199,7 +227,7 @@ class IFoodApi
    * @param id
    * 
    */
-  public function dispatch($id)
+  public function dispatchOrder($id)
   {
     try {
       $headers = $this->headers;
@@ -207,8 +235,11 @@ class IFoodApi
      
       return $this->send('POST','order/v1.0/orders/'.$id.'/dispatch', $headers, [ 'id' => $id ]);      
 
-    }catch (\Exception $e){
-      // \Log::debug($e->getMessage());
+    }
+    catch(Exception $ex){
+
+      \Log::error("error: ". $ex->getMessage().$ex->getTraceAsString());
+
       return FALSE;
     }
   }

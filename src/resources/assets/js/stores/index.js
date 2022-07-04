@@ -309,34 +309,28 @@ const store = new Vuex.Store({
 			commit('showDetails', data.key);
 			commit('ORDER_DETAILS', data);
 		},
-		readyToPickup({ commit }, data) {
-			console.log("Entrou readyToPickup: ", data);
-			axios.post('/corp/api/order/readyToPickup', {
-				'id': data.shop_id,
-				's_id': data.order_id
+		dispatchOrder({ dispatch }, data) {
+			
+			axios.post('/libs/marketplace-integration/order/dispatch', {
+				'shop_id': data.shop_id,
+				'order_id': data.order_id
 			})
 				.then(res => {
-					console.log('Save ', res);
-					// commit('UPDATE_ORDER', res.data)
-					console.log(res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Confirmado com sucesso!",
-							icon: 'success',
-							showConfirmButton: false,
-							timer: 1500
-						});
-						window.location.reload();
-					} else {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
+					
+					Vue.swal.fire({
+						title: 'Sucesso!',
+						text: "Confirmado com sucesso!",
+						icon: 'success',
+						showConfirmButton: false,
+						timer: 1500
+					});
+					
+					dispatch('getOrders');
+				
 				}).catch(err => {
+
+					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
@@ -345,33 +339,28 @@ const store = new Vuex.Store({
 					})
 				})
 		},
-		cancelOrder({ commit }, data) {
-			console.log("Entrou dispatch: ", data);
-			axios.post('/corp/api/order/cancel', {
-				'id': data.shop_id,
-				's_id': data.order_id
+		cancelOrder({ dispatch }, data) {
+			
+			axios.post('/libs/marketplace-integration/order/cancel', {
+				'shop_id': data.shop_id,
+				'order_id': data.order_id
 			})
 				.then(res => {
-					console.log('Save ', res);
-					commit('DELETE_ORDER', res.data)
-					console.log(res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Confirmado com sucesso!",
-							icon: 'success',
-							showConfirmButton: false,
-							timer: 1500
-						});
-					} else {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
+					
+					Vue.swal.fire({
+						title: 'Sucesso!',
+						text: "Confirmado com sucesso!",
+						icon: 'success',
+						showConfirmButton: false,
+						timer: 1500
+					});
+
+					dispatch('getOrders');
+					
 				}).catch(err => {
+
+					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
@@ -380,34 +369,28 @@ const store = new Vuex.Store({
 					})
 				})
 		},
-		confirmOrder({ commit }, data) {
-			console.log("Entrou dispatch: ", data);
-			axios.post(`/corp/api/order/${data.order_id}/confirm`, {
-				'id': data.shop_id,
-				's_id': data.order_id
+		confirmOrder({ dispatch }, data) {
+
+			axios.post(`'/libs/marketplace-integration/order/confirm`, {
+				'shop_id': data.shop_id,
+				'order_id': data.order_id
 			})
 				.then(res => {
-					console.log('Save ', res);
-					// commit('UPDATE_ORDER', res.data)
-					console.log(res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Confirmado com sucesso!",
-							icon: 'success',
-							showConfirmButton: false,
-							timer: 1500
-						});
-						window.location.reload();
-					} else {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data,
-							icon: 'warning',
-							confirmButtonText: 'OK'
-						})
-					}
+				
+					Vue.swal.fire({
+						title: 'Sucesso!',
+						text: "Confirmado com sucesso!",
+						icon: 'success',
+						showConfirmButton: false,
+						timer: 1500
+					});
+					
+					dispatch('getOrders');
+					
 				}).catch(err => {
+
+					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
@@ -441,7 +424,7 @@ const store = new Vuex.Store({
 		},
 		getShops({ commit }) {
 			console.log("Entrou dispatch getShops");
-			axios.get('/corp/api/shop')
+			axios.get('/libs/marketplace-integration/shops')
 				.then(res => {
 					commit('FETCH_SHOPS', res.data);
 					commit('FETCH_SELECTED_SHOP', res.data[0])

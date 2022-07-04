@@ -7,7 +7,6 @@ use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\Shops;
 use App\Http\Controllers\Controller;
-use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
 use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Lib\IFoodApi;
 
