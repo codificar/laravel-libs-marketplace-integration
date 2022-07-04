@@ -253,7 +253,14 @@ const store = new Vuex.Store({
 					}
 				})
 				.catch(err => {
-					console.log("Erro: ", err);
+					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+
+					Vue.swal.fire({
+						title: 'Error!',
+						text: err,
+						icon: 'error',
+						confirmButtonText: 'OK'
+					})
 				});
 		},
 		makeManualRequest({ commit }, data) {
@@ -263,6 +270,7 @@ const store = new Vuex.Store({
 			post(`/corp/request/add`, response);
 
 		},
+		// #TODO remove this function and a service or trait to create a ride 
 		setRide({ dispatch }, data) {
 			console.log("setRide: ", data);
 			axios.post('/libs/marketplace-integration/order/set-ride', data)
@@ -315,29 +323,29 @@ const store = new Vuex.Store({
 				'shop_id': data.shop_id,
 				'order_id': data.order_id
 			})
-				.then(res => {
-					
-					Vue.swal.fire({
-						title: 'Sucesso!',
-						text: "Confirmado com sucesso!",
-						icon: 'success',
-						showConfirmButton: false,
-						timer: 1500
-					});
-					
-					dispatch('getOrders');
+			.then(res => {
 				
-				}).catch(err => {
+				Vue.swal.fire({
+					title: 'Sucesso!',
+					text: "Confirmado com sucesso!",
+					icon: 'success',
+					showConfirmButton: false,
+					timer: 1500
+				});
+				
+				dispatch('getOrders');
+			
+			}).catch(err => {
 
-					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+				if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
 
-					Vue.swal.fire({
-						title: 'Error!',
-						text: err,
-						icon: 'error',
-						confirmButtonText: 'OK'
-					})
+				Vue.swal.fire({
+					title: 'Error!',
+					text: err,
+					icon: 'error',
+					confirmButtonText: 'OK'
 				})
+			})
 		},
 		cancelOrder({ dispatch }, data) {
 			
@@ -345,29 +353,29 @@ const store = new Vuex.Store({
 				'shop_id': data.shop_id,
 				'order_id': data.order_id
 			})
-				.then(res => {
-					
-					Vue.swal.fire({
-						title: 'Sucesso!',
-						text: "Confirmado com sucesso!",
-						icon: 'success',
-						showConfirmButton: false,
-						timer: 1500
-					});
+			.then(res => {
+				
+				Vue.swal.fire({
+					title: 'Sucesso!',
+					text: "Confirmado com sucesso!",
+					icon: 'success',
+					showConfirmButton: false,
+					timer: 1500
+				});
 
-					dispatch('getOrders');
-					
-				}).catch(err => {
+				dispatch('getOrders');
+				
+			}).catch(err => {
 
-					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+				if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
 
-					Vue.swal.fire({
-						title: 'Error!',
-						text: err,
-						icon: 'error',
-						confirmButtonText: 'OK'
-					})
+				Vue.swal.fire({
+					title: 'Error!',
+					text: err,
+					icon: 'error',
+					confirmButtonText: 'OK'
 				})
+			})
 		},
 		confirmOrder({ dispatch }, data) {
 
@@ -375,29 +383,29 @@ const store = new Vuex.Store({
 				'shop_id': data.shop_id,
 				'order_id': data.order_id
 			})
-				.then(res => {
+			.then(res => {
+			
+				Vue.swal.fire({
+					title: 'Sucesso!',
+					text: "Confirmado com sucesso!",
+					icon: 'success',
+					showConfirmButton: false,
+					timer: 1500
+				});
 				
-					Vue.swal.fire({
-						title: 'Sucesso!',
-						text: "Confirmado com sucesso!",
-						icon: 'success',
-						showConfirmButton: false,
-						timer: 1500
-					});
-					
-					dispatch('getOrders');
-					
-				}).catch(err => {
+				dispatch('getOrders');
+				
+			}).catch(err => {
 
-					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+				if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
 
-					Vue.swal.fire({
-						title: 'Error!',
-						text: err,
-						icon: 'error',
-						confirmButtonText: 'OK'
-					})
+				Vue.swal.fire({
+					title: 'Error!',
+					text: err,
+					icon: 'error',
+					confirmButtonText: 'OK'
 				})
+			})
 		},
 		getOrders({ commit }, data, page = 1) {
 			console.log('store > get orders > data', data)
