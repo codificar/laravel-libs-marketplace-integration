@@ -73,7 +73,7 @@ class MarketplaceRepository
             if (!$isCancelled) {
                 #TODO remove full_code need
                 if ($pointStartTime != NULL && $order->code != OrderDetails::DISPATCHED) {
-                    $res = $factory->dispatch($order->order_id);
+                    $res = $factory->dispatchOrder($order->order_id);
                     $request_status = 0;
                     $code = self::DISPATCHED;
                     $full_code = self::mapFullCode(self::DISPATCHED);
