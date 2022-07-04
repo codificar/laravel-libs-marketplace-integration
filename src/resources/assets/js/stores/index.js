@@ -216,7 +216,7 @@ const store = new Vuex.Store({
 									e['request_id'] = res.data.request_id;
 									e['tracking_route'] = res.data.request_id;
 									commit('UPDATE_ORDER', e);
-									this.dispatch('updateOrder', e);
+									this.dispatch('setRide', e);
 								}
 							});
 						});
@@ -263,8 +263,8 @@ const store = new Vuex.Store({
 			post(`/corp/request/add`, response);
 
 		},
-		updateOrder({ dispatch }, data) {
-			console.log("UpdateOrder: ", data);
+		setRide({ dispatch }, data) {
+			console.log("setRide: ", data);
 			axios.post('/libs/marketplace-integration/order/set-ride', data)
 				.then(res => {
 				
