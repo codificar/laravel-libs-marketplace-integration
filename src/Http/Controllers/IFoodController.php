@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Codificar\MarketplaceIntegration\Http\Resources\OrdersResource;
 
 
+#TODO remove this controller
 class IFoodController extends Controller
 {
     // protected static $api;
@@ -132,28 +133,6 @@ class IFoodController extends Controller
         }
     }
 
-    /**
-     * Update a single order on our DB and to iFoodApi
-     */
-    public static function updateOrderRequest(Request $request)
-    {
-        \Log::debug('Request Update: '.print_r($request->all(), 1));
-        
-        $order = OrderDetails::where([
-            'order_id'                       => $request->order_id
-        ])->update([
-                'request_id'                => $request->request_id,
-                'point_id'                  => $request->point_id,
-                'tracking_route'            => $request->tracking_route,
-        ]);
-
-        $order = OrderDetails::where([
-            'order_id' => $request->order_id
-        ])->first();
-        \Log::debug('OrderDetails => '.print_r($order, 1));
-
-        return $order;
-    }
 
     public static function dspOrder(Request $request)
     {

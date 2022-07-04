@@ -36,5 +36,26 @@ class OrderDetailsController extends Controller
 
         return new OrdersResource($orders);
     }
+
+    /**
+     * Update a single order after the request was created
+     */
+    public static function setRide(Request $request)
+    {
+        
+        $order = OrderDetails::where([
+            'order_id'                       => $request->order_id
+        ])->update([
+                'request_id'                => $request->request_id,
+                'point_id'                  => $request->point_id,
+                'tracking_route'            => $request->tracking_route,
+        ]);
+
+        $order = OrderDetails::where([
+            'order_id' => $request->order_id
+        ])->first();
+
+        return $order;
+    }
  
 }

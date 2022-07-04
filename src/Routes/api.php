@@ -15,22 +15,15 @@ use Illuminate\Http\Request;
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp/api/', 'middleware' => ['auth.corp_admin']), function () {
     Route::resource('/shop', 'ShopsController');
+});
 
+Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/order', 'middleware' => ['auth.corp_admin']), function () {
+    Route::post('/cancel', 'MarketplaceController@cancelOrder');
+    Route::post('/readyToPickup', 'MarketplaceController@dspOrder');
+    Route::post('/{id}/confirm', 'MarketplaceController@confirmOrder');
+    Route::post('/rtc', 'MarketplaceController@rtcOrder');
 
-
-    Route::post('/shop/status', 'ShopsController@status');
-    Route::get('/auth/ifood', 'DeliveryFactory@auth');
-    // Route::get('/ifood/merchants', 'DeliveryFactory@getMerchants');
-    Route::get('/ifood/events', 'DeliveryFactory@getOrders');
-    Route::post('/order/cancel', 'DeliveryFactory@cancelOrder');
-    Route::post('/order/readyToPickup', 'DeliveryFactory@dspOrder');
-    Route::post('/order/{id}/confirm', 'DeliveryFactory@confirmOrder');
-    Route::post('/order/update', 'DeliveryFactory@updateOrderRequest');
-    Route::post('/rtc/order', 'DeliveryFactory@rtcOrder');
-    // Route::post('/merchant/details', 'DeliveryFactory@getMerchantDetails');
-
-
-
+    Route::post('/set-ride', 'OrderDetailsController@setRide');
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/libs/marketplace-integration/orders', 'middleware' => ['auth.corp_admin']), function () {

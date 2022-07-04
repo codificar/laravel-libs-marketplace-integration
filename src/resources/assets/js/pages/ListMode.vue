@@ -279,16 +279,6 @@ export default {
         },
         trackingRoute(order) {
             this.$router.push('/corp/request/tracking/'+order.tracking_route);
-        },
-        confirmOrder(item){
-            console.log("Item: ", item);
-            this.$store.dispatch('confirmOrder', item)
-        },
-        cancelOrder(item){
-            this.$store.dispatch('cancelOrder', item)
-        },
-        readyToPickup(item){
-            this.$store.dispatch('readyToPickup', item)
         }
     },
     watch: {

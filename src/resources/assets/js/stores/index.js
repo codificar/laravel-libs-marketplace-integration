@@ -263,31 +263,25 @@ const store = new Vuex.Store({
 			post(`/corp/request/add`, response);
 
 		},
-		updateOrder({ commit }, data) {
+		updateOrder({ dispatch }, data) {
 			console.log("UpdateOrder: ", data);
-			axios.post('/corp/api/order/update', data)
+			axios.post('/libs/marketplace-integration/order/set-ride', data)
 				.then(res => {
-					console.log("Res: ", res);
-					if (res.status == 200) {
-						Vue.swal.fire({
-							title: 'Sucesso!',
-							text: "Atualizado com sucesso!",
-							icon: 'success',
-							showConfirmButton: true,
-						}).then((result) => {
-							window.location.reload();
-						})
-					} else {
-						Vue.swal.fire({
-							title: 'Atenção!',
-							text: res.data,
-							icon: 'warning',
-							showConfirmButton: false,
-							timer: 1500
-						})
-					}
+				
+					Vue.swal.fire({
+						title: 'Sucesso!',
+						text: "Atualizado com sucesso!",
+						icon: 'success',
+						showConfirmButton: true,
+					});
+
+					dispatch('getOrders');
+
 				})
 				.catch(err => {
+					
+					if(err.response && err.response.data && err.response.data.errors) err =  err.response.data.errors;
+
 					Vue.swal.fire({
 						title: 'Error!',
 						text: err,
