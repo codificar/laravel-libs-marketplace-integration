@@ -167,7 +167,7 @@ class HubsterApi {
 		return json_decode($response->getBody()->getContents());
 	}
 
-	/** 
+ /** 
    * Get the merchant detail from the marketplace api, needs to return alway the array with code, data, and message
    * @return array [code ; data ; message] 
   */
