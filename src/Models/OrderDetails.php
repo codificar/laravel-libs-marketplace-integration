@@ -94,8 +94,8 @@ class OrderDetails extends Model
      * @return string market_address
      */
     public function getMarketFormattedAddressAttribute(){
-        if($this->market_address){
-            $decoded = json_decode($this->market_address);
+        if($this->market && $this->market->marketplace_address){
+            $decoded = this->market->marketplace_address;
 
             return sprintf('%s - %s', $decoded->street, $decoded->district);
         }

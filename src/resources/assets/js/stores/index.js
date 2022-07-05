@@ -671,11 +671,10 @@ function createPoints(data, shops, type = '') {
 		}
 	});
 
-	let address = JSON.parse(shop[0].get_config[0].address);
 
 	let point = {
-		address: address.street,
-		formatted_address: address.street,
+		address: shop[0].full_address,
+		formatted_address: shop[0].full_address,
 		title: alphabet[0].toLocaleUpperCase(),
 		action: shop[0].name,
 		action_type: 4,
@@ -691,8 +690,8 @@ function createPoints(data, shops, type = '') {
 	let initalPoint = { ...point };
 
 	let location = {
-		lat: shop[0].get_config[0].latitude,
-		lng: shop[0].get_config[0].longitude,
+		lat: shop[0].latitude,
+		lng: shop[0].longitude,
 	};
 
 	if (type == 'makeManualRequest') {
@@ -711,6 +710,7 @@ function createPoints(data, shops, type = '') {
 
 	//only delivery orders
 	data.forEach((element, index) => {
+
 		console.log("Point " + index + ": ", element);
 		location = {
 			lat: element.latitude,
@@ -745,19 +745,16 @@ function createPoints(data, shops, type = '') {
 			}
 		}
 
-		console.log("createPoint => ", point);
 		points.push(point);
-		console.log('Shop: ', shop);
-		//add delivery points, point B,C, D and so on
-		// points.push()
+		
 		if (!element.prepaid && !returnToStart) {
 			returnToStart = true;
 		}
 	});
+
 	if(returnToStart) {
 		points.push(initalPoint);
 	}
-	console.log('POints generated =:> ', points);
 
 	let dataRequest = { 'points': points, 'returnToStart': returnToStart }
 	return dataRequest;

@@ -35,7 +35,7 @@ class MarketConfigController extends Controller
         if($request->merchantDetails && $request->merchantDetails['data']) {
             $latitude = $request->merchantDetails['data']->address->latitude ;
             $longitude = $request->merchantDetails['data']->address->longitude ;
-            $address = json_encode($request->merchantDetails['data']) ;
+            $address = json_encode($request->merchantDetails['data']->address) ;
         }
 
         $marketConfig = MarketConfig::updateOrCreate([

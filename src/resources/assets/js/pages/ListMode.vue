@@ -14,7 +14,7 @@
                     <div class="row col-md-12 justify-end">
                         <v-btn
                             class="ma-lg-2 justify-end"
-                            v-if="selected.length > 0"
+                            v-if="selectedOrders.length > 0"
                             :loading="$store.state.requestStatus"
                             :disabled="$store.state.requestStatus"
                             color="success"
@@ -26,7 +26,7 @@
                         </v-btn>
                         <v-btn
                             class=" ma-lg-2 justify-end"
-                            v-if="selected.length > 0"
+                            v-if="selectedOrders.length > 0"
                             :loading="$store.state.requestStatus"
                             :disabled="$store.state.requestStatus"
                             color="success"
@@ -146,7 +146,7 @@
                                             class="font-weight-white"
                                         >
                                             <v-checkbox
-                                                v-model="selected"
+                                                v-model="selectedOrders"
                                                 v-if="order.request_id == null && (order.code == 'CFM' || order.code == 'RDA')"
                                                 label="Adicionar a entrega"
                                                 class="ma-2 mt-1"
@@ -212,7 +212,7 @@ export default {
             elevation: 2,
         },
         sheet: false,
-        selected: [],
+        selectedOrders: [],
         enabled: true,
         sliderValue: 0,
         ReloadScreen: {
@@ -282,7 +282,7 @@ export default {
         }
     },
     watch: {
-        selected: {
+        selectedOrders: {
             handler: function(newVal, oldVal){
                 console.log("OldVal: ", oldVal);
                 console.log("newVal: ", newVal);

@@ -18,6 +18,7 @@ export default {
 			this.$nextTick();
 		},
 		makeRequest(type = 'makeRequest'){
+			console.log('makeRequest > selected', this.selectedOrders);
 			this.$store.dispatch(type, this.selectedOrders);
 		},
 		resultQuery(keyword){
