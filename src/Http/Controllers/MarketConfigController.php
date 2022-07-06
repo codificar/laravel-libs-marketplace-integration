@@ -28,15 +28,20 @@ class MarketConfigController extends Controller
 
         \DB::beginTransaction();
 
+        $shop = Shops::find($request->shop_id);
+
         $latitude   = null;
         $longitude  = null;
-        $address    = null;
+        $address    = json_encode([]);
 
         if($request->merchantDetails && $request->merchantDetails['data']) {
             $latitude = $request->merchantDetails['data']->address->latitude ;
             $longitude = $request->merchantDetails['data']->address->longitude ;
             $address = json_encode($request->merchantDetails['data']->address) ;
         }
+
+        if(!$latitude) $latitude = $shop->latitude ;
+        if(!$longitude) $longitude = $shop->longitude ;
 
         $marketConfig = MarketConfig::updateOrCreate([
             'shop_id'       => $request->shop_id,

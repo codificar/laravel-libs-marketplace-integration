@@ -13,6 +13,11 @@ use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
 use Codificar\MarketplaceIntegration\Repositories\DispatchRepository ;
 
+use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Models\Shops;
+use Codificar\MarketplaceIntegration\Models\OrderDetails;
+
+
 use App\Models\RequestPoint;
 
 
@@ -140,17 +145,17 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $ride->payment_mode = DispatchRepository::getPaymentMode($shopOrderArray[0]->institution_id);
         $ride->payment_id =  null;
         $ride->time_zone = null;
-        $ride->src_address = $shopOrderArray[0]->full_address;
-        $ride->dest_address = $shopOrderArray[0]->full_address;
+        $ride->src_address = $shopOrderArray[0]->shop->full_address;
+        $ride->dest_address = $shopOrderArray[0]->shop->full_address;
         $ride->request_start_time = null;
-        $ride->latitude = $shopOrderArray[0]->latitude;
-        $ride->longitude = $shopOrderArray[0]->longitude;
-        $ride->D_latitude = $shopOrderArray[0]->latitude;
-        $ride->D_longitude = $shopOrderArray[0]->longitude;
+        $ride->latitude = $shopOrderArray[0]->shop->latitude;
+        $ride->longitude = $shopOrderArray[0]->shop->longitude;
+        $ride->D_latitude = $shopOrderArray[0]->shop->latitude;
+        $ride->D_longitude = $shopOrderArray[0]->shop->longitude;
         $ride->req_create_user_time = time();
         $ride->current_provider = $provider->id ; // carrega o prestador mais proximo do local de acordo com o tipo/categoria e que não esteja recebendo chamada
         $ride->location_id = $locationId;
-        $ride->institution_id = $shopOrderArray[0]->institution_id;
+        $ride->institution_id = $shopOrderArray[0]->shop->institution_id;
         $ride->emergency_contact_user = null;
         $ride->return_to_start = true;
         
