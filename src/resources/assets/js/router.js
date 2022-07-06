@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import ListMode from "./pages/ListMode";
 import MapMode from "./pages/MapMode";
 import Credentials from "./pages/Credentials";
+import ZeDeliveryImport from "./pages/ZeDeliveryImport";
 import Settings from './pages/Settings';
 
 Vue.use(VueRouter);
@@ -23,14 +24,19 @@ const router = new VueRouter({
             component: MapMode
         },
         {
+            path: '/corp/marketplace/settings',
+            name: 'settings',
+            component: Settings
+        },
+        {
             path: '/admin/marketplace-integration/credentials',
             name: 'credentials',
             component: Credentials
         },
         {
-            path: '/corp/marketplace/settings',
-            name: 'settings',
-            component: Settings
+            path: '/admin/marketplace-integration/zedelivery/import',
+            name: 'zedeliveryimport',
+            component: ZeDeliveryImport
         }
     ]
 });

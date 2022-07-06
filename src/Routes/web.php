@@ -16,16 +16,20 @@ require 'api.php';
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/corp', 'middleware' => ['auth.corp_admin']), function () {
     Route::redirect('/marketplace/integration', '/corp/marketplace/integration/list');
 
-    Route::get('/marketplace/integration/list', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
-    Route::get('/marketplace/integration/map', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
-    Route::get('/marketplace/settings', array('as' => 'corp', 'uses' => 'SinglePageController@index'));
+    // route works with every /corp/marketplace
+    Route::get('/marketplace/{vue_capture?}', array('as' => 'admin', 'uses' => 'SinglePageController@index'))->where('vue_capture', '[\/\w\.-]*');
 });
 
 Route::group(array('namespace' => 'Codificar\MarketplaceIntegration\Http\Controllers', 'prefix' => '/admin', 'middleware' => ['auth.admin']), function () {
-    Route::get('/marketplace-integration/credentials', array('as' => 'admin', 'uses' => 'SinglePageController@index'));
+    
     Route::any('/automatic-dispatch/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@get'));
     Route::post('/automatic-dispatch/store/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@store'));
     Route::post('/automatic-dispatch/delete/{institution_id}', array('as' => 'admin', 'uses' => 'AutomaticDispatchController@delete'));
+
+    Route::post('/marketplace-integration/zedelivery/import-financial', array('as' => 'admin', 'uses' => 'ZeDeliveryController@import'));
+
+    // route works with every /admin/marketplace-integration
+    Route::get('/marketplace-integration/{vue_capture?}', array('as' => 'admin', 'uses' => 'SinglePageController@index'))->where('vue_capture', '[\/\w\.-]*');
 });
 
 /**
@@ -61,4 +65,7 @@ Route::get('/marketplace-integration/js/env.js', function () {
     return response($content)
             ->header('Content-Type', 'text/javascript');
 });
+
+
+
 

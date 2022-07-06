@@ -4,6 +4,9 @@ namespace Codificar\MarketplaceIntegration\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Location\Coordinate;
+use Location\Distance\Vincenty;
+
 class Shops extends Model
 {
     protected $table = 'shops';
@@ -18,6 +21,7 @@ class Shops extends Model
         'token',
         'expiry_token'
     ];
+    
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
      /**
@@ -27,6 +31,19 @@ class Shops extends Model
     public function getConfig()
     {
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\MarketConfig', 'shop_id');
+    }
+
+    /**
+     * Get distance from the shop to the destination
+     * @return float distance
+     */
+    public function calculateDistance(Coordinate $destination){
+        $distance =  0 ;
+
+        $calculator = new Vincenty();
+        $distance = $calculator->getDistance(new Coordinate($this->latitude, $this->longitude), $destination);
+
+        return $distance ;
     }
 
 }
