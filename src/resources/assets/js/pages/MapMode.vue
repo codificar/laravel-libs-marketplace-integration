@@ -1,5 +1,5 @@
 <template>
-	<v-row>
+	<v-row class="map">
 		<v-col class="map">
 			<vue-maps :center="center" >
 				<div class="row-map ml-5">
@@ -64,9 +64,9 @@
 									<h5>Valor</h5>
 									<span>R$ 16,54</span>
 								</div>-->
-								<div>
-									<v-btn color="success" @click="makeRequest('makeRequest')"><v-icon>mdi-motorbike</v-icon></v-btn>
-									<v-btn color="error" @click="makeRequest('makeManualRequest')"><v-icon>mdi-google-maps</v-icon></v-btn>
+								<div class="d-flex flex-column">
+									<v-btn color="success" class="mt-3" small @click="makeRequest('makeRequest')"><v-icon>mdi-motorbike</v-icon> Solicitar Entregador</v-btn>
+									<v-btn color="error" class="mt-2 align-text-left" small @click="makeRequest('makeManualRequest')"><v-icon>mdi-google-maps</v-icon> Montar corrida</v-btn>
 								</div>
 							</div>
 						</div>
@@ -75,15 +75,17 @@
 				<vue-marker
 					:title="'Shop'"
 					:clickable="false"
-					:icon="{ url: shopMarker.url }"
+					:icon="{ iconUrl: shopMarker ? shopMarker.url: null }"
 					:coordinates="shopMarker.coordinates"
-				></vue-marker>
+				>
+					<div>{{shopMarker.shop_name}}</div>
+				</vue-marker>
 				<vue-marker
 					v-for="(marker, index) in (orderMarkers ? orderMarkers : [])"
 					:key="index"
 					:title="'Mark' + index"
 					:clickable="true"
-					:icon="{ url: marker.url }"
+					:icon="{ iconUrl: marker ? marker.url : null }"
 					:coordinates="marker.coordinates"
 				>
 					<div class="info-order">
@@ -226,12 +228,12 @@ export default {
 			let shop = this.$store.state.shops[0];
 
 			let markers = [];
-			
+
 			if(shop) {
 				this.shopMarker = {
 					coordinates: {lat: shop.latitude, lng: shop.longitude},
 					address: shop.full_address,
-					//client_name: 'Loja',
+					shop_name: shop.name,
 					url: this.icons["start"].url,
 				};
 				this.setMapCenter(shop);
@@ -272,9 +274,23 @@ export default {
 </script>
 
 <style>
-.map {
+/*.row.map {
   z-index: 0;
   height: 90vh;
+  margin-top: -70px;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+.col.map {
+	padding: 0;
+}*/
+.row.map {
+	position: absolute;
+	left: -11px;
+	right: -11px;
+	top: -70px;
+	bottom: -80vh;
 }
 .info-order {
 	padding: .5rem .8rem;
@@ -287,7 +303,7 @@ export default {
 	text-transform: capitalize;
 }
 .over-map {
-	z-index: 20000;
+	z-index: 999;
 	margin: 0.5rem;
 }
 .vertical {

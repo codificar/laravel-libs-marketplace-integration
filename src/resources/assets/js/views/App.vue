@@ -1,5 +1,5 @@
 <template>
-	<v-app class="margin-map">
+	<v-app class="vue-app">
 		<v-main>
 			<v-container fluid>
 				<router-view></router-view>
@@ -7,6 +7,7 @@
 					bottom
 					right
 					fixed
+					class="dial"
 				>
 					<template v-slot:activator>
 						<v-btn
@@ -38,20 +39,20 @@
 						color="primary darken-2"
 						dark
 						fab
-						link				
+						link
 						:to="'/corp/marketplace/integration/list'"
 					>
 						<v-icon>
 							mdi-view-list
 						</v-icon>
-						
+
 					</v-btn>
 					<v-btn
 						v-if="$route.name != 'credentials' && $route.name != 'map' "
 						color="primary darken-2"
 						dark
 						fab
-						link				
+						link
 						:to="'/corp/marketplace/integration/map'"
 					>
 						<v-icon>
@@ -84,7 +85,10 @@ export default {
 </script>
 
 <style>
-.margin-map {
-	margin-top: -60px;
+.vue-app {
+	min-height: 90vh;
+}
+.dial {
+	z-index: 1001;
 }
 </style>
