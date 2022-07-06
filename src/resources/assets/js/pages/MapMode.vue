@@ -14,7 +14,7 @@
 								</div>
 							</div>
 							<div>
-								<v-list v-if="$store.state.orders.data.length">
+								<v-list v-if="$store.state.orders && $store.state.orders.data && $store.state.orders.data.length">
 									<v-list-item :input-value="orderSelectedIndex(order) > -1" color="success" v-for="order in $store.state.orders.data" :key="order.id" @click="selectOrder(order)">
 										{{ orderSelectedIndex(order) > -1 ? '#' + (orderSelectedIndex(order) + 1) + ' ': '' }} Pedido #{{order.display_id}}
 									</v-list-item>
@@ -41,8 +41,7 @@
 								<div class="mt-5 row">
 									<div class="col-12">
 										<refresh-screen
-											v-if="$store.state.shops.length > 0"
-											:isEnable="$store.state.status_reload"
+											v-if="$store.state.shops && $store.state.shops.length > 0"
 										/>
 									</div>
 								</div>
@@ -225,14 +224,18 @@ export default {
 		orderMarkers: function() {
 			console.log('shops > ordermarkers',this.$store.state.shops);
 			let shop = this.$store.state.shops[0];
-			this.shopMarker = {
-				coordinates: {lat: shop.latitude, lng: shop.longitude},
-				address: shop.full_address,
-				//client_name: 'Loja',
-				url: this.icons["start"].url,
-			};
+
 			let markers = [];
-			this.setMapCenter(shop);
+			
+			if(shop) {
+				this.shopMarker = {
+					coordinates: {lat: shop.latitude, lng: shop.longitude},
+					address: shop.full_address,
+					//client_name: 'Loja',
+					url: this.icons["start"].url,
+				};
+				this.setMapCenter(shop);
+			}
 
 			for( let order of this.orders) {
 				const icon = this.orderSelectedIndex(order) > -1 ? this.icons["free"] : this.icons["pin_purple"];
