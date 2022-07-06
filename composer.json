@@ -55,6 +55,7 @@
         "guzzlehttp/guzzle": "^7.4",
         "illuminate/http": "*",
         "illuminate/session": "*",
-        "illuminate/testing": "*"
+        "illuminate/testing": "*",
+        "maatwebsite/excel": "^3.1"
     }
 }

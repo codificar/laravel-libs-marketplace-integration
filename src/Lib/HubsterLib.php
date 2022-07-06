@@ -128,7 +128,7 @@ class HubsterLib
         }
         
 
-        $marketConfig = MarketConfig::where('merchant_id', $storeId)->first();
+        $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
     
         $order = OrderDetails::updateOrCreate([
@@ -173,7 +173,7 @@ class HubsterLib
                 if(!isset($delivery['destination']['fullAddress'])) $delivery['destination']['fullAddress'] = $delivery['destination']['addressLines'][0] ;
             }
 
-            $address = self::parseAddress($delivery['destination']['fullAddress']) ;
+            $address = DeliveryAddress::parseAddress($delivery['destination']['fullAddress']) ;
 
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                      => $external['id']
@@ -197,41 +197,6 @@ class HubsterLib
         return $order;
         
     }
-
-  
-    /**
-     * Function to parse addres
-     * @return array with street_name, neighborhood, zipcode, street_number
-     */
-    public static function parseAddress($srcAddress){
-	
-        preg_match(
-            "/([A-Za-z_ ]*)(.*),([A-Za-z_ ]*),([A-Za-z_ ]*)([0-9]*)(-([0-9]{4})){0,1}/",
-            $srcAddress,
-            $matches
-        );
-
-        if(!$matches) {
-            return  [
-                'street_name' 		=> $srcAddress ,
-                'neighborhood' 		=> null ,
-                'zipcode' 			=> null ,
-                'street_number' 	=> null
-            ];
-        }
-
-        list($original, $name, $street, $city, $state, $zipcode) = $matches;
-        list($number, $neighborhood) = explode(' ', $street);
-
-        $return = [
-			'street_name' 		=> $street ,
-			'neighborhood' 		=> $neighborhood ,
-			'zipcode' 			=> $zipcode ,
-			'street_number' 	=> $number
-		];
-
-		return $return ;
-	}
 
     /** 
      * order details

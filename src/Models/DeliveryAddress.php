@@ -40,4 +40,38 @@ class DeliveryAddress extends Model
 	public function getFormattedAttribute(){
 		return sprintf("%s, %s - %s - %s/%s", $this->street_name, $this->street_number, $this->neighborhood, $this->city, $this->state);
 	}
+
+    /**
+     * Function to parse addres
+     * @return array with street_name, neighborhood, zipcode, street_number
+     */
+    public static function parseAddress($srcAddress){
+	
+        preg_match(
+            "/([A-Za-z_ ]*)(.*),([A-Za-z_ ]*),([A-Za-z_ ]*)([0-9]*)(-([0-9]{4})){0,1}/",
+            $srcAddress,
+            $matches
+        );
+
+        if(!$matches) {
+            return  [
+                'street_name' 		=> $srcAddress ,
+                'neighborhood' 		=> null ,
+                'zipcode' 			=> null ,
+                'street_number' 	=> null
+            ];
+        }
+
+        list($original, $name, $street, $city, $state, $zipcode) = $matches;
+        list($number, $neighborhood) = explode(' ', $street);
+
+        $return = [
+			'street_name' 		=> $street ,
+			'neighborhood' 		=> $neighborhood ,
+			'zipcode' 			=> $zipcode ,
+			'street_number' 	=> $number
+		];
+
+		return $return ;
+	}
 }

@@ -8,6 +8,8 @@ use Codificar\MarketplaceIntegration\Models\OrderDetails ;
 use Codificar\MarketplaceIntegration\Models\AutomaticDispatch ;
 
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
+use Codificar\MarketplaceIntegration\Repositories\DispatchRepository ;
+
 
 
 use Carbon\Carbon;
@@ -162,4 +164,13 @@ class MarketplaceRepository
 
         return $constants[$value];
     }
+
+    /**
+     * Get provider by key
+     * @param $key 
+     */
+    public static function getProviderByKey($key) {
+        return \Provider::where('email', $key)->orWhere('document', $key)->orWhere('pix', $key)->first();
+    }
+
 }

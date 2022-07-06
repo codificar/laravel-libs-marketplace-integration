@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Codificar\MarketplaceIntegration\Models\MarketConfig ;
+use Codificar\MarketplaceIntegration\Models\DeliveryAddress ;
 use Codificar\MarketplaceIntegration\Models\Shops ;
 
 use Location\Coordinate;
@@ -66,7 +67,7 @@ class OrderDetails extends Model
      */
     public function address()
     {
-        return $this->hasOne('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
+        return $this->hasOne(DeliveryAddress::class, 'order_id', 'order_id');
     }
      
     /**
@@ -131,5 +132,16 @@ class OrderDetails extends Model
 
         return null;
     }
+
+
+    /**
+     * Get the address associated with the order.
+     * @return DeliveryAddress
+     */
+    public function deliveryAddress()
+    {
+        return DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->last();
+    }
+
 
 }

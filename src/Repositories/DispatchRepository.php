@@ -85,7 +85,7 @@ class DispatchRepository
         $formRequest->user_id               =   $shopOrderArray[0]->default_user_id;
         $formRequest->token                 =   null;
         $formRequest->provider_type         =   self::getProviderType($shopOrderArray[0]->institution_id);
-        $formRequest->payment_mode          =   self::getPaymentMode($shopOrderArray[0]->institution_id);;
+        $formRequest->payment_mode          =   self::getPaymentMode($shopOrderArray[0]->institution_id);
         $formRequest->return_to_start       =   false ;
         $formRequest->is_automation         =   true ;
         $formRequest->is_admin              =   true ;
@@ -107,6 +107,7 @@ class DispatchRepository
         $point['address']                       = $shopOrderArray[0]->market_formatted_address;
         $point['order_id']                      = null;
         $formRequest->points[] = $point ;
+        $letter += 1;
 
         // mount others points
         foreach($shopOrderArray as $order){
