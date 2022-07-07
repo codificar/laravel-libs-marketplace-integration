@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import ModalComponent from "../components/Modal";
+import ModalComponent from '../components/Modal';
 export default {
   components: {
     ModalComponent,
@@ -73,7 +73,7 @@ export default {
     };
   },
   mounted() {
-    console.log("route", this.$route.name);
+    console.log('route', this.$route.name);
   },
 };
 </script>

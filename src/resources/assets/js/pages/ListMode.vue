@@ -255,11 +255,6 @@ export default {
     getResultQuery() {
       return this.resultQuery(null);
     },
-    //fetch(page = 1) {
-    //    this.data.pagination.page = page;
-    //    this.$store.dispatch('getOrders', this.data, page);
-    //    this.$nextTick();
-    //},
     formatNumber(number) {
       number = number.toFixed(2) + "";
       x = number.split(".");
