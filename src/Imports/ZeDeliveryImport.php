@@ -23,34 +23,30 @@ use App\Models\RequestPoint;
 
 use Carbon\Carbon;
 
-
-
 use App\Services\EstimateService;
 
 class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, WithHeadingRow
 {
     public function collection(Collection $rows)
     {
-        
         $rows = $rows->groupBy('route_id');
     
-        foreach ($rows as $row) 
-        {
+        foreach ($rows as $row) {
             // after group lets get just one
             $providerKey    = $row[0]['deliveryman_email'];
             $providerKey    = 'raphael@codificar.com.br';
             $provider = MarketplaceRepository::getProviderByKey($providerKey);
             
-            if(!$provider) {
+            if (!$provider) {
                 \Log::error(sprintf('Por favor cadastre um entregador com a chave %s', $providerKey));
                 continue;
             }
 
             $ordersArray = [];
-            foreach($row as $groupedRow){
+            foreach ($row as $groupedRow) {
                 $storeId        = $groupedRow['poc_id'];
                 $orderId        = $groupedRow['order_number'];
-                $createdAt      = $groupedRow['order_datetime'];
+                   $createdAt      = $groupedRow['order_datetime'];
                 $providerKey    = $groupedRow['deliveryman_email'];
                 $customerId     = $orderId ;
                 $customerName   = $orderId ;
@@ -59,10 +55,12 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
 
                 $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::ZEDELIVERY)->first();
 
-                $order = OrderDetails::updateOrCreate([
+                $order = OrderDetails::updateOrCreate(
+                    [
                     'order_id'                          => $orderId,
                     'marketplace'                       => MarketplaceFactory::ZEDELIVERY
-                    ],[
+                    ],
+                    [
                         'shop_id'                       => $marketConfig->shop_id ,
                         'order_id'                      => $orderId,
                         'marketplace_order_id'          => $orderId,
@@ -98,7 +96,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
 
                 $address = DeliveryAddress::updateOrCreate([
                     'order_id'                      => $orderId
-                ],[
+                ], [
                     'customer_id'                   => $customerId,
                     'street_name'                   => $address['street_name'],
                     'street_number'                 => $address['street_number'],
@@ -119,7 +117,6 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
             
             // create a ride from orders array
             self::createRide($ordersArray, $provider);
-           
         }
     }
 
@@ -136,11 +133,13 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
      *
      * @return array
      */
-    public static function createRide(array $shopOrderArray, \Provider $provider){
+    public static function createRide(array $shopOrderArray, \Provider $provider)
+    {
 
         // ja criada a corrida
-        if($shopOrderArray[0]->request_id)
-            return ;        
+        if ($shopOrderArray[0]->request_id) {
+            return ;
+        }
         
         $ride = new \Requests ;
         $shop = $shopOrderArray[0]->shop ;
@@ -184,7 +183,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $ride->emergency_contact_user = 0;
         $ride->return_to_start = true;
         $ride->category_id = null;
-		$ride->costcentre_id = null;
+        $ride->costcentre_id = null;
         $ride->is_automation = true;
         $ride->is_completed = true;
         $ride->is_cancelled = false;
@@ -196,17 +195,17 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         //salva o meta
         $requestMeta =  new \RequestMeta ;
         $requestMeta->request_id = $ride->id;
-		$requestMeta->provider_id = $provider->id;
-		$requestMeta->resend_id = $ride->resend_id;
-		$requestMeta->number_resend = 1; //primeiro disparo
+        $requestMeta->provider_id = $provider->id;
+        $requestMeta->resend_id = $ride->resend_id;
+        $requestMeta->number_resend = 1; //primeiro disparo
         $requestMeta->save();
 
         // associa o servico
         $requestService =  new \RequestServices;
         $requestService->request_id = $ride->id;
-		$requestService->type = $ride->type_id ;
-		$requestService->category_id = null;
-		$requestService->save();
+        $requestService->type = $ride->type_id ;
+        $requestService->category_id = null;
+        $requestService->save();
 
 
         // set payments for user
@@ -251,7 +250,6 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
             $order->request_id  = $ride->id ;
             $order->point_id    = $requestPoint->id ;
             $order->save();
-
         }
 
         //retorno ponto / origem da loja
@@ -260,8 +258,5 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $requestPoint->action_type  = RequestPoint::action_return;
         $requestPoint->action       = trans('marketplace-integration::zedelivery.return_to_start');
         $requestPoint->save();
-
     }
-
-    
 }
