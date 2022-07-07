@@ -56,14 +56,19 @@ class DeliveryAddress extends Model
         if(!$matches) {
             return  [
                 'street_name' 		=> $srcAddress ,
-                'neighborhood' 		=> null ,
+                'neighborhood' 		=> '' ,
                 'zipcode' 			=> null ,
-                'street_number' 	=> null
+                'street_number' 	=> 0
             ];
         }
 
         list($original, $name, $street, $city, $state, $zipcode) = $matches;
-        list($number, $neighborhood) = explode(' ', $street);
+
+        $number = 0 ;
+        $neighborhood = '' ;
+
+        if($street)
+            list($number, $neighborhood) = explode(' ', $street);
 
         $return = [
 			'street_name' 		=> $street ,

@@ -29,6 +29,7 @@ class OrderDetails extends Model
         'full_code',
         'code',
         'marketplace_order_id',
+        'created_at_marketplace',
         'marketplace',
         'aggregator',
         'order_type',

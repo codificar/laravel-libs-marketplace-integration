@@ -21,7 +21,7 @@ class Shops extends Model
         'token',
         'expiry_token'
     ];
-    
+
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at'];
 
      /**
@@ -31,6 +31,15 @@ class Shops extends Model
     public function getConfig()
     {
         return $this->hasMany('Codificar\MarketplaceIntegration\Models\MarketConfig', 'shop_id');
+    }
+
+    /**
+     * Get the market_config that owns the merchant_id.
+     * @return Institution
+     */
+    public function institution()
+    {
+        return $this->hasOne(\App\Models\Institution::class, 'id', 'institution_id');
     }
 
     /**
