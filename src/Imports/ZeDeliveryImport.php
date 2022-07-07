@@ -230,7 +230,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $requestPoint->save();
         $letter += 1;
 
-
+        // pontos de entrega
         foreach ($shopOrderArray as $key => $order) {
 
             //novo ponto
@@ -253,6 +253,15 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
             $order->save();
 
         }
+
+        //retorno ponto / origem da loja
+        $requestPoint               = $requestPoint->replicate();
+        $requestPoint->title        =  '@';
+        $requestPoint->action_type  = RequestPoint::action_return;
+        $requestPoint->action       = trans('marketplace-integration::zedelivery.return_to_start');
+        $requestPoint->save();
+
     }
 
+    
 }

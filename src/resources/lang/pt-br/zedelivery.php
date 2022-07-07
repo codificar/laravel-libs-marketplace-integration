@@ -14,5 +14,6 @@ return [
 	
 	'action_collect_order'		=> 'Coletar pedidos',
 	'action_delivery_order'		=> 'Entregar pedido número :orderId',
+	'return_to_start'			=> 'Retornar ao ponto de coleta',
 
 ];
