@@ -197,9 +197,6 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $requestService->category_id = null;
         $requestService->save();
 
-        // set payments for user
-        $ride->completeCharge();
-
         // salvar pontos para estatisticas depois
 
         $letter = 1;
@@ -247,5 +244,8 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $requestPoint->action_type = RequestPoint::action_return;
         $requestPoint->action = trans('marketplace-integration::zedelivery.return_to_start');
         $requestPoint->save();
+
+        // set payments for user
+        $ride->completeCharge();
     }
 }
