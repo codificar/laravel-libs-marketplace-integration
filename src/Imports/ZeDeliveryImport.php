@@ -185,7 +185,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $ride->return_to_start = true;
         $ride->category_id = null;
 		$ride->costcentre_id = null;
-        $ride->is_automation = false;
+        $ride->is_automation = true;
         $ride->is_completed = true;
         $ride->is_cancelled = false;
         $ride->own_motoboy  = true;
