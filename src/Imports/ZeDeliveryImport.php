@@ -176,7 +176,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $ride->longitude = $shop->longitude;
         $ride->D_latitude = $shop->latitude;
         $ride->D_longitude = $shop->longitude;
-        $ride->req_create_user_time = time();
+        $ride->req_create_user_time = $shopOrderArray[0]->created_at_marketplace;
         $ride->current_provider = $provider->id ;
         $ride->confirmed_provider = $provider->id ;
         $ride->location_id = $locationId;
