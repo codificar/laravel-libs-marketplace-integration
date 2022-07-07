@@ -17,9 +17,8 @@ class ZeDeliveryController extends Controller
     /**
      * Function to import the financial data ze delivery spreadsheet
      */
-    public function import(ZeDeliveryImportFinancial $request) {
-
-        
+    public function import(ZeDeliveryImportFinancial $request)
+    {
         Excel::queueImport(new ZeDeliveryImport, $request->file('csv_file'));
 
         return response()->json([

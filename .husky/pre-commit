@@ -1,6 +1,12 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+echo '┌----------------------------------┐'
+echo '¦     File verification started    ¦'
+echo '└----------------------------------┘'
+
 npx lint-staged
-#docker-compose exec -T laravel.test php artisan test --testsuite=Feature --env=testing
-#docker-compose exec -T laravel.test php artisan l5-swagger:generate
+
+echo '┌----------------------------------┐'
+echo '¦  File verification finished ✅   ¦'
+echo '└----------------------------------┘'
