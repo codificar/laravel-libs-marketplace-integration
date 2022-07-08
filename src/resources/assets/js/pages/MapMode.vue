@@ -2,7 +2,7 @@
 	<v-row class="map">
 		<v-col class="map">
 			<vue-maps :center="center" >
-				<div class="row-map ml-5">
+				<div class="row-map ml-7">
 					<div class="col-lg-3">
 						<div class="card card-outline-info over-map">
 							<div class="card-header">
@@ -51,19 +51,21 @@
 					</div>
 					<div class="mt-3" v-if="showConfirm">
 						<div class="card card-outline-info over-map">
-							<div class="pa-3 info-order align-left">
-								<div>
-									<h5>Distância estimada</h5>
-									<span>{{estimed_distance}}</span>
+							<div class="pa-3 info-order">
+								<div class="d-flex flex-row">
+									<div class="text-center">
+										<h5>Distância estimada</h5>
+										<span>{{estimated_distance}}</span>
+									</div>
+									<div class="ml-3 text-center">
+										<h5>Tempo estimado</h5>
+										<span>{{estimated_time}}</span>
+									</div>
+									<div class="ml-3 text-center">
+										<h5>Valor Estimado</h5>
+										<span>{{estimated_price}}</span>
+									</div>
 								</div>
-								<div>
-									<h5>Tempo estimado</h5>
-									<span>{{estimed_time}}</span>
-								</div>
-								<!--<div>
-									<h5>Valor</h5>
-									<span>R$ 16,54</span>
-								</div>-->
 								<div class="d-flex flex-column">
 									<v-btn color="success" class="mt-3" small @click="makeRequest('makeRequest')"><v-icon>mdi-motorbike</v-icon> Solicitar Entregador</v-btn>
 									<v-btn color="error" class="mt-2 align-text-left" small @click="makeRequest('makeManualRequest')"><v-icon>mdi-google-maps</v-icon> Montar corrida</v-btn>
@@ -145,8 +147,9 @@ export default {
 		shopMarker: {},
 		selectedOrders: [],
 		polyline: [],
-		estimed_distance: "",
-		estimed_time: "",
+		estimated_distance: "",
+		estimated_time: "",
+		estimated_price: "",
     }),
 	methods: {
 		setMapCenter(address) {
@@ -185,7 +188,7 @@ export default {
 			return this.selectedOrders.findIndex(e => e.id == order.id);
 		},
 		drawRoute() {
-			let shop = this.$store.state.shops[0];
+			let shop = this.selectedOrders[0].shop;
 			let shopCoord = `[${shop.latitude},${shop.longitude}]`;
 			let polylineParams = {
 				params: {
@@ -194,13 +197,14 @@ export default {
 				}
 			};
 			let polylineRoute = "/api/v1/libs/geolocation/corp/get_polyline_waypoints";
+			let estimateRoute = "/corp/estimate/estimate_request";
 			new Promise((resolve, reject) => {
 				axios
 					.get(polylineRoute, polylineParams)
 					.then((response) => {
 						if (response.data.success) {
-							this.estimed_distance = response.data.distance_text;
-							this.estimed_time = response.data.duration_text;
+							this.estimated_distance = response.data.distance_text;
+							this.estimated_time = response.data.duration_text;
 							this.polyline = response.data.points;
 
 						} else {
@@ -220,6 +224,44 @@ export default {
 						return false;
 					});
 			});
+			let pointsEstimate = []
+			pointsEstimate.push({
+				geometry: {
+					location: {
+						lat: shop.latitude,
+						lng: shop.longitude
+					}
+				}
+			});
+			let estimateParams = {
+				points: pointsEstimate.concat(this.selectedOrders.map(
+					(element) => { return { geometry: { location: {lat: element.latitude, lng: element.longitude } } } }
+				)),
+				provider_type: 22, //TODO pegar de algum lugar
+			}
+			new Promise((resolve, reject) => {
+				axios
+					.post(estimateRoute, estimateParams)
+					.then((response) => {
+						if (response.data.estimate_info.success) {
+							this.estimated_price = response.data.estimate_info.estimated_price_formatted;
+						} else {
+							this.$swal({
+							title: this.trans("requests.route_fail"),
+							html:
+								'<label class="text-left alert alert-danger alert-dismissable">' +
+								response.data.error +
+								"</label>",
+							type: "error",
+							});
+						}
+					})
+					.catch((error) => {
+						console.log(error);
+						reject(error);
+						return false;
+					});
+			})
 		}
 	},
 	computed: {
@@ -286,10 +328,10 @@ export default {
 	padding: 0;
 }*/
 .row.map {
-	position: absolute;
-	left: -11px;
-	right: -11px;
-	top: -70px;
+	position: fixed;
+	left: 240px;
+	right: 0px;
+	top: 70px;
 	bottom: -80vh;
 }
 .info-order {
