@@ -5,7 +5,7 @@ namespace Codificar\MarketplaceIntegration;
 use App\Events\RequestUpdate;
 use Codificar\MarketplaceIntegration\Console\Commands\AutomaticDispatch;
 use Codificar\MarketplaceIntegration\Console\Commands\Polling;
-use Codificar\MarketplaceIntegration\Listeners\RequestUpdateListener;
+use Codificar\MarketplaceIntegration\Listeners\MarketplaceRideListener;
 use Illuminate\Support\ServiceProvider;
 
 class MarketplaceServiceProvider extends ServiceProvider
@@ -14,7 +14,7 @@ class MarketplaceServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\Event::listen(
             RequestUpdate::class,
-            RequestUpdateListener::class
+            MarketplaceRideListener::class
         );
 
         // Load routes (carrega as rotas)

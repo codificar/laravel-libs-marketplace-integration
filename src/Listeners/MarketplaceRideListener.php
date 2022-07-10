@@ -6,7 +6,7 @@ use App\Events\RequestUpdate;
 use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RequestUpdateListener implements ShouldQueue
+class MarketplaceRideListener implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -28,8 +28,10 @@ class RequestUpdateListener implements ShouldQueue
     {
         $data = $request->broadcastWith();
 
+        \Log::debug('MarketplaceRideListener > data ' . json_encode($data, 1));
+
         foreach ($data['points'] as $key => $point) {
-            MarketplaceRepository::updateOrder($point->request_id, $point->id, $point->start_time, $point->finish_time, $request->request->is_cancelled);
+            MarketplaceRepository::updateOrder($point->request_id, $point->id, $point->start_time, $point->finish_time, $data['is_cancelled']);
         }
     }
 

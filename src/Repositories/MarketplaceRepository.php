@@ -55,35 +55,34 @@ class MarketplaceRepository
         if ($order) {
             $factory = MarketplaceFactory::create($order->factory);
 
-            $request_status = '';
-            $code = '';
-            $full_code = '';
+            $status = null;
+            $code = null;
             if (! $isCancelled) {
-                //TODO remove full_code need
+                $status = 0;
                 if ($pointStartTime != null && $order->code != OrderDetails::DISPATCHED) {
                     $factory->dispatchOrder($order);
-                    $request_status = 0;
                     $code = self::DISPATCHED;
-                    $full_code = self::mapFullCode(self::DISPATCHED);
                 }
+
                 if ($pointFinishTime) {
-                    $request_status = 0;
                     $code = self::CONCLUDED;
-                    $full_code = self::mapFullCode(self::CONCLUDED);
                 }
             } else {
-                $request_status = 1;
+                $status = 1;
                 $code = self::CANCELLED;
-                $full_code = self::mapFullCode(self::CANCELLED);
                 $factory->cancelOrder($order);
             }
 
-            if (isset($request_status) && isset($code) && $code != '') {
-                $order->request_status = $request_status;
+            if (! is_null($status) && ! is_null($code)) {
+                $order->request_status = $status;
                 $order->code = $code;
-                $order->full_code = $full_code;
-                $order->update();
+                $order->full_code = self::mapFullCode($code);
+                $order->save();
+            } else {
+                \Log::debug(sprintf('Pedido não atualizado para corrida: %s e ponto %s', $requestId, $pointId));
             }
+        } else {
+            \Log::warning(sprintf('Pedido não encontrado para corrida: %s e ponto %s', $requestId, $pointId));
         }
 
         return $order;
