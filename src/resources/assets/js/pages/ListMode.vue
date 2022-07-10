@@ -6,7 +6,10 @@
                     <h4 class="m-b-0 text-white">Pedidos</h4>
                 </div>
                 <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
-                    <refresh-screen v-if="$store.state.shops.length > 0" />
+                    <refresh-screen
+                        v-if="$store.state.shops.length > 0"
+                        @on-finish-count="getOrders"
+                    />
                 </div>
                 <div class="ma-5 align-center ">
                     <div class="row col-md-12 justify-end">
@@ -41,12 +44,25 @@
         <filter-orders></filter-orders>
 
         <div class="col-lg-12 w-100 h-50">
-            <v-card-text v-if="!loading && !$store.state.orders">
+            <v-card-text
+                v-if="
+                    $store.state.orders &&
+                        $store.state.orders.data &&
+                        $store.state.orders.data.length == 0
+                "
+            >
                 <div class="card-body">
-                    Não existe ordens para entrega!
+                    Não há pedidos disponíveis para entrega!
                 </div>
             </v-card-text>
-            <div v-if="!loading && $store.state.orders" class="card-body">
+            <div
+                v-if="
+                    $store.state.orders &&
+                        $store.state.orders.data &&
+                        $store.state.orders.data.length > 0
+                "
+                class="card-body"
+            >
                 <table class="table">
                     <th>Loja</th>
                     <th>Pedido</th>
@@ -274,11 +290,9 @@ export default {
         },
         objectData: {},
     }),
-    created() {
-        this.getShop();
-    },
     mounted() {
         console.log('Component mounted.');
+        this.getShop();
         this.getOrders();
         this.resultQuery();
     },
@@ -307,13 +321,7 @@ export default {
             }
             return x1 + x2;
         },
-        getShop() {
-            console.log('getShops');
-            this.$store.dispatch('getShops');
-        },
-        addShop() {
-            this.$store.dispatch('showModal', { key: 'addShop', data: '' });
-        },
+
         formatCurrency(value) {
             return value.toLocaleString('pt-BR', {
                 style: 'currency',

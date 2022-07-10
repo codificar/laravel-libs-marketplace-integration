@@ -1,4 +1,10 @@
 export default {
+    data() {
+        return {
+            searchQuery: '',
+            data: this.$store.filterOrders,
+        };
+    },
     methods: {
         getOrders() {
             if (this.$store.state.orders) {
@@ -8,22 +14,17 @@ export default {
         },
         getShop() {
             this.$store.dispatch('getShops');
-            this.getOrders();
         },
-        fetch(data = {}, page = 1) {
-            this.$store.dispatch('getOrders', data, page);
-            this.$nextTick();
+        fetch(page = 1) {
+            console.log('fetchdata > data ', this.$store.state.filterOrders);
+            this.$store.dispatch('getOrders', page);
         },
         makeRequest(type = 'makeRequest') {
             console.log('makeRequest > selected', this.selectedOrders);
             this.$store.dispatch(type, this.selectedOrders);
         },
-        resultQuery(keyword) {
-            console.log(
-                'resultquery > this.$store.state.orders:',
-                this.$store.state.orders.data
-            );
-
+        resultQuery() {
+            let keyword = this.$store.state.filterOrders.searchQuery;
             if (keyword) {
                 console.log('filter');
                 return this.$store.state.orders.data.filter((item) => {
@@ -54,8 +55,19 @@ export default {
             }
         },
     },
-    created() {
-        console.log('MIXIIN');
-        this.getShop();
+
+    watch: {
+        '$store.state.filterOrders': {
+            handler: function(newVal, oldVal) {
+                if (newVal != oldVal) this.fetch();
+            },
+            deep: true,
+        },
+        '$store.state.filterOrders.range': {
+            handler: function(newVal, oldVal) {
+                if (newVal != oldVal) this.fetch();
+            },
+            deep: true,
+        },
     },
 };

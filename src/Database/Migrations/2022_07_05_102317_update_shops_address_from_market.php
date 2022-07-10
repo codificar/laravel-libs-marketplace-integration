@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
 
 class UpdateShopsAddressFromMarket extends Migration
 {
@@ -14,7 +11,9 @@ class UpdateShopsAddressFromMarket extends Migration
      */
     public function up()
     {
-        \Artisan::call('db:seed', array('--class' => 'UpdateShopsAddressFromMarketConfigAddress', '--force' => null));
+        \Artisan::call('db:seed', ['--class' => 'UpdateShopsAddressFromMarketConfigAddress', '--force' => null]);
+
+        DB::statement("ALTER TABLE `market_config` CHANGE COLUMN `market` `market` ENUM('ifood', 'rappi', '99food', 'hubster', 'aiqfome', 'zedelivery') CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL ; ");
     }
 
     /**
@@ -24,6 +23,5 @@ class UpdateShopsAddressFromMarket extends Migration
      */
     public function down()
     {
-       
     }
 }
