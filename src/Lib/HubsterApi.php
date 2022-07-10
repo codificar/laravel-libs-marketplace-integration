@@ -171,4 +171,46 @@ class HubsterApi
     public function merchantDetails($merchantId)
     {
     }
+
+    /**
+     * Cancel a order status to ifood.
+     *
+     * @param id
+     */
+    public function cancelOrder($cancelData)
+    {
+        $headers = $this->headers;
+
+        $object = [
+            'cancellationReason'            => 'UNABLE_TO_DELIVER',
+            'cancelingParty'              => null
+        ];
+
+        try {
+            return $this->send('POST', sprintf('manager/order/v1/sources/%s/orders/%s/cancel', $cancelData['source'], $cancelData['orderId']), $headers, json_encode($object));
+        } catch (Exception $ex) {
+            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+
+            return false;
+        }
+    }
+
+    /**
+     * Dispatch a order status to ifood.
+     *
+     * @param id
+     */
+    public function dispatchOrder($id)
+    {
+        // try {
+        //     $headers = $this->headers;
+        //     $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+        //     return $this->send('POST', 'order/v1.0/orders/' . $id . '/dispatch', $headers, ['id' => $id]);
+        // } catch (Exception $ex) {
+        //     \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+
+        //     return false;
+        // }
+    }
 }

@@ -212,26 +212,33 @@ class HubsterLib
      * Dispatch order to api.
      * @return object
      */
-    public function dispatchOrder($orderId)
+    public function dispatchOrder($order)
     {
-        return $this->api->dispatchOrder($orderId);
+        // return $this->api->dispatchOrder($order->order_id);
     }
 
     /**
      * confirm order to api.
      * @return object
      */
-    public function confirmOrder($orderId)
+    public function confirmOrder($order)
     {
-        return $this->api->confirmOrder($orderId);
+        return $this->api->confirmOrder($order->order_id);
     }
 
     /**
      * Cancel order to api.
      * @return object
      */
-    public function cancelOrder($orderId)
+    public function cancelOrder($order)
     {
-        return $this->api->cancelOrder($orderId);
+        $cancelData = [
+            'source' =>  $order->marketplace,
+            'orderId' => $order->order_id
+        ];
+
+        $this->api->setStoreId($order->merchant_id);
+
+        return $this->api->cancelOrder($cancelData);
     }
 }
