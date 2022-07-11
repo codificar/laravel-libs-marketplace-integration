@@ -185,4 +185,13 @@ class IFoodLib
     {
         return $this->api->cancelOrder($order->order_id);
     }
+
+    /**
+     * fullfillOrder order to api.
+     * @return object
+     */
+    public function fullfillOrder($order)
+    {
+        //return $this->api->fullfillOrder($cancelData);
+    }
 }

@@ -65,6 +65,7 @@ class MarketplaceRepository
                 }
 
                 if ($pointFinishTime) {
+                    $factory->fullfillOrder($order);
                     $code = self::CONCLUDED;
                 }
             } else {

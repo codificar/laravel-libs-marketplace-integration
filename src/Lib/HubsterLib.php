@@ -232,13 +232,29 @@ class HubsterLib
      */
     public function cancelOrder($order)
     {
-        $cancelData = [
+        $data = [
             'source' =>  $order->marketplace,
             'orderId' => $order->order_id
         ];
 
         $this->api->setStoreId($order->merchant_id);
 
-        return $this->api->cancelOrder($cancelData);
+        return $this->api->cancelOrder($data);
+    }
+
+    /**
+     * fullfillOrder order to api.
+     * @return object
+     */
+    public function fullfillOrder($order)
+    {
+        $data = [
+            'source' =>  $order->marketplace,
+            'orderId' => $order->order_id
+        ];
+
+        $this->api->setStoreId($order->merchant_id);
+
+        return $this->api->fullfillOrder($data);
     }
 }

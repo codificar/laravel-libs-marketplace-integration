@@ -213,4 +213,22 @@ class HubsterApi
         //     return false;
         // }
     }
+
+    /**
+     * fullfill a order status to hubster.
+     *
+     * @param id
+     */
+    public function fullfillOrder($data)
+    {
+        $headers = $this->headers;
+
+        try {
+            return $this->send('POST', sprintf('manager/order/v1/sources/%s/orders/%s/fulfill', $data['source'], $data['orderId']), $headers);
+        } catch (Exception $ex) {
+            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+
+            return false;
+        }
+    }
 }
