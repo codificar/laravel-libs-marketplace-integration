@@ -57,13 +57,13 @@ export default {
     },
 
     watch: {
-        '$store.state.filterOrders': {
+        '$store.state.filterOrders.range': {
             handler: function(newVal, oldVal) {
                 if (newVal != oldVal) this.fetch();
             },
             deep: true,
         },
-        '$store.state.filterOrders.range': {
+        '$store.state.filterOrders.marketId': {
             handler: function(newVal, oldVal) {
                 if (newVal != oldVal) this.fetch();
             },

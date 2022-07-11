@@ -68,6 +68,7 @@ const store = new Vuex.Store({
             },
             range: [null, null],
             searchQuery: null,
+            marketId: null,
         },
     },
     mutations: {

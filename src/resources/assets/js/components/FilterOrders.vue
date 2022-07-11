@@ -22,11 +22,11 @@
                                 v-for="market in item.get_config"
                                 v-bind:key="market.id"
                                 :value="market.id"
-                                >{{ market.name }} -
+                                >{{ market.name }}
                                 {{
-                                    market.status == 'AVAILABLE'
-                                        ? 'ABERTA'
-                                        : 'FECHADA'
+                                    market.status_label != undefined
+                                        ? '- ' + market.status_label
+                                        : ''
                                 }}</option
                             >
                         </optgroup>
