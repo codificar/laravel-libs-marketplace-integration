@@ -59,7 +59,7 @@ class MarketplaceRepository
             $code = null;
             if (! $isCancelled) {
                 $status = 0;
-                if ($pointStartTime != null && $order->code != OrderDetails::DISPATCHED) {
+                if ($pointStartTime != null && $order->code != self::DISPATCHED) {
                     $factory->dispatchOrder($order);
                     $code = self::DISPATCHED;
                 }

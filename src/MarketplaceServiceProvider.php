@@ -47,6 +47,14 @@ class MarketplaceServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../public/' => public_path('vendor/codificar/marketplace-integration/'),
         ], 'public_vuejs_libs');
+
+        /**
+         * Schedule package commands.
+         */
+        $this->app->booted(function () {
+            $schedule->command('marketplace:polling')->everyMinute()->withoutOverlapping();
+            $schedule->command('marketplace:dispatch')->everyMinute()->withoutOverlapping();
+        });
     }
 
     public function register()
