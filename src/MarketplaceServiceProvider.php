@@ -6,6 +6,7 @@ use App\Events\RequestUpdate;
 use Codificar\MarketplaceIntegration\Console\Commands\AutomaticDispatch;
 use Codificar\MarketplaceIntegration\Console\Commands\Polling;
 use Codificar\MarketplaceIntegration\Listeners\MarketplaceRideListener;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 
 class MarketplaceServiceProvider extends ServiceProvider
@@ -52,6 +53,8 @@ class MarketplaceServiceProvider extends ServiceProvider
          * Schedule package commands.
          */
         $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+
             $schedule->command('marketplace:polling')->everyMinute()->withoutOverlapping();
             $schedule->command('marketplace:dispatch')->everyMinute()->withoutOverlapping();
         });
