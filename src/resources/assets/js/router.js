@@ -2,7 +2,10 @@ import Vue from 'vue';
 import VueRouter from "vue-router";
 
 import Home from "./pages/Home";
+import ListMode from "./pages/ListMode";
+import MapMode from "./pages/MapMode";
 import Credentials from "./pages/Credentials";
+import ZeDeliveryImport from "./pages/ZeDeliveryImport";
 import Settings from './pages/Settings';
 
 Vue.use(VueRouter);
@@ -11,9 +14,19 @@ const router = new VueRouter({
     mode: 'history',
     routes: [
         {
-            path: '/corp/marketplace/integration',
-            name: 'home',
-            component: Home
+            path: '/corp/marketplace/integration/list',
+            name: 'list',
+            component: ListMode
+        },
+        {
+            path: '/corp/marketplace/integration/map',
+            name: 'map',
+            component: MapMode
+        },
+        {
+            path: '/corp/marketplace/settings',
+            name: 'settings',
+            component: Settings
         },
         {
             path: '/admin/marketplace-integration/credentials',
@@ -21,9 +34,9 @@ const router = new VueRouter({
             component: Credentials
         },
         {
-            path: '/corp/marketplace/settings',
-            name: 'settings',
-            component: Settings
+            path: '/admin/marketplace-integration/zedelivery/import',
+            name: 'zedeliveryimport',
+            component: ZeDeliveryImport
         }
     ]
 });

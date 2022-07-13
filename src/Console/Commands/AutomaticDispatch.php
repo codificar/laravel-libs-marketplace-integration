@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
 
+
 class AutomaticDispatch extends Command
 {
     /**
@@ -41,7 +42,7 @@ class AutomaticDispatch extends Command
     public function handle()
     {
         // if not enabled return false
-        if(!\Settings::findByKey('automatic_dispatch_enabled')) {
+        if(! \Settings::findByKey('automatic_dispatch_enabled')) {
             $this->info("Automatic dispatch is disabled");
             return ;
         }

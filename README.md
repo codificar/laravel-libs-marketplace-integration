@@ -1,5 +1,8 @@
 # Integrações disponíveis
 
+Os dados de acesso de cada integração encontra-se aqui:
+https://projetos.codificar.com.br/projects/desenvolvimento/wiki/Acessos_aos_Marketplaces
+
 ## iFood
 
 Esse módulo atualmente somente está compatível com o iFood, pois é o principal marketplace do Brasi.
@@ -9,6 +12,7 @@ A documentação do iFood pode ser acessada pela URL:
 https://developer.ifood.com.br/pt-BR/docs/guides
 
 ### Gerar um pedido de Testes
+
 
 Leia atentamente a documentação: https://developer.ifood.com.br/pt-BR/docs/guides/order/workflow/#testes
 
@@ -25,8 +29,25 @@ Mas em resumo os procedimentos são:
 7. No Linux, abra o arquivo insomnia.json na pasta root deste projeto e execute a confirmação do pedido
 
 
+## Hubster
 
+A API do Hubster tem dois tipos de integração, nessa versão atual do código temos apenas integração com o POS e não com a parte de delivery.
 
+Mas o que importa para nós é exatamente o POS, que recebe o pedido criado, independente da plataforma.
+
+### Gerar um pedido de Testes
+
+Segue passos para testar:
+
+1. Faça o login em: https://app-staging.tryhubster.com/orders. Solicite os dados de login para o cliente que deseja homologar, ou acesse a WIKI da Codificar para ter acesso aos dados. https://projetos.codificar.com.br/projects/desenvolvimento/wiki/Acessos_aos_Marketplaces?parent=Wiki
+2. Vá na diagonal direita superior e clique em adicionar um novo pedido. 
+3. Escolha a opção de delivery, preencha os dados de endereço , selecione os itens do pedido e faça o pedido.
+4. Nesse momento deverá chegar um webhook de novo pedido no controller: MarketplaceController::webhook
+
+Para visualizar se o webhook e o APP está configurado, faça os seguintes passos:
+
+1. Acesse e faça o login https://developer-staging.tryhubster.com/applications/c8f9a164-ac52-486f-bb85-74c3c7cc0518/event-logs
+2. Confira se os logs estão corretos para o APP.
 
 # Ambiente de Dev
 

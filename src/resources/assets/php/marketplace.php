@@ -8,4 +8,8 @@ $institutionId = DispatchRepository::getInstitutionIdFromGuard();
 window.marketplaceSettings = {
     providerType: '<?= DispatchRepository::getProviderType($institutionId) ?>',
     paymentMode: '<?= DispatchRepository::getPaymentMode($institutionId) ?>',
+    autocompleteUrl: '<?= URL::Route('corpAutocompleteUrl') ?>',
+    geocodeUrl: '<?= URL::Route('corpGeocodeUrl') ?>',
+    placeDetailUrl: '<?= URL::Route('adminGeocodeGetPlaceDetail') ?>',
+    placesProvider: '<?= \Settings::getPlacesProvider() ?>',
 }

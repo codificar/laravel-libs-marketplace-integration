@@ -2,235 +2,77 @@
 
 namespace Codificar\MarketplaceIntegration\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Codificar\MarketplaceIntegration\Http\Requests\ShopsFormRequest;
 use Codificar\MarketplaceIntegration\Http\Resources\ShopResource;
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Codificar\MarketplaceIntegration\Models\Shops;
-use App\Http\Controllers\Controller;
-use Codificar\MarketplaceIntegration\Http\Controllers\DeliveryFactory;
-use Illuminate\Http\Request;
-use Codificar\MarketplaceIntegration\Lib\IFoodApi;
-
-use Carbon\Carbon;
 
 class ShopsController extends Controller
 {
-    public function index()
-    {
-        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
-        \Log::debug(__CLASS__.__FUNCTION__.'$shops:=>  '.print_r($shops,1));
-
-        foreach ($shops as $key => $value) 
-        {
-            if ($value->getConfig) 
-            {
-                foreach ($value->getConfig as $key => $item) 
-                {
-                    $deliveryFactory = new DeliveryFactory();
-                    \Log::debug('$v: '.print_r($item,1));
-                    $res = $deliveryFactory->getMerchantDetails($value->id, (object)['merchant_id' => $item->merchant_id, 'id' => $item->shop_id]);
-                    \Log::debug("Status: ".print_r($res,1));
-                    $item->status = isset($res->status) ? $res->status : "UNAVIABLE";
-                }
-            }
-        }
-        return $shops;
-    }
-
+    /**
+     * Function to store (save or update) shops model.
+     * @return ShopResource
+     */
     public function store(ShopsFormRequest $request)
-    {        
+    {
         $user = \Auth::guard('web_corp')->user();
-        $shop = Shops::create([
+        $shop = Shops::updateOrCreate([
+            'id'            => $request->shop_id
+        ], [
             'name'          => $request->name,
             'institution_id'=> $user->AdminInstitution->institution_id,
-            'status_reload' => $request->status_reload ? $request->status_reload : 0,
+            'status_reload' =>  0,
+            'full_address'  => $request->full_address,
+            'latitude'      => $request->latitude,
+            'longitude'     => $request->longitude,
+
         ]);
-        \Log::debug("shop: ".json_encode($shop->id,1));
 
-        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
-        \Log::debug("shops: ".json_encode($shops,1));
-        return new ShopResource($shops);
-    }
-
-    public function status(Request $request)
-    {
-        $user = \Auth::guard('web_corp')->user();
-        $shop = Shops::where('institution_id', $user->AdminInstitution->institution_id)
-                    ->update([
-            'institution_id'=> $user->AdminInstitution->institution_id,
-            'status_reload' => $request->status_reload ? $request->status_reload : 0
-        ]);
-    }
-
-    public function update(ShopsFormRequest $request)
-    {
-        $user = \Auth::guard('web_corp')->user();
-        $shop = Shops::where('id', $request->id)->update([
-            'name'          => $request->name,
-            'institution_id'=> $user->AdminInstitution->institution_id,
-        ]);
-        $data = Shops::where('id', $request->id)->get();
-        
-        foreach ($data as $key => $value) {
-            $value->getConfig;
-        }
-
-        return $data[0];
-    }
-
-    public function storeMarketConfig(Request $request)
-    {
-        // \Log::debug(__CLASS__.__FUNCTION__."request=>".print_r($request->all(),1));
-
-        \DB::beginTransaction();
-
-        // $marketConfig = MarketConfig::create([
-        //     'shop_id'       => $request->id,
-        //     'merchant_id'   => $request->merchant_id,
-        //     'name'          => $request->merchant_name,
-        //     'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
-        // ]);
-        // // \Log::debug(__CLASS__.__FUNCTION__."marketConfig =>".print_r($marketConfig ,1));
-
-        $shop = Shops::find($request->id);
-        $res = new DeliveryFactory();
-        if ($shop->expiry_token == NULL || Carbon::now() > Carbon::parse($shop->expiry_token)) {
-            \Log::debug(__CLASS__.__FUNCTION__."Entrou: ".Carbon::now());
-            $res->auth($shop->id);
-        }
-        $response = $res->getMerchantDetails($request->id, $request);
-        \Log::debug('response: getMerchantDetails=> '.print_r($response,1));
-        if (is_object($response)) 
-        {
-            \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($request->merchant_name ,1));
-
-            
-            $marketConfig = MarketConfig::create([
-                'shop_id'       => $request->id,
-                'merchant_id'   => $request->merchant_id,
-                'name'          => $request->merchant_name,
-                'market'        => ($request->select == 1) ? 'ifood' : 'rappi',
-                'latitude'      => $response->address->latitude,
-                'longitude'     => $response->address->longitude,
-                'address'       => json_encode($response->address),
-            ]);
-
-            // \Log::debug(__CLASS__.__FUNCTION__."marketConfig with address=>".print_r($marketConfig ,1));
-
-            \DB::commit();
-            return $marketConfig;
-        } else if (is_array($response)) {
-            \Log::debug('response: '.print_r($response,1));
-            
-            \DB::rollBack();
-            return $response;
-        }
-        
+        return new ShopResource([$shop]);
     }
 
     /**
-     * 
-     * Update market configuration
-     * 
-     * @return ShopResource
+     * Function to get the shop list dropdown.
+     * @return array Shops
      */
-    public function updateMarketConfig(Request $request)
+    public function index()
     {
-        $api = new IFoodApi;
-        $api = json_encode($api->getMerchantDetails('',$request->merchant_id));
+        $shops = Shops::where('institution_id', '=', \Auth::guard('web_corp')->user()->AdminInstitution->institution_id)->get();
 
-        \Log::debug("  request -> ". print_r($request->all(),1));
+        foreach ($shops as $key => $value) {
+            if ($value->getConfig) {
+                foreach ($value->getConfig as $key => $marketConfig) {
+                    if ($marketConfig->market == MarketplaceFactory::IFOOD) {
+                        $factory = MarketplaceFactory::create($marketConfig->market);
+                        $res = $factory->merchantDetails($marketConfig->merchant_id);
 
-        if(property_exists($api,'address'))
-        {
-            \Log::info("save address from ifood too");
-            MarketConfig::where('id', $request->id)->update([
-                'name'          => $request->merchant_name,
-                'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
-                'merchant_id'   => $request->merchant_id,
-                'address'       => json_encode($api->address) 
-            ]);
-        } else {
-            MarketConfig::where('id', $request->id)->update([
-                'name'          => $request->merchant_name,
-                'market'        => ($request->select['id'] == 1) ? 'ifood' : 'rappi',
-                'merchant_id'   => $request->merchant_id
-            ]);
+                        $marketConfig->status = isset($res->status) ? $res->status : 'CLOSED';
+                        $marketConfig->status_label = isset($res->status) ? trans('marketplace-integration::market_config.store_open') : trans('marketplace-integration::market_config.store_closed');
+                    } else {
+                        $marketConfig->status_label = null;
+                    }
+                }
+            }
         }
 
-
-        return new ShopResource($request);
+        return $shops;
     }
 
-    public function deleteMarketConfig(Request $request)
+    /**
+     * Function to delete market config.
+     * @return
+     */
+    public function delete($shopId)
     {
-        \Log::debug('deleteMarketConfig=>SHOPS: '.print_r($request->all(), 1));
         $response = ['success' => false];
 
-        $data = MarketConfig::find($request->id);
+        $destroy = Shops::destroy($shopId);
 
-        if (is_object($data))
-        {
-            $data->delete();
+        if ($destroy) {
             $response['success'] = true;
         }
 
-        return new ShopResource($response);
-    }
-
-    public function delete($id)
-    {
-        $data = Shops::find($id);
-
-        if (is_object($data))
-        {
-            $data->delete();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function iFoodCredentials(Request $request)
-    {
-        \Log::debug('Credentials: '.print_r($request->all(), 1));
-        $client_id          = \Settings::updateOrCreate([
-            'key'   =>  'ifood_client_id'],[
-            'value' => $request->ifood_client_id
-        ]);
-        $client_secret      = \Settings::updateOrCreate([
-            'key'   =>  'ifood_client_secret'],[
-            'value' => $request->ifood_client_secret
-        ]);
-
-        if ($client_id && $client_secret) {
-            return [
-                'code'      => 200,
-                'message'   => 'Salvo com sucesso!'
-            ];
-        } else {
-            return [
-                'code'      => 401,
-                'message'   => 'Erro ao salvar as credenciais!'
-            ];
-        }
-    }
-
-    public function getIfoodCredentials()
-    {
-        $client_id          = \Settings::where('key', 'ifood_client_id')->first();
-        $client_secret      = \Settings::where('key', 'ifood_client_secret')->first();
-        if ($client_secret && $client_id) {
-            return [
-                'ifood_client_id'       => $client_id,
-                'ifood_client_secret'   => $client_secret
-            ];
-        } else {
-            return [
-                'code'      => 404,
-                'message'   => 'Cadastre as cerdenciais iFood!'
-            ];
-        }
-        
+        return $response;
     }
 }
