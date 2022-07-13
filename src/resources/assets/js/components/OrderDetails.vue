@@ -17,13 +17,13 @@
                                 class="mr-5"
                             >
                                 <v-img
-                                :src="require('../../img/ifood.jpg')"
+                                :src="'/vendor/codificar/marketplace-integration/img/' + $store.state.dataOrder.data.factory + '.jpg'"
                                 alt="iFood"
                                 />
                             </v-avatar>
                         </div>
                         <div class="font-weight-medium">
-                            {{$store.state.shops.filter(element => element.id == $store.state.dataOrder.data.shop_id)[0].name}}
+                            {{$store.state.dataOrder.data.market_name}}
                         </div>
                     </div>
                 </v-col>

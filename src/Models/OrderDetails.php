@@ -6,37 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Codificar\MarketplaceIntegration\Models\MarketConfig ;
+use Codificar\MarketplaceIntegration\Models\DeliveryAddress ;
+use Codificar\MarketplaceIntegration\Models\Shops ;
+
+use Location\Coordinate;
+use Location\Distance\Vincenty;
 
 class OrderDetails extends Model
 {
-    // Constants from iFood
-
-    // ORDER_STATUS 
-    const PLACED = 'PLC' ; // Novo Pedido na plataforma
-    const CONFIRMED = 'CFM' ; // Pedido foi confirmado e será preparado
-    const READY_TO_PICKUP = 'RTP' ; // ndica que o pedido está pronto para ser retirado (Pra Retirar ou Na Mesa)
-    const DISPATCHED = 'DSP' ; // Indica que o pedido saiu para entrega (Delivery)
-    const CONCLUDED = 'CON' ; // Pedido foi concluído
-    const CANCELLED = 'CAN' ; // Pedido foi Cancelado
-
-    // DELIVERY
-    const ASSIGN_DRIVER = 'ADR' ; // Um entregador foi alocado para realizar a entrega
-    const GOING_TO_ORIGIN = 'GTO' ; //  Entregador está a caminho da origem para retirar o pedido
-    const ARRIVED_AT_ORIGIN = 'AAO' ; // Entregador chegou na origem para retirar o pedido
-    const COLLECTED = 'CLT' ; // Entregador coletou o pedido
-    const ARRIVED_AT_DESTINATION = 'AAD' ; // Entregador chegou no endereço de destino
-
-    // DELIVERY ON DEMAND
-    const REQUEST_DRIVER_AVAILABILITY = 'RDA' ; // ndica se o pedido é elegível para requisitar o serviço de entrega sob demanda e o custo do serviço caso seja elegível
-    const REQUEST_DRIVER = 'RDR' ; // Indica que foi feita uma requisição do serviço de entrega sob demanda
-    const REQUEST_DRIVER_SUCCESS = 'RDS' ; // Requisição de entrega aprovada
-    const REQUEST_DRIVER_FAILED = 'RDF' ; // Requisição de entrega negada Valores possíveis: SAFE_MODE_ON, OFF_WORKING_SHIFT_POST, CLOSED_REGION, SATURATED_REGION
-
-    // OUTROS
-    const PATCH_COMMITTED = 'PCO' ;
-    const RECOMMENDED_PREPARATION_START = 'RPS' ; // Pedido começou a ser preparado
-    const CONSUMER_CANCELLATION_DENIED = 'CCD' ;
-   
+    
     use SoftDeletes;
     
     protected $table = 'order_detail';
@@ -50,13 +28,15 @@ class OrderDetails extends Model
         'order_id',
         'full_code',
         'code',
-        'ifood_id',
+        'marketplace_order_id',
+        'created_at_marketplace',
+        'marketplace',
+        'aggregator',
         'order_type',
         'display_id',
-        'createdAt',
         'preparation_start_date_time',
         'customer_id',
-        'subtotal',
+        'sub_total',
         'delivery_fee',
         'benefits',
         'order_amount',
@@ -67,6 +47,14 @@ class OrderDetails extends Model
         'card_brand',
         'extra_info'
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['shop_name', 'market_name', 'factory'];
+
 
     protected $dates = [
         'created_at',
@@ -80,7 +68,7 @@ class OrderDetails extends Model
      */
     public function address()
     {
-        return $this->hasOne('Codificar\MarketplaceIntegration\Models\DeliveryAddress', 'order_id', 'order_id');
+        return $this->hasOne(DeliveryAddress::class, 'order_id', 'order_id');
     }
      
     /**
@@ -94,14 +82,67 @@ class OrderDetails extends Model
 
 
     /**
+     * Get the market_config that owns the merchant_id.
+     * @return Shops
+     */
+    public function shop()
+    {
+        return $this->hasOne(Shops::class, 'id', 'shop_id');
+    }
+
+
+    /**
      * Get the address associated with the market_config 
      * @return string market_address
      */
     public function getMarketFormattedAddressAttribute(){
-        if($this->market_address){
-            $decoded = json_decode($this->market_address);
+        if($this->market && $this->market->marketplace_address){
+            $decoded = this->market->marketplace_address;
 
             return sprintf('%s - %s', $decoded->street, $decoded->district);
         }
     }
+
+
+    /**
+     * Get the factory string
+     * @return string marketplace factiro
+     */
+    public function getFactoryAttribute(){
+        if($this->aggregator) return $this->aggregator;
+
+        return $this->marketplace;
+    }
+
+    /**
+     * Get the shop name string
+     * @return string shop name
+     */
+    public function getShopNameAttribute(){
+        if($this->shop) return $this->shop->name;
+
+        return null;
+    }
+
+    /**
+     * Get the market name string
+     * @return string market name
+     */
+    public function getMarketNameAttribute(){
+        if($this->market && isset($this->market->name)) return $this->market->name;
+
+        return null;
+    }
+
+
+    /**
+     * Get the address associated with the order.
+     * @return DeliveryAddress
+     */
+    public function deliveryAddress()
+    {
+        return DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->last();
+    }
+
+
 }
