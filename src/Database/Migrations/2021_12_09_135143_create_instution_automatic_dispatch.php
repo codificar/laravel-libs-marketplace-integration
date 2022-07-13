@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+
 class CreateInstutionAutomaticDispatch extends Migration
 {
     /**
@@ -15,20 +16,20 @@ class CreateInstutionAutomaticDispatch extends Migration
     {
 
         try{
-            \Settings::updateOrCreate(array('key' => 'automatic_dispatch_enabled', 'value' => false));
+             \Settings::updateOrCreate(array('key' => 'automatic_dispatch_enabled', 'value' => false));
         }
         catch(Exception $ex){
 
         }
 
         try{
-            \Settings::updateOrCreate(array('key' => 'dispatch_wait_time_limit', 'value' => 10));
+             \Settings::updateOrCreate(array('key' => 'dispatch_wait_time_limit', 'value' => 10));
         }
         catch(Exception $ex){
 
         }
         try{
-            \Settings::updateOrCreate(array('key' => 'dispatch_max_delivery', 'value' => 3));
+             \Settings::updateOrCreate(array('key' => 'dispatch_max_delivery', 'value' => 3));
         
         }
         catch(Exception $ex){

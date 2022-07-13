@@ -2,12 +2,11 @@
 
 namespace Codificar\MarketplaceIntegration\Console\Commands;
 
-use Codificar\MarketplaceIntegration\Http\Controllers\IFoodController;
-use Codificar\MarketplaceIntegration\Models\MarketConfig;
-use Codificar\MarketplaceIntegration\Models\Shops;
+use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Illuminate\Console\Command;
 use Log;
 use Carbon\Carbon;
+
 
 class Polling extends Command
 {
@@ -43,11 +42,9 @@ class Polling extends Command
     public function handle()
     {
         // just polling if has the proper configurations
-        if(\Settings::findByKey('ifood_client_id') && \Settings::findByKey('ifood_client_secret')){
-            $this->polling();
-            sleep(30);
-            $this->polling();
-        }
+        $this->polling();
+        sleep(30);
+        $this->polling();
     }
 
     /**
@@ -56,28 +53,10 @@ class Polling extends Command
      * @return mixed
      */
     public function polling()
-    {
-        \Log::notice(__FUNCTION__);
-    
-        $factory = new IFoodController();
-        
-        
-        $expiryToken  = \Settings::findByKey('ifood_expiry_token');
-        if ($expiryToken == NULL || Carbon::parse($expiryToken) < Carbon::now()) {
-            $factory->auth();
+    {   
+        foreach (MarketplaceFactory::$pollingMarketplaces as $market) {
+            $factory = MarketplaceFactory::create($market);
+            $factory->newOrders();                   
         }
-
-        $res = $factory->getOrders();                   
-        
-        if ($res) {
-            foreach ($res as $i => $v) {
-                $acknowledgment = $factory->getAcknowledgment($v);
-                if ($res) {
-                    $factory->getOrderDetails($v->orderId);
-                }
-                
-            }
-        } 
-        
     }
 }

@@ -3,10 +3,9 @@
     class="card card-outline-info"
   >
     <div class="modal-header">
-      <span v-if="$store.state.modalContent == 'addShop'"> Adicionar Loja </span>
-      <span v-if="$store.state.modalContent == 'edit_shop'"> Editar da Loja </span>
-      <span v-if="$store.state.modalContent == 'add_marketPlace'"> Adicionar da Marketplace </span>
-      <span v-if="$store.state.modalContent == 'edit_marketPlace'"> Editar da Marketplace </span>
+      <span v-if="$store.state.shop == undefined"> Adicionar Loja / Localização </span>
+      <span v-if="$store.state.shop != undefined"> Editar Loja / Localização </span>
+      
       <button type="button" @click="closeModal()"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="panel-body">
@@ -18,41 +17,37 @@
           data-test="shop_form"
         >
           <v-text-field
-            v-if="$store.state.modalContent == 'addShop'"
             v-model="form.name"
             :rules="nameRules"
             label="Nome da Loja"
             data-test="shop_name"
             required
-          ></v-text-field>
-            <v-select
-              v-if="$store.state.modalContent == 'add_marketPlace' || $store.state.modalContent == 'edit_marketPlace'"
-              v-model="form.select"
-              :items="items"
-              item-value="id"
+          >
+          </v-text-field>
 
-              data-test="marketplace_name"
-              item-text="name"
-              :rules="[v => !!v || 'Item é obrigatório']"
-              label="Marketplace"
-              @change="checkAnswer"
-              required
-            ></v-select>
-          <v-text-field
-            v-if="form.select || $store.state.modalContent == 'edit_marketPlace'"
-            v-model="form.merchant_id"
-            data-test="merchant_id"
-            label="MERCHANT_ID"
-            required
-          ></v-text-field>
-          <v-text-field
-            v-if="form.select || $store.state.modalContent == 'edit_marketPlace'"
-            v-model="form.merchant_name"
 
-            data-test="merchant_name"
-            label="Nome"
-            required
-          ></v-text-field>
+          <VueAddressAutocomplete
+              class="autocompleteAdress"
+              ref="address_autocomplete"
+              :PlaceHolderText="
+                trans('requests.type_and_select_address')
+              "
+              :AutocompleteParams="getAutocompleteParams"
+              :AutocompleteUrl="autocompleteUrl"
+              :GeocodeUrl="geocodeUrl"
+              :GetPlaceDetailsRoute="placeDetailUrl"
+              :MinLength="5"
+              :Delay="1000"
+              @addressSelected="setPlace"
+              :Address="form.full_address"
+              
+              :NeedAddressNumberText="
+                trans('common_address.with_no_number')
+              "
+              :PurveyorPlaces="placesProvider"
+              :RefreshSessionDeflateSearch="true"
+          />
+
           <v-btn
             :disabled="!valid"
             color="success"
@@ -62,6 +57,7 @@
           >
             Salvar
           </v-btn>
+
         </v-form>
       </div>
     </div>
@@ -69,8 +65,14 @@
 </template>
 
 <script>
+
+import VueAddressAutocomplete from "vue-address-autocomplete";
+
 export default {
     name: 'FormShop',
+    components: {
+      VueAddressAutocomplete
+    },
     props: {
       data: {
         type: Object,
@@ -83,80 +85,50 @@ export default {
       ],
       items: [
         {
-            id: 1,
+            id: 'ifood',
             name: 'iFood'
         },
         {
-            id: 2,
+            id: 'hubster',
+            name: 'Hubster'
+        },
+        {
+            id: '99food',
+            name: '99 Food'
+        },
+        {
+            id: 'zedelivery',
+            name: 'Zé Delivery'
+        },
+        {
+            id: 'rappi',
             name: 'Rappi'
         }       
       ],
       form: {
-        id: '',
+        shop_id: '',
         name: '',
-        select: null,
-        client_id: '',
-        client_secret: '',
-        merchant_id: '',
-        merchant_name: ''
+        full_address: '',
+        latitude: 0,
+        longitude: 0
       },
     }),
     mounted(){
       console.log("Props: ", this.data);
-      if (this.$store.state.modalContent == 'edit_shop') {
-        this.form.id = this.data.data.id;
-        this.form.name = this.data.data.name;        
-        this.items.forEach(element => {
-          if (element.name.toLowerCase() == this.data.data.get_config[0].market) {
-            this.form.select = element
-          }
-        });
-        this.form.client_id = this.data.data.get_config[0].client_id;
-        this.form.client_secret = this.data.data.get_config[0].client_secret;
-        this.form.merchant_id = this.data.data.get_config[0].merchant_id;
-        this.form.merchant_name = this.data.data.get_config[0].merchant_name;
-        
-      } else if (this.$store.state.modalContent == 'edit_marketPlace') {
-        this.form.id = this.data.data.id;
-        this.form.name = this.data.data.name;        
-        this.items.forEach(element => {
-          if (element.name.toLowerCase() == this.data.data.market) {
-            this.form.select = element
-          }
-        });
-        this.form.client_id = this.data.data.client_id;
-        this.form.client_secret = this.data.data.client_secret;
-        this.form.merchant_id = this.data.data.merchant_id;
-        this.form.merchant_name = this.data.data.merchant_name;
-        
-      } else if (this.$store.state.modalContent == 'add_marketPlace') {
-        this.form.id = this.data.data.id;
+      
+      if(this.data) {
+        this.form.shop_id       = this.data.id;
+        this.form.name          = this.data.name;   
+        this.form.full_address  = this.data.full_address;   
+        this.$refs.address_autocomplete.setPropsAdress(this.form.full_address);
+        this.form.latitude      = this.data.latitude;   
+        this.form.longitude     = this.data.longitude;        
       }
+
     },
     methods: {
       saveShop() {
-        console.log("SaveShop: ", this.form);
-        switch (this.$store.state.modalContent) {
-          case 'addShop':
-            this.$store.dispatch('saveShopConfigs', {key: this.$store.state.modalContent, data: this.form});
-          break;
-          case 'edit_shop':
-            this.$store.dispatch('editShopConfigs', this.form);
-          break;
-          case 'add_marketPlace':
-            this.$store.dispatch('addMarketConfig', this.form);
-          break;
-          case 'edit_marketPlace':
-            console.log("edit_marketplace Form");
-            this.$store.dispatch('editMarketConfig', this.form);
-          break;
-          default:
-
-          break;
-        }
-      },
-      editShop(id){
-        this.$store.dispatch('editShop', id);
+        this.$store.dispatch('storeShop', this.form);
       },
       deleteShop(id){
         this.$store.dispatch('deleteShop', id);
@@ -172,14 +144,49 @@ export default {
       },
       checkAnswer(item) {
         console.log(item);
-        console.log(this.form.select);
+        console.log(this.form.marketplace);
       },
       closeModal() {
         this.$store.dispatch('showModal', this.$store.state.sheet)
-      }
+      },
+      setPlace(place) {
+        console.log('place:', place);
+        this.form.full_address  = place.address;
+        this.form.latitude      = place.latitude;
+        this.form.longitude     = place.longitude;
+        
+      },
+    },
+    computed: {
+      autocompleteUrl() {
+        return  window.marketplaceSettings.autocompleteUrl ;
+      },
+      geocodeUrl() {
+        return  window.marketplaceSettings.geocodeUrl ;
+      },
+      placeDetailUrl() {
+        return  window.marketplaceSettings.placeDetailUrl ;
+      },
+      placesProvider() {
+        return  window.marketplaceSettings.placesProvider ;
+      },
+      fullAddress() {
+        return  form.full_address ;
+      },
+      getAutocompleteParams() {
+        const params = {
+          id: window.marketplaceSettings.userId,
+          user_id: window.marketplaceSettings.userId,
+          token: window.marketplaceSettings.userToken,
+          latitude: 25,
+          longitude: 45,
+        };
+
+        return params;
+      },
     },
     watch: {
-        'form.select': {
+        'form.marketplace': {
             handler: function(newVal, oldVal){
                 console.log("OldVal settings: ", oldVal);
                 console.log("newVal settings: ", newVal);
@@ -191,5 +198,16 @@ export default {
 </script>
 
 <style>
+
+  .autocompleteAdress .vs__dropdown-toggle{
+    border:none;
+    border-bottom: 1px solid black;
+    border-radius: 0 ;
+  } 
+
+
+  .autocompleteAdress .vs__dropdown-menu {
+    position:relative;
+  }
 
 </style>

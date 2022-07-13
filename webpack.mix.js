@@ -12,10 +12,12 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('src/resources/assets/js/app.js', 'public/js').vue();
+mix.js('src/resources/assets/js/marketplace-integration.js', 'public/js').vue();
 
 mix.sass('src/resources/sass/app.scss', 'public/css');
  
 mix.copy('src/resources/assets/img', 'public/img')
  .copy('public', '../../../public/vendor/codificar/marketplace-integration')
  .webpackConfig(require('./webpack.config'));
+
+ mix.copyDirectory('public/js', '../../../public/vendor/codificar/marketplace-integration/js');

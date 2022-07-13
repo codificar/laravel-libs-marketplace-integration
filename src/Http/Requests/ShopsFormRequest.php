@@ -5,6 +5,9 @@ namespace Codificar\MarketplaceIntegration\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response;
+
+
 
 class ShopsFormRequest extends FormRequest
 {
@@ -26,7 +29,10 @@ class ShopsFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => 'required|string|min:5',
+            'name'              => 'required|string|min:5',
+            'full_address'      => 'required|string|min:5',
+            'latitude'          => 'required|numeric',
+            'longitude'         => 'required|numeric',
         ];
     }
 
@@ -36,6 +42,18 @@ class ShopsFormRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json(['success' => false, 'errors' => $validator->errors()->all(), 'message' => trans('required')]));
+        $this->statusCode  = Response::HTTP_UNPROCESSABLE_ENTITY ;
+        throw new HttpResponseException(
+            response()
+                ->json(
+                    [
+                        'success' => false,
+                        'errors' => $validator->errors()->all(),
+                        'error_code' => $this->statusCode,
+                    ]
+                )
+                ->setStatusCode($this->statusCode)
+        );
+        
     }
 }
