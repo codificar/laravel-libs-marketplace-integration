@@ -136,7 +136,7 @@ class HubsterLib
                 'request_id'                    => null,
                 'client_name'                   => $customerName,
                 'merchant_id'                   => $storeId,
-                'marketplace'                   => $external['source'],
+                'marketplace'                   => $this->treatMarketplace($external['source']),
                 'aggregator'                    => MarketplaceFactory::HUBSTER,
                 'order_type'                    => MarketplaceRepository::DELIVERY,
                 'display_id'                    => $external['friendlyId'],
@@ -256,5 +256,18 @@ class HubsterLib
         $this->api->setStoreId($order->merchant_id);
 
         return $this->api->fullfillOrder($data);
+    }
+
+    /**
+     * treatMarketplace to treat whats is the marketplace.
+     * @return string
+     */
+    private function treatMarketplace($source)
+    {
+        if (strstr($source, 'ifood')) {
+            $source = 'ifood';
+        }
+
+        return $source;
     }
 }
