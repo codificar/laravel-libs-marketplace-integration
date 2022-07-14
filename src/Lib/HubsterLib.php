@@ -94,7 +94,7 @@ class HubsterLib
         $totalV2 = $payload['orderTotalV2'];
 
         if ($totalV2) {
-            $prePaid = $totalV2['customerPayment']['customerPrepayment'];
+            $prePaid = boolval($totalV2['customerPayment']['customerPrepayment']);
         } else {
             $prePaid = 0;
         }
