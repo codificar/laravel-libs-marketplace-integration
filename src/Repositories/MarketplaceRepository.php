@@ -93,7 +93,7 @@ class MarketplaceRepository
      * Get orders from database.
      * @return Collection of orders
      */
-    public static function getOrders($shopId = null, $marketId = null, $startTime = null, $endTime = null)
+    public static function getOrders($institutionId, $shopId = null, $marketId = null, $startTime = null, $endTime = null)
     {
         $query = OrderDetails::query();
 
@@ -105,12 +105,14 @@ class MarketplaceRepository
             $query->where('order_detail.created_at', '>', $startTime);
         }
 
+        $query->join('shops', 'order_detail.shop_id', '=', 'shops.id');
+        $query->where('shops.institution_id', $institutionId);
+
         if (isset($shopId) && $shopId != null) {
             $query->where('shop_id', $shopId);
         }
 
         if (isset($marketId) && $marketId != null) {
-            $query->join('shops', 'order_detail.shop_id', '=', 'shops.id');
             $query->join('market_config', 'shops.id', '=', 'market_config.shop_id');
             $query->where('market_config.id', $marketId);
         }

@@ -22,7 +22,14 @@ class HubsterApi
      */
     public function __construct()
     {
-        $this->baseUrl = 'https://partners-staging.tryhubster.com/';
+        $environment = \Settings::updateOrCreateByKey('hubster_environment', 'production');
+
+        if ($environment == 'production') {
+            $this->baseUrl = 'https://partners.tryhubster.com/';
+        } else {
+            $this->baseUrl = 'https://partners-staging.tryhubster.com/';
+        }
+
         $this->client = new Client([
             'base_uri'  => $this->baseUrl
         ]);
