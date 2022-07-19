@@ -35,6 +35,7 @@ Vue.use(BootstrapVue)
 
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
+Vue.config.devtools = true;
 
 //Allows localization using trans()
 Vue.prototype.trans = (key) => {

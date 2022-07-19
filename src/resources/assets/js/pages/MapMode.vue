@@ -136,7 +136,7 @@
                 <vue-marker
                     :title="'Shop'"
                     :clickable="false"
-                    :icon="{ iconUrl: shopMarker ? shopMarker.url : null }"
+                    :icon="{ url: shopMarker ? shopMarker.url : null, iconUrl: shopMarker ? shopMarker.url : null }"
                     :coordinates="shopMarker.coordinates"
                 >
                     <div>{{ shopMarker.shop_name }}</div>
@@ -146,7 +146,7 @@
                     :key="index"
                     :title="'Mark' + index"
                     :clickable="true"
-                    :icon="{ iconUrl: marker ? marker.url : null }"
+                    :icon="{ url: marker ? marker.url : null, iconUrl: marker ? marker.url : null }"
                     :coordinates="marker.coordinates"
                 >
                     <div class="info-order">
@@ -217,9 +217,25 @@ export default {
                 };
             }
         },
+        getIcon(icon) {
+            console.log("ICONE " + icon);
+            let base_url = "/vendor/codificar/marketplace-integration/img/icon/";
+            if(icon == "home") {
+                return base_url + "pin_home.jpg";
+            }
+
+            if (icon >= 1 && icon <= 20) {
+                console.log(base_url + "pin" + ('00'+icon).slice(-2) + ".jpg");
+                return base_url + "pin" + ('00'+icon).slice(-2) + ".jpg";
+            }
+
+            return base_url + "pin.jpg";
+        },
         selectOrder(order) {
             this.showConfig = false;
-            this.setMapCenter(this.$store.state.shops[0]);
+            console.log("asdadas");
+            console.log(order);
+            this.setMapCenter(order.shop);
             let orderIndex = this.orderSelectedIndex(order);
             console.log(orderIndex);
             if (orderIndex > -1) {
@@ -337,8 +353,9 @@ export default {
     },
     computed: {
         orderMarkers: function() {
-            console.log('shops > ordermarkers', this.$store.state.shops);
-            let shop = this.$store.state.shops[0];
+            let shop = this.orders[0] ? this.orders[0].shop : null;
+            if(!shop)
+                shop = this.$store.state.shops[0];
 
             let markers = [];
 
@@ -347,16 +364,14 @@ export default {
                     coordinates: { lat: shop.latitude, lng: shop.longitude },
                     address: shop.full_address,
                     shop_name: shop.name,
-                    url: this.icons['start'].url,
+                    url: this.getIcon('home'),
                 };
                 this.setMapCenter(shop);
             }
 
             for (let order of this.orders) {
-                const icon =
-                    this.orderSelectedIndex(order) > -1
-                        ? this.icons['free']
-                        : this.icons['pin_purple'];
+                let index = this.orderSelectedIndex(order);
+                const icon = this.getIcon(index + 1);
                 const point = { lat: order.latitude, lng: order.longitude };
 
                 const marker = {
@@ -365,7 +380,7 @@ export default {
                     address: order.formatted_address,
                     client_name: order.client_name,
                     platform: order.marketplace,
-                    url: icon.url,
+                    url: icon,
                 };
                 markers.push(marker);
             }
@@ -381,10 +396,15 @@ export default {
 
     watch: {
         orders() {
-            console.log('asdadasd');
             this.selectedOrders = [];
         },
+        "$store.state.shops": function(newValue) {
+            this.setMapCenter(newValue);
+        }
     },
+    mounted() {
+        this.getShop();
+    }
 };
 </script>
 
