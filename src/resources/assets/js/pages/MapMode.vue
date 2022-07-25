@@ -307,7 +307,7 @@ export default {
                         };
                     })
                 ),
-                provider_type: 22, //TODO pegar de algum lugar
+                provider_type: window.marketplaceSettings.providerType, //TODO pegar de algum lugar
             };
             new Promise((resolve, reject) => {
                 axios

@@ -142,8 +142,6 @@ const store = new Vuex.Store({
     },
     actions: {
         makeRequest({ commit }, data) {
-            commit('STATUS_REQUEST');
-            console.log('MakeRequest', data);
             var request = {
                 points: [],
                 return_to_start: false,
@@ -167,72 +165,14 @@ const store = new Vuex.Store({
                 is_automation: true,
                 from: 'panel',
             };
-            var shop;
-            data.forEach((element, index) => {
-                console.log('Index: ', index);
-                //Aparrentely test to capture the point A
-                if (index == 0) {
-                    shop = this.state.shops.filter(function(item) {
-                        if (item.id == element.shop_id) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    });
-                    var address = JSON.parse(shop[0].get_config[0].address);
-                    //add collect point, point a
-                    request.points.push({
-                        address: address.street,
-                        formatted_address: address.street,
-                        geometry: {
-                            location: {
-                                lat: shop[0].get_config[0].latitude,
-                                lng: shop[0].get_config[0].longitude,
-                            },
-                        },
-                        title: this.state.alphabet[index].toLocaleUpperCase(),
-                        action: shop[0].name,
-                        action_type: 4,
-                        complement: '',
-                        collect_value: '',
-                        change: null,
-                        form_of_receipt: null,
-                        collect_pictures: 0,
-                        collect_signature: 0,
-                        address_instructions: shop[0].name,
-                    });
-                }
-                console.log('Shop: ', shop);
-                //add delivery points, point B,C, D and so on
-                request.points.push({
-                    address: element.formatted_address,
-                    formatted_address: element.formatted_address,
-                    geometry: {
-                        location: {
-                            lat: element.latitude,
-                            lng: element.longitude,
-                        },
-                    },
-                    title: this.state.alphabet[index + 1].toLocaleUpperCase(),
-                    action: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
-                    action_type: 2,
-                    complement: `Cliente ${element.client_name}: ${element.complement}`,
-                    collect_value: element.prepaid
-                        ? null
-                        : element.order_amount,
-                    change: element.prepaid ? '' : element.change_for,
-                    form_of_receipt: element.method_payment,
-                    collect_pictures: 0,
-                    collect_signature: 0,
-                    address_instructions: `Entregar pedido número ${element.display_id} para ${element.client_name}`,
-                });
-                request.institution_id = shop[0].institution_id;
-                if (!element.prepaid) {
-                    request.return_to_start = true;
-                }
-            });
 
-            console.log('points ', request);
+            commit('STATUS_REQUEST');
+
+            let response = createPoints(data, this.state.shops, 'makeRequest');
+
+            request.points = response.points;
+
+            console.log('makeRequest > points ', request);
             //call creat corp request
             axios
                 .post(`/api/v1/corp/request/create`, request)
@@ -261,8 +201,6 @@ const store = new Vuex.Store({
                             showConfirmButton: false,
                             timer: 1500,
                         });
-                        console.log('Data request: ', data);
-                        console.log('Orders: ', this.state.orders);
                     } else {
                         if (res.data.error) {
                             Vue.swal
@@ -306,13 +244,12 @@ const store = new Vuex.Store({
                 });
         },
         makeManualRequest({ commit }, data) {
-            // commit('STATUS_REQUEST');
             let response = createPoints(
                 data,
                 this.state.shops,
                 'makeManualRequest'
             );
-            console.log('POints created:=> ', response);
+
             post(`/corp/request/add`, response);
         },
         // #TODO remove this function and a service or trait to create a ride
@@ -782,7 +719,7 @@ function createPoints(data, shops, type = '') {
         'z',
     ];
     // commit('STATUS_REQUEST');
-    console.log('DATA =:> ', data);
+    console.log('createPoints =:> ', data);
 
     let points = [];
     let returnToStart = false;
@@ -817,17 +754,14 @@ function createPoints(data, shops, type = '') {
         lng: shop[0].longitude,
     };
 
-    if (type == 'makeManualRequest') {
-        point['latitude'] = location.lat;
-        point['longitude'] = location.lng;
-    } else {
-        point['geometry'] = {
-            location: {
-                lat: location.lat,
-                lng: location.lng,
-            },
-        };
-    }
+    point['latitude'] = location.lat;
+    point['longitude'] = location.lng;
+    point['geometry'] = {
+        location: {
+            lat: location.lat,
+            lng: location.lng,
+        },
+    };
 
     points.push(point);
 
@@ -856,17 +790,15 @@ function createPoints(data, shops, type = '') {
             address_instructions: `Entregar pedido número ${element.display_id} para cliente ${element.client_name}: ${element.complement}`,
         };
         //define if thje location attr is to mount request or call provider
-        if (type == 'makeManualRequest') {
-            point['latitude'] = location.lat;
-            point['longitude'] = location.lng;
-        } else {
-            point['geometry'] = {
-                location: {
-                    lat: location.lat,
-                    lng: location.lng,
-                },
-            };
-        }
+
+        point['latitude'] = location.lat;
+        point['longitude'] = location.lng;
+        point['geometry'] = {
+            location: {
+                lat: location.lat,
+                lng: location.lng,
+            },
+        };
 
         points.push(point);
 
@@ -875,9 +807,9 @@ function createPoints(data, shops, type = '') {
         }
     });
 
-    if (returnToStart) {
-        points.push(initalPoint);
-    }
+    // if (returnToStart) {
+    //     points.push(initalPoint);
+    // }
 
     let dataRequest = { points: points, returnToStart: returnToStart };
     return dataRequest;
