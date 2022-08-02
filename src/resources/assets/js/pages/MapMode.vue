@@ -1,7 +1,7 @@
 <template>
     <v-row class="map">
         <v-col class="map">
-            <vue-maps :center="center">
+            <vue-maps :center="center" :displayCenterMarker="false">
                 <div class="row-map ml-7">
                     <div class="col-lg-3">
                         <div class="card card-outline-info over-map">
@@ -134,9 +134,14 @@
                     </div>
                 </div>
                 <vue-marker
+                    v-if="shopMarker && shopMarker.url"
                     :title="'Shop'"
-                    :clickable="false"
-                    :icon="{ iconUrl: shopMarker ? shopMarker.url : null }"
+                    :clickable="true"
+                    :icon="{
+                        url: shopMarker ? shopMarker.url : null,
+                        size: shopMarker ? shopMarker.size : null,
+                        anchor: shopMarker ? [40, 30] : null,
+                    }"
                     :coordinates="shopMarker.coordinates"
                 >
                     <div>{{ shopMarker.shop_name }}</div>
@@ -146,13 +151,20 @@
                     :key="index"
                     :title="'Mark' + index"
                     :clickable="true"
-                    :icon="{ iconUrl: marker ? marker.url : null }"
+                    :icon="{
+                        url: marker ? marker.url : null,
+                        size: marker ? marker.size : null,
+                    }"
                     :coordinates="marker.coordinates"
                 >
                     <div class="info-order">
                         <div>
                             <h5>Id do pedido</h5>
                             <span>{{ marker.display_id || '-' }}</span>
+                        </div>
+                        <div>
+                            <h5>Icon URL</h5>
+                            <span>{{ marker.url || '-' }}</span>
                         </div>
                         <div>
                             <h5>Cliente</h5>
@@ -207,6 +219,10 @@ export default {
         estimated_time: '',
         estimated_price: '',
     }),
+    mounted() {
+        console.log('Component mounted.');
+        this.getShop();
+    },
     methods: {
         setMapCenter(address) {
             console.log(address);
@@ -337,26 +353,42 @@ export default {
     },
     computed: {
         orderMarkers: function() {
-            console.log('shops > ordermarkers', this.$store.state.shops);
-            let shop = this.$store.state.shops[0];
-
             let markers = [];
-
-            if (shop) {
-                this.shopMarker = {
-                    coordinates: { lat: shop.latitude, lng: shop.longitude },
-                    address: shop.full_address,
-                    shop_name: shop.name,
-                    url: this.icons['start'].url,
-                };
-                this.setMapCenter(shop);
-            }
-
+            let selectedIndex = -1;
+            let index = 1;
             for (let order of this.orders) {
-                const icon =
-                    this.orderSelectedIndex(order) > -1
-                        ? this.icons['free']
-                        : this.icons['pin_purple'];
+                selectedIndex = this.orderSelectedIndex(order);
+                console.log('selectedIndex > ', selectedIndex);
+                // primeiro ponto selecionado
+                if (selectedIndex > -1 && index == 1) {
+                    let shop = this.$store.state.shops.filter(function(item) {
+                        if (item.id == order.shop_id) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                    shop = shop[0];
+
+                    this.shopMarker = {
+                        coordinates: {
+                            lat: shop.latitude,
+                            lng: shop.longitude,
+                        },
+                        address: shop.full_address,
+                        shop_name: shop.name,
+                        url: this.icons['shop'].url,
+                        size: this.icons['shop'].size,
+                    };
+
+                    console.log('shop > ', this.icons['shop'].url);
+                    this.setMapCenter(shop);
+                }
+
+                const icon = this.icons['free'];
+
+                if (selectedIndex > -1) icon = this.icons['point'];
+
                 const point = { lat: order.latitude, lng: order.longitude };
 
                 const marker = {
@@ -365,9 +397,16 @@ export default {
                     address: order.formatted_address,
                     client_name: order.client_name,
                     platform: order.marketplace,
-                    url: icon.url,
+                    url: icon.url.replace('%d', index),
+                    size: icon.size,
                 };
+
+                //console.log('marker >', marker);
                 markers.push(marker);
+
+                if (selectedIndex > -1) {
+                    index++;
+                }
             }
             return markers;
         },

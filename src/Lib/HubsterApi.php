@@ -238,4 +238,17 @@ class HubsterApi
             return false;
         }
     }
+
+    /**
+     * notify estimate to hubser.
+     *
+     * @param $notifyData
+     */
+    public function notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+        $ref_id = $notifyData['deliveryReferenceId'];
+        $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Lib;
 
+use App\Models\RequestPoint;
 use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
@@ -39,7 +40,6 @@ class HubsterLib
 
             if ($response && $response->orders) {
                 foreach ($response->orders as $key => $order) {
-                    var_dump($order);
                     $payload = json_decode(json_encode($order), true);
                     $orderDetail = $this->orderFromPayload($market->store_id, $payload);
                     $orderArray[] = $orderDetail;
@@ -73,12 +73,137 @@ class HubsterLib
 
             case 'delivery.request_quote' :
 
+                $deliveryReferenceId = $payload['deliveryReferenceId'];
+                $eventId = $json['eventId'];
+                $arrPoints = $this->pointsFromPayload($payload);
+
+                $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
+
+                if (is_array($arrPoints) && $marketConfig) {
+                    $locations = $this->getLocationsRequestPoints($arrPoints);
+                    $institutionId = $marketConfig->shop->institution_id;
+                    $providerType = DispatchRepository::getProviderType($institutionId);
+                    $estimate = EstimateService::estimatePriceTable($locations, $providerType, null, null, $institutionId, null, false, null, null);
+
+                    $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance());
+
+                    $this->api->notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData);
+                }
+
                 break;
             default:
                 break;
         }
 
         return $json;
+    }
+
+    /**
+     * Get RequestPoints from payload
+     * event delivery.request_quote.
+     * @return RequestPoints[]
+     */
+    public function pointsFromPayload($payload)
+    {
+        $requestPoints = [];
+
+        // collect point
+        if (isset($payload['pickupAddress'])) {
+            $requestPoint = $this->getPointFromAddress($payload['pickupAddress']);
+            $requestPoint->title = 'A';
+            $requestPoint->action_type = RequestPoint::action_collect_order;
+            $requestPoint->action = trans('marketplace-integration::zedelivery.action_collect_order');
+            $requestPoints[] = $requestPoint;
+        }
+
+        // drop point
+        if (isset($payload['dropoffAddress'])) {
+            $requestPoint = $this->getPointFromAddress($payload['dropoffAddress']);
+            $requestPoint->title = 'B';
+            $requestPoint->action_type = RequestPoint::action_delivery_order;
+            $requestPoint->action = trans('marketplace-integration::zedelivery.action_delivery_order', ['orderId' => $requestPoint->title]);
+            $requestPoints[] = $requestPoint;
+        }
+
+        // return
+        if (isset($payload['destinationAddress'])) {
+            $requestPoint = $this->getPointFromAddress($payload['destinationAddress']);
+            $requestPoint->title = '@';
+            $requestPoint->action_type = RequestPoint::action_return;
+            $requestPoint->action = trans('marketplace-integration::zedelivery.return_to_start');
+            $requestPoints[] = $requestPoint;
+        }
+
+        return $requestPoints;
+    }
+
+    /**
+     * Get RequestPoint from payload Address.
+     * @return RequestPoints
+     */
+    private function getPointFromAddress($address)
+    {
+        $requestPoint = new RequestPoint;
+
+        $requestPoint->latitude = $address['location']['latitude'];
+        $requestPoint->longitude = $address['location']['longitude'];
+        $requestPoint->address = $address['fullAddress'];
+        $requestPoint->start_time = Carbon::now();
+        $requestPoint->arrival_time = Carbon::now();
+        $requestPoint->finish_time = Carbon::now();
+
+        return $requestPoint;
+    }
+
+    /**
+     * get notify json object to send through api.
+     */
+    private function getNotifyPayload($estimate, $balance)
+    {
+        $jsonPayload = [
+            'minPickupDuration' => $estimate['duration'] - 5,
+            'maxPickupDuration' => $estimate['duration'] + 5,
+            'deliveryDistance' => [
+                'unit' => 'KILOMETERS',
+                'value' => $estimate['estimated_distance']
+            ],
+            'currencyCode' => 'BRL',
+            'cost' => [
+                'baseCost'=> $estimate['estimated_price'],
+                'extraCost'=> 0
+            ],
+            'provider'=> 'heyentregas',
+            'fulfillmentPath' => [
+                [
+                    'name' => 'heyentregas',
+                    'type'=> 'FULFILLMENT_PROCESSOR'
+                ]
+            ],
+            'createdAt' => Carbon::now()->toAtomString(),
+            'accountBalance' => 1068.32
+        ];
+
+        return $jsonPayload;
+    }
+
+    /**
+     * Get location array from request points.
+     * @return array
+     */
+    private function getLocationsRequestPoints($requestPoints)
+    {
+        $locations = [];
+
+        foreach ($requestPoints as $point) {
+            $location = $point->toArray();
+            $location['geometry'] = [];
+            $location['geometry']['location'] = [];
+            $location['geometry']['location']['lat'] = $point->latitude;
+            $location['geometry']['location']['lng'] = $point->longitude;
+            $locations[] = $location;
+        }
+
+        return $locations;
     }
 
     /**
