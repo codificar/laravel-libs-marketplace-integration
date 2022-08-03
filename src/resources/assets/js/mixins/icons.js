@@ -50,9 +50,23 @@ export default {
                         '/vendor/codificar/marketplace-integration/img/shop.png',
                     size: [80, 80],
                 },
-                point: {
+                point_red: {
                     url:
-                        '/vendor/codificar/marketplace-integration/img/point_%d.png',
+                        '/vendor/codificar/marketplace-integration/img/point_red/point_%d.png',
+                    shadow:
+                        'http://labs.google.com/ridefinder/images/mm_20_shadow.png',
+                    size: [90, 60],
+                },
+                point_green: {
+                    url:
+                        '/vendor/codificar/marketplace-integration/img/point_green/point_%d.png',
+                    shadow:
+                        'http://labs.google.com/ridefinder/images/mm_20_shadow.png',
+                    size: [90, 60],
+                },
+                point_gray: {
+                    url:
+                        '/vendor/codificar/marketplace-integration/img/point_gray/point_%d.png',
                     shadow:
                         'http://labs.google.com/ridefinder/images/mm_20_shadow.png',
                     size: [90, 60],

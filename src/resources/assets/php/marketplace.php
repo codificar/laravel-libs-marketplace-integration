@@ -12,4 +12,6 @@ window.marketplaceSettings = {
     geocodeUrl: '<?= URL::Route('corpGeocodeUrl') ?>',
     placeDetailUrl: '<?= URL::Route('adminGeocodeGetPlaceDetail') ?>',
     placesProvider: '<?= \Settings::getPlacesProvider() ?>',
+    mapsProvider: '<?= \Settings::getMapProvider() ?>',
+    googleMapsKey: '<?= \Settings::getGoogleMapsApiKey() ?>',
 }

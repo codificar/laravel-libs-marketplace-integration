@@ -1,68 +1,75 @@
 <template>
-    <v-row class="map">
-        <v-col class="map">
-            <vue-maps :center="center" :displayCenterMarker="false">
-                <div class="row-map ml-7">
-                    <div class="col-lg-3">
-                        <div class="card card-outline-info over-map">
-                            <div class="card-header">
-                                <div class="my-2 align-center justify-start">
-                                    <h4 class="m-b-0 text-white">Pedidos</h4>
-                                </div>
-                                <div class="my-2 align-center justify-end">
-                                    <v-btn
-                                        color="white lighten-2"
-                                        elevation="2"
-                                        small
-                                        icon
-                                        @click="showConfig = !showConfig"
-                                        ><v-icon>mdi-cog</v-icon></v-btn
-                                    >
-                                </div>
-                            </div>
-                            <div>
-                                <v-list
-                                    v-if="
-                                        $store.state.orders &&
-                                            $store.state.orders.data &&
-                                            $store.state.orders.data.length
-                                    "
-                                >
-                                    <v-list-item
-                                        :input-value="
-                                            orderSelectedIndex(order) > -1
-                                        "
-                                        color="success"
-                                        v-for="order in $store.state.orders
-                                            .data"
-                                        :key="order.id"
-                                        @click="selectOrder(order)"
-                                    >
-                                        {{
-                                            orderSelectedIndex(order) > -1
-                                                ? '#' +
-                                                  (orderSelectedIndex(order) +
-                                                      1) +
-                                                  ' '
-                                                : ''
-                                        }}
-                                        Pedido #{{ order.display_id }}
-                                    </v-list-item>
-                                </v-list>
-                                <v-list v-else>
-                                    <v-list-item>
-                                        Sem Pedidos para Mostrar
-                                    </v-list-item>
-                                </v-list>
-                            </div>
+    <v-row class="map-mode">
+        <v-col cols="3">
+            <div>
+                <div class="card card-outline-info">
+                    <div class="card-header">
+                        <div class="my-2 align-center justify-start">
+                            <h4 class="m-b-0 text-white">Pedidos</h4>
+                        </div>
+                        <div class="my-2 align-center justify-end">
+                            <v-btn
+                                color="white lighten-2"
+                                elevation="2"
+                                small
+                                icon
+                                @click="showFilters = !showFilters"
+                                ><v-icon>mdi-layers-search</v-icon></v-btn
+                            >
                         </div>
                     </div>
-                    <div class="col-lg-4 col-sm-6" v-if="showConfig">
+                    <div>
+                        <v-virtual-scroll
+                            v-if="$store.state.orders.data"
+                            height="750"
+                            item-height="50"
+                            :items="$store.state.orders.data"
+                        >
+                            <template v-slot:default="{ item, index }">
+                                <v-list-item
+                                    :input-value="orderSelectedIndex(item) > -1"
+                                    color="success"
+                                    :key="item.id"
+                                    @click="selectOrder(item)"
+                                >
+                                    {{
+                                        orderSelectedIndex(item) > -1
+                                            ? '#' +
+                                              (orderSelectedIndex(item) + 1) +
+                                              ' '
+                                            : '#' + (index + 1) + ' '
+                                    }}
+                                    Pedido - {{ item.display_id }}
+                                </v-list-item>
+                            </template>
+                        </v-virtual-scroll>
+                        <v-list
+                            v-if="
+                                !$store.state.orders.data ||
+                                    $store.state.orders.data.length == 0
+                            "
+                        >
+                            <v-list-item>
+                                Sem Pedidos para Mostrar
+                            </v-list-item>
+                        </v-list>
+                    </div>
+                </div>
+            </div>
+        </v-col>
+        <v-col cols="7">
+            <vue-maps
+                :provider="mapsProvider"
+                :center="center"
+                :displayCenterMarker="false"
+            >
+                <div class="ml-7">
+                    <div class="filters col-lg-4 col-sm-6" v-if="showFilters">
                         <div class="card card-outline-info over-map">
                             <div class="card-header">
                                 <div class="my-2 align-center justify-start">
                                     <h4 class="m-b-0 text-white">
-                                        Configurações
+                                        Filtros
                                     </h4>
                                 </div>
                                 <div class="my-2 align-center justify-end">
@@ -71,7 +78,7 @@
                                         elevation="2"
                                         small
                                         icon
-                                        @click="showConfig = !showConfig"
+                                        @click="showFilters = !showFilters"
                                         ><v-icon>mdi-close</v-icon></v-btn
                                     >
                                 </div>
@@ -92,7 +99,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3" v-if="showConfirm">
+                    <div class="filters col-lg-4 col-sm-6" v-if="showConfirm">
                         <div class="card card-outline-info over-map">
                             <div class="pa-3 info-order">
                                 <div class="d-flex flex-row">
@@ -163,10 +170,6 @@
                             <span>{{ marker.display_id || '-' }}</span>
                         </div>
                         <div>
-                            <h5>Icon URL</h5>
-                            <span>{{ marker.url || '-' }}</span>
-                        </div>
-                        <div>
                             <h5>Cliente</h5>
                             <span>{{ marker.client_name || '-' }}</span>
                         </div>
@@ -207,7 +210,7 @@ export default {
     mixins: [Icons, StoreMixin],
     data: () => ({
         loading: false,
-        showConfig: false,
+        showFilters: false,
         center: {
             lat: -20,
             lng: -50,
@@ -218,9 +221,11 @@ export default {
         estimated_distance: '',
         estimated_time: '',
         estimated_price: '',
+        mapsProvider: 'osm',
     }),
     mounted() {
         console.log('Component mounted.');
+        //this.mapsProvider = window.marketplaceSettings.mapsProvider;
         this.getShop();
     },
     methods: {
@@ -234,7 +239,7 @@ export default {
             }
         },
         selectOrder(order) {
-            this.showConfig = false;
+            this.showFilters = false;
             this.setMapCenter(this.$store.state.shops[0]);
             let orderIndex = this.orderSelectedIndex(order);
             console.log(orderIndex);
@@ -280,9 +285,9 @@ export default {
                     .get(polylineRoute, polylineParams)
                     .then((response) => {
                         if (response.data.success) {
-                            this.estimated_distance =
-                                response.data.distance_text;
-                            this.estimated_time = response.data.duration_text;
+                            //this.estimated_distance =
+                            //response.data.distance_text;
+                            //this.estimated_time = response.data.duration_text;
                             this.polyline = response.data.points;
                         } else {
                             this.$swal({
@@ -323,7 +328,8 @@ export default {
                         };
                     })
                 ),
-                provider_type: window.marketplaceSettings.providerType, //TODO pegar de algum lugar
+                provider_type: window.marketplaceSettings.providerType,
+                return_to_start: true,
             };
             new Promise((resolve, reject) => {
                 axios
@@ -332,6 +338,10 @@ export default {
                         if (response.data.estimate_info.success) {
                             this.estimated_price =
                                 response.data.estimate_info.estimated_price_formatted;
+                            this.estimated_distance =
+                                response.data.estimate_info.distance_text;
+                            this.estimated_time =
+                                response.data.estimate_info.duration_text;
                         } else {
                             this.$swal({
                                 title: this.trans('requests.route_fail'),
@@ -356,13 +366,17 @@ export default {
             let markers = [];
             let selectedIndex = -1;
             let index = 1;
+            let replaceIndex = 1;
+
             for (let order of this.orders) {
                 selectedIndex = this.orderSelectedIndex(order);
                 console.log('selectedIndex > ', selectedIndex);
                 // primeiro ponto selecionado
-                if (selectedIndex > -1 && index == 1) {
+                if (index == 1) {
+                    let shop_id = order.shop_id;
+
                     let shop = this.$store.state.shops.filter(function(item) {
-                        if (item.id == order.shop_id) {
+                        if (item.id == shop_id) {
                             return true;
                         } else {
                             return false;
@@ -385,11 +399,18 @@ export default {
                     this.setMapCenter(shop);
                 }
 
-                const icon = this.icons['free'];
+                const icon = this.icons['point_gray'];
+                let iconUrl = icon.url.replace('%d', index);
 
-                if (selectedIndex > -1) icon = this.icons['point'];
+                if (selectedIndex > -1) {
+                    icon = this.icons['point_green'];
+                    replaceIndex = selectedIndex + 1;
+                    iconUrl = icon.url.replace('%d', replaceIndex);
+                }
 
                 const point = { lat: order.latitude, lng: order.longitude };
+
+                console.log('point >', point);
 
                 const marker = {
                     coordinates: point,
@@ -397,16 +418,14 @@ export default {
                     address: order.formatted_address,
                     client_name: order.client_name,
                     platform: order.marketplace,
-                    url: icon.url.replace('%d', index),
+                    url: iconUrl,
                     size: icon.size,
                 };
 
                 //console.log('marker >', marker);
                 markers.push(marker);
 
-                if (selectedIndex > -1) {
-                    index++;
-                }
+                index++;
             }
             return markers;
         },
@@ -428,12 +447,31 @@ export default {
 </script>
 
 <style>
-.row.map {
-    position: fixed;
-    left: 240px;
-    right: 0px;
-    top: 70px;
-    bottom: -80vh;
+#app,
+.vue-app {
+    margin: 0px;
+    padding: 0px;
+}
+.container {
+    max-width: 100%;
+    padding: 0px;
+}
+.map-mode {
+    width: 110%;
+    min-height: 800px;
+}
+.col-7 {
+    max-width: 100%;
+    flex: 0 0 76%;
+    margin-left: -25px;
+}
+.filters {
+    margin: -20px;
+    margin-left: -48px !important;
+    z-index: 1099;
+}
+.card-header:first-child {
+    border-radius: 0 0 0 0;
 }
 .info-order {
     padding: 0.5rem 0.8rem;
@@ -451,9 +489,5 @@ export default {
 }
 .vertical {
     height: 85vh;
-}
-.row-map {
-    display: flex;
-    flex-direction: row;
 }
 </style>
