@@ -63,7 +63,7 @@ export default {
             },
             deep: true,
         },
-        '$store.state.filterOrders.marketId': {
+        '$store.state.filterOrders.shopId': {
             handler: function(newVal, oldVal) {
                 if (newVal != oldVal) this.fetch();
             },

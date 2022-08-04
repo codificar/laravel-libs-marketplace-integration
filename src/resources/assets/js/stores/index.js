@@ -69,6 +69,7 @@ const store = new Vuex.Store({
             range: [null, null],
             searchQuery: null,
             marketId: null,
+            shopId: null,
         },
     },
     mutations: {
@@ -258,16 +259,7 @@ const store = new Vuex.Store({
             console.log('setRide: ', data);
             axios
                 .post('/libs/marketplace-integration/order/set-ride', data)
-                .then((res) => {
-                    Vue.swal.fire({
-                        title: 'Sucesso!',
-                        text: 'Atualizado com sucesso!',
-                        icon: 'success',
-                        showConfirmButton: true,
-                    });
-
-                    dispatch('getOrders');
-                })
+                .then((res) => {})
                 .catch((err) => {
                     if (
                         err.response &&

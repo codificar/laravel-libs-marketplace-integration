@@ -24,6 +24,10 @@ class OrderDetailsController extends Controller
 
         $marketId = $request['marketId'];
 
+        if (! $shopId) {
+            $shopId = $request['shopId'];
+        }
+
         $user = \Auth::guard('web_corp')->user();
         $institutionId = $user->AdminInstitution->institution_id;
 

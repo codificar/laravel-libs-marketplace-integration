@@ -18,15 +18,21 @@
                             >
                         </div>
                     </div>
+                    <store-dropdown></store-dropdown>
                     <div>
                         <v-virtual-scroll
-                            v-if="$store.state.orders.data"
+                            v-if="
+                                $store.state.orders.data &&
+                                    $store.state.orders.data.length > 0 &&
+                                    $store.state.filterOrders.shopId > 0
+                            "
                             height="750"
                             item-height="50"
                             :items="$store.state.orders.data"
                         >
                             <template v-slot:default="{ item, index }">
                                 <v-list-item
+                                    v-if="!item.request_id"
                                     :input-value="orderSelectedIndex(item) > -1"
                                     color="success"
                                     :key="item.id"
@@ -193,6 +199,7 @@
 import ModalComponent from '../components/Modal.vue';
 import RefreshScreen from '../components/RefreshScreen.vue';
 import FilterOrders from '../components/FilterOrders.vue';
+import StoreDropdown from '../components/StoreDropdown.vue';
 import Icons from '../mixins/icons';
 import StoreMixin from '../mixins/StoreMixin';
 import { VueMaps, VueMarker, VueCallout, VuePolyline } from 'vue-maps';
@@ -206,6 +213,7 @@ export default {
         VueMarker,
         VueCallout,
         VuePolyline,
+        StoreDropdown,
     },
     mixins: [Icons, StoreMixin],
     data: () => ({
@@ -224,8 +232,11 @@ export default {
         mapsProvider: 'osm',
     }),
     mounted() {
-        console.log('Component mounted.');
-        //this.mapsProvider = window.marketplaceSettings.mapsProvider;
+        console.log(
+            'Component mounted. mapsProvider',
+            window.marketplaceSettings.mapsProvider
+        );
+        this.mapsProvider = window.marketplaceSettings.mapsProvider;
         this.getShop();
     },
     methods: {
@@ -369,6 +380,8 @@ export default {
             let replaceIndex = 1;
 
             for (let order of this.orders) {
+                if (order.request_id) continue;
+
                 selectedIndex = this.orderSelectedIndex(order);
                 console.log('selectedIndex > ', selectedIndex);
                 // primeiro ponto selecionado
