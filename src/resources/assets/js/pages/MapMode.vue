@@ -127,7 +127,10 @@
                                         color="success"
                                         class="mt-3"
                                         small
-                                        @click="makeRequest('makeRequest')"
+                                        @click="
+                                            makeRequest('makeRequest');
+                                            polyline = [];
+                                        "
                                         ><v-icon>mdi-motorbike</v-icon>
                                         Solicitar Entregador</v-btn
                                     >
@@ -153,7 +156,7 @@
                     :icon="{
                         url: shopMarker ? shopMarker.url : null,
                         size: shopMarker ? shopMarker.size : null,
-                        anchor: shopMarker ? [40, 30] : null,
+                        anchor: shopMarker ? [0, 0] : null,
                     }"
                     :coordinates="shopMarker.coordinates"
                 >

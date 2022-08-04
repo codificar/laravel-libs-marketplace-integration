@@ -251,4 +251,17 @@ class HubsterApi
         $ref_id = $notifyData['deliveryReferenceId'];
         $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
     }
+
+    /**
+     * notify delivery accept.
+     *
+     * @param $notifyData
+     */
+    public function notifyAcceptDelivery($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+        $ref_id = $notifyData['deliveryReferenceId'];
+        $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData);
+    }
 }

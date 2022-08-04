@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Codificar\MarketplaceIntegration\Repositories\DispatchRepository;
 use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
 use Location\Coordinate;
 
@@ -85,9 +86,12 @@ class HubsterLib
 
                 $deliveryReferenceId = $payload['deliveryReferenceId'];
                 $eventId = $json['eventId'];
-                $arrPoints = $this->pointsFromPayload($payload);
 
-                $this->deliveryAccept($storeId, $arrPoints, $eventId, $deliveryReferenceId);
+                $order = $this->orderAcceptFromPayload($storeId, $payload);
+
+                $rideApiReturn = DispatchRepository::createRide([$order]);
+
+                $this->deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn);
 
                 break;
             default:
@@ -101,11 +105,34 @@ class HubsterLib
      * Function to treat delivery.accept event.
      * It will create a ride and dispatch for the delivery boys.
      */
-    private function deliveryAccept($storeId, $arrPoints, $eventId, $deliveryReferenceId)
+    private function deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn)
     {
-        $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
-        if (is_array($arrPoints) && $marketConfig) {
-        }
+        $notifyData = [
+            'deliveryDistance' => [
+                'unit' => 'KM',
+                'value' => $rideApiReturn['estimate_distance']
+            ],
+            'currencyCode' => 'BRL',
+            'cost' => [
+                'baseCost' => $rideApiReturn['estimate_price'],
+                'extraCost' => 0
+            ],
+            'fulfillmentPath' => [
+                [
+                    'name' => 'heyentregas',
+                    'type'=> 'FULFILLMENT_PROCESSOR'
+                ]
+            ],
+            'estimatedPickupTime' => Carbon::now()->addMinutes(5)->toAtomString(),
+            'estimatedDeliveryTime' => Carbon::now()->addMinutes(5 + $rideApiReturn['estimate_time'])->toAtomString(),
+            'confirmedAt' => Carbon::now()->toAtomString(),
+            'deliveryTrackingUrl' => $rideApiReturn['tracking_route'],
+            'providerDeliveryId' => $rideApiReturn['request_id']
+        ];
+
+        $this->api->setStoreId($storeId);
+
+        return $this->api->notifyAcceptDelivery($eventId, $deliveryReferenceId, $notifyData);
     }
 
     /**
@@ -122,6 +149,8 @@ class HubsterLib
             $estimate = EstimateService::estimatePriceTable($locations, $providerType, null, null, $institutionId, null, false, null, null);
 
             $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance());
+
+            $this->api->setStoreId($storeId);
 
             return $this->api->notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData);
         }
@@ -245,8 +274,8 @@ class HubsterLib
     {
         $external = $payload['externalIdentifiers'];
         $customer = $payload['customer'];
-        $delivery = $payload['deliveryInfo'];
-        $total = $payload['orderTotal'];
+        $dropoffAddress = $payload['dropoffAddress'];
+        $orderSubTotal = $payload['orderSubTotal'];
         $totalV2 = $payload['orderTotalV2'];
         $orderId = $payload['pickupOrderId'];
         $displayId = $payload['ofoDisplayId'];
@@ -261,7 +290,7 @@ class HubsterLib
         if ($payload['customerPayments']) {
             $payment = $payload['customerPayments'][0];
             $paymentMethod = $payment['paymentMethod'];
-            $paymentChange = $payment['value'] - $total['total'];
+            $paymentChange = $payment['value'] - $orderSubTotal;
         } else {
             $paymentMethod = 'CASH';
             $paymentChange = 0;
@@ -301,10 +330,10 @@ class HubsterLib
                 'display_id'                    => $displayId,
                 'preparation_start_date_time'   => null,
                 'customer_id'                   => $customerId,
-                'sub_total'                     => $total['subtotal'],
-                'delivery_fee'                  => $total['deliveryFee'],
+                'sub_total'                     => $orderSubTotal,
+                'delivery_fee'                  => 0,
                 'benefits'                      => 0,
-                'order_amount'                  => $total['total'],
+                'order_amount'                  => $orderSubTotal,
                 'method_payment'                => $paymentMethod,
                 'prepaid'                       => $prePaid,
                 'change_for'                    => $paymentChange,
@@ -314,18 +343,18 @@ class HubsterLib
         );
 
         // somente salva o endereço se for de delivery, que é o que interessa para a plataforma
-        if ($delivery && isset($delivery['destination'])) {
-            $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($delivery['destination']['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
+        if ($dropoffAddress) {
+            $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($dropoffAddress['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
 
-            if ($delivery['destination']['addressLines']) {
-                $address['street_name'] = $delivery['destination']['addressLines'][0];
+            if ($dropoffAddress['addressLines']) {
+                $address['street_name'] = $dropoffAddress['addressLines'][0];
 
-                if (! isset($delivery['destination']['fullAddress'])) {
-                    $delivery['destination']['fullAddress'] = $delivery['destination']['addressLines'][0];
+                if (! isset($dropoffAddress['fullAddress'])) {
+                    $dropoffAddress['fullAddress'] = $dropoffAddress['addressLines'][0];
                 }
             }
 
-            $address = DeliveryAddress::parseAddress($delivery['destination']['fullAddress']);
+            $address = DeliveryAddress::parseAddress($dropoffAddress['fullAddress']);
 
             $address = DeliveryAddress::updateOrCreate([
                 'order_id'                      => $external['id']
@@ -333,15 +362,15 @@ class HubsterLib
                 'customer_id'                   => $customerId,
                 'street_name'                   => $address['street_name'],
                 'street_number'                 => $address['street_number'],
-                'formatted_address'             => $delivery['destination']['fullAddress'],
+                'formatted_address'             => $dropoffAddress['fullAddress'],
                 'neighborhood'                  => $address['neighborhood'],
                 'complement'                    => $delivery['note'],
-                'postal_code'                   => $delivery['destination']['postalCode'],
-                'city'                          => $delivery['destination']['city'],
-                'state'                         => $delivery['destination']['state'],
-                'country'                       => $delivery['destination']['countryCode'],
-                'latitude'                      => $delivery['destination']['location']['latitude'],
-                'longitude'                     => $delivery['destination']['location']['longitude'],
+                'postal_code'                   => $dropoffAddress['postalCode'],
+                'city'                          => $dropoffAddress['city'],
+                'state'                         => $dropoffAddress['state'],
+                'country'                       => $dropoffAddress['countryCode'],
+                'latitude'                      => $dropoffAddress['location']['latitude'],
+                'longitude'                     => $dropoffAddress['location']['longitude'],
                 'distance'                      => $calculatedDistance,
             ]);
         }
