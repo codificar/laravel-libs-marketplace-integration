@@ -5,18 +5,10 @@ namespace Codificar\MarketplaceIntegration\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Codificar\MarketplaceIntegration\Models\MarketConfig ;
-use Codificar\MarketplaceIntegration\Models\DeliveryAddress ;
-use Codificar\MarketplaceIntegration\Models\Shops ;
-
-use Location\Coordinate;
-use Location\Distance\Vincenty;
-
 class OrderDetails extends Model
 {
-    
     use SoftDeletes;
-    
+
     protected $table = 'order_detail';
     protected $fillable = [
         'request_id',
@@ -55,7 +47,6 @@ class OrderDetails extends Model
      */
     protected $appends = ['shop_name', 'market_name', 'factory'];
 
-
     protected $dates = [
         'created_at',
         'updated_at',
@@ -70,7 +61,7 @@ class OrderDetails extends Model
     {
         return $this->hasOne(DeliveryAddress::class, 'order_id', 'order_id');
     }
-     
+
     /**
      * Get the market_config that owns the merchant_id.
      * @return MarketConfig
@@ -79,7 +70,6 @@ class OrderDetails extends Model
     {
         return $this->belongsTo(MarketConfig::class, 'merchant_id', 'merchant_id');
     }
-
 
     /**
      * Get the market_config that owns the merchant_id.
@@ -90,50 +80,75 @@ class OrderDetails extends Model
         return $this->hasOne(Shops::class, 'id', 'shop_id');
     }
 
+    /**
+     * Get the ride that owns the reques_id.
+     * @return Requests
+     */
+    public function ride()
+    {
+        return $this->hasOne('Requests', 'id', 'request_id');
+    }
 
     /**
-     * Get the address associated with the market_config 
+     * Get the request point that owns the point_id.
+     * @return RequestPoint
+     */
+    public function point()
+    {
+        return $this->hasOne('RequestPoint', 'id', 'point_id');
+    }
+
+    /**
+     * Get the address associated with the market_config.
      * @return string market_address
      */
-    public function getMarketFormattedAddressAttribute(){
-        if($this->market && $this->market->marketplace_address){
+    public function getMarketFormattedAddressAttribute()
+    {
+        if ($this->market && $this->market->marketplace_address) {
             $decoded = this->market->marketplace_address;
 
             return sprintf('%s - %s', $decoded->street, $decoded->district);
         }
     }
 
-
     /**
-     * Get the factory string
+     * Get the factory string.
      * @return string marketplace factiro
      */
-    public function getFactoryAttribute(){
-        if($this->aggregator) return $this->aggregator;
+    public function getFactoryAttribute()
+    {
+        if ($this->aggregator) {
+            return $this->aggregator;
+        }
 
         return $this->marketplace;
     }
 
     /**
-     * Get the shop name string
+     * Get the shop name string.
      * @return string shop name
      */
-    public function getShopNameAttribute(){
-        if($this->shop) return $this->shop->name;
+    public function getShopNameAttribute()
+    {
+        if ($this->shop) {
+            return $this->shop->name;
+        }
 
         return null;
     }
 
     /**
-     * Get the market name string
+     * Get the market name string.
      * @return string market name
      */
-    public function getMarketNameAttribute(){
-        if($this->market && isset($this->market->name)) return $this->market->name;
+    public function getMarketNameAttribute()
+    {
+        if ($this->market && isset($this->market->name)) {
+            return $this->market->name;
+        }
 
         return null;
     }
-
 
     /**
      * Get the address associated with the order.
@@ -144,5 +159,16 @@ class OrderDetails extends Model
         return DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->last();
     }
 
+    /**
+     * Get the delivery status for hubster marketplaces.
+     * @return string delivery status "REQUESTED" "ALLOCATED" "PICKED_UP" "COMPLETED" "CANCELED" "ARRIVED_AT_PICKUP"
+     */
+    public function getDeliveryStatusAttribute()
+    {
+        if ($this->point_id && isset($this->point)) {
+            return $this->point->delivery_status;
+        }
 
+        return 'REQUESTED';
+    }
 }

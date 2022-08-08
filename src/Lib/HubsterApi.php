@@ -226,7 +226,7 @@ class HubsterApi
      *
      * @param id
      */
-    public function fullfillOrder($data)
+    public function fulfillOrder($data)
     {
         $headers = $this->headers;
 
@@ -248,7 +248,7 @@ class HubsterApi
     {
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
-        $ref_id = $notifyData['deliveryReferenceId'];
+
         $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
     }
 
@@ -261,7 +261,33 @@ class HubsterApi
     {
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
-        $ref_id = $notifyData['deliveryReferenceId'];
+
         $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData);
+    }
+
+    /**
+     * notify delivery cancel.
+     *
+     * @param $notifyData
+     */
+    public function notifyCancelDelivery($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+
+        $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData);
+    }
+
+    /**
+     * update delivery status.
+     *
+     * @param $deliveryReferenceId
+     * @param $data
+     */
+    public function updateDeliveryStatus($deliveryReferenceId, $data)
+    {
+        $headers = $this->headers;
+
+        $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data);
     }
 }

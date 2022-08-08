@@ -2,6 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Repositories;
 
+use App\Services\Ride\CancelRideService;
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 
@@ -44,7 +45,7 @@ class MarketplaceRepository
      * @author Raphael Cangucu
      *
      * update order by points
-     * @return [] OrderDetails
+     * @return OrderDetails
      */
     public static function updateOrder($requestId, $pointId, $pointStartTime, $pointFinishTime, $isCancelled)
     {
@@ -65,7 +66,7 @@ class MarketplaceRepository
                 }
 
                 if ($pointFinishTime) {
-                    $factory->fullfillOrder($order);
+                    $factory->fulfillOrder($order);
                     $code = self::CONCLUDED;
                 }
             } else {
@@ -79,11 +80,33 @@ class MarketplaceRepository
                 $order->code = $code;
                 $order->full_code = self::mapFullCode($code);
                 $order->save();
+
+                // if its from hubster try to delivery status
+                if ($order->aggregator == MarketplaceFactory::HUBSTER) {
+                    $factory->updateDeliveryStatus($order);
+                }
             } else {
                 \Log::debug(sprintf('Pedido não atualizado para corrida: %s e ponto %s', $requestId, $pointId));
             }
         } else {
             \Log::warning(sprintf('Pedido não encontrado para corrida: %s e ponto %s', $requestId, $pointId));
+        }
+
+        return $order;
+    }
+
+    /**
+     * @author Raphael Cangucu
+     *
+     * update order by points
+     * @return OrderDetails
+     */
+    public static function cancelOrder($order)
+    {
+        if ($order->request_id && $order->ride) {
+            $cancelRideService = new CancelRideService;
+            $cancelRideService->registerRequestCancellation($order->ride, 'system', trans('marketplace-integration::ride.marketplace_cancel'), 0, 0, 0);
+            $cancelRideService->cancel($order->ride);
         }
 
         return $order;
