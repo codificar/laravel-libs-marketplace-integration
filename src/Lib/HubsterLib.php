@@ -8,7 +8,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Repositories\DispatchRepository;
-use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
+use Codificar\MarketplaceIntegration\Repositories\HubsterRepository;
 use Location\Coordinate;
 
 class HubsterLib
@@ -94,11 +94,38 @@ class HubsterLib
                 $this->deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn);
 
                 break;
+
+            case 'delivery.cancel' :
+
+                $eventId = $json['eventId'];
+                $deliveryReferenceId = $payload['deliveryReferenceId'];
+
+                $this->deliveryCancel($storeId, $eventId, $deliveryReferenceId);
+
+                break;
             default:
                 break;
         }
 
         return $json;
+    }
+
+    /**
+     * Function to treat delivery.cancel event.
+     * It will create a ride and dispatch for the delivery boys.
+     */
+    private function deliveryCancel($storeId, $eventId, $deliveryReferenceId)
+    {
+        $notifyData = [
+            'canceledAt' => Carbon::now()->addMinutes()->toAtomString(),
+        ];
+
+        $this->api->setStoreId($storeId);
+
+        // cancel at database and ride
+        HubsterRepository::cancelDeliveryOrder($deliveryReferenceId);
+
+        return $this->api->notifyCancelDelivery($eventId, $deliveryReferenceId, $notifyData);
     }
 
     /**
@@ -109,7 +136,7 @@ class HubsterLib
     {
         $notifyData = [
             'deliveryDistance' => [
-                'unit' => 'KM',
+                'unit' => 'KILOMETERS',
                 'value' => $rideApiReturn['estimate_distance']
             ],
             'currencyCode' => 'BRL',
@@ -120,7 +147,7 @@ class HubsterLib
             'fulfillmentPath' => [
                 [
                     'name' => 'heyentregas',
-                    'type'=> 'FULFILLMENT_PROCESSOR'
+                    'type'=> 'INTERMEDIARY'
                 ]
             ],
             'estimatedPickupTime' => Carbon::now()->addMinutes(5)->toAtomString(),
@@ -185,15 +212,6 @@ class HubsterLib
             $requestPoints[] = $requestPoint;
         }
 
-        // // return
-        // if (isset($payload['destinationAddress'])) {
-        //     $requestPoint = $this->getPointFromAddress($payload['destinationAddress']);
-        //     $requestPoint->title = '@';
-        //     $requestPoint->action_type = RequestPoint::action_return;
-        //     $requestPoint->action = trans('marketplace-integration::zedelivery.return_to_start');
-        //     $requestPoints[] = $requestPoint;
-        // }
-
         return $requestPoints;
     }
 
@@ -236,11 +254,11 @@ class HubsterLib
             'fulfillmentPath' => [
                 [
                     'name' => 'heyentregas',
-                    'type'=> 'FULFILLMENT_PROCESSOR'
+                    'type'=> 'INTERMEDIARY'
                 ]
             ],
             'createdAt' => Carbon::now()->toAtomString(),
-            'accountBalance' => 1068.32
+            'accountBalance' => $balance
         ];
 
         return $jsonPayload;
@@ -278,6 +296,7 @@ class HubsterLib
         $orderSubTotal = $payload['orderSubTotal'];
         $totalV2 = $payload['orderTotalV2'];
         $orderId = $payload['pickupOrderId'];
+        $deliveryReferenceId = $payload['deliveryReferenceId'];
         $displayId = $payload['ofoDisplayId'];
         $marketplace = $payload['ofoSlug'];
 
@@ -316,9 +335,9 @@ class HubsterLib
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
                 'order_id'                      => $orderId,
-                'marketplace_order_id'          => $orderId,
-                'code'                          => MarketplaceRepository::CONFIRMED,
-                'full_code'                     => MarketplaceRepository::mapFullCode(MarketplaceRepository::CONFIRMED),
+                'marketplace_order_id'          => $deliveryReferenceId,
+                'code'                          => HubsterRepository::CONFIRMED,
+                'full_code'                     => HubsterRepository::mapFullCode(HubsterRepository::CONFIRMED),
                 'created_at_marketplace'        => Carbon::parse($payload['orderedAt']),
                 'point_id'                      => null,
                 'request_id'                    => null,
@@ -326,7 +345,7 @@ class HubsterLib
                 'merchant_id'                   => $storeId,
                 'marketplace'                   => $this->treatMarketplace($marketplace),
                 'aggregator'                    => MarketplaceFactory::HUBSTER,
-                'order_type'                    => MarketplaceRepository::DELIVERY,
+                'order_type'                    => HubsterRepository::DELIVERY,
                 'display_id'                    => $displayId,
                 'preparation_start_date_time'   => null,
                 'customer_id'                   => $customerId,
@@ -426,8 +445,8 @@ class HubsterLib
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
                 'order_id'                      => $external['id'],
                 'marketplace_order_id'          => $external['id'],
-                'code'                          => MarketplaceRepository::CONFIRMED,
-                'full_code'                     => MarketplaceRepository::mapFullCode(MarketplaceRepository::CONFIRMED),
+                'code'                          => HubsterRepository::CONFIRMED,
+                'full_code'                     => HubsterRepository::mapFullCode(HubsterRepository::CONFIRMED),
                 'created_at_marketplace'        => Carbon::parse($payload['orderedAt']),
                 'point_id'                      => null,
                 'request_id'                    => null,
@@ -435,7 +454,7 @@ class HubsterLib
                 'merchant_id'                   => $storeId,
                 'marketplace'                   => $this->treatMarketplace($external['source']),
                 'aggregator'                    => MarketplaceFactory::HUBSTER,
-                'order_type'                    => MarketplaceRepository::DELIVERY,
+                'order_type'                    => HubsterRepository::DELIVERY,
                 'display_id'                    => $external['friendlyId'],
                 'preparation_start_date_time'   => null,
                 'customer_id'                   => $customerId,
@@ -540,10 +559,10 @@ class HubsterLib
     }
 
     /**
-     * fullfillOrder order to api.
+     * fulfillOrder order to api.
      * @return object
      */
-    public function fullfillOrder($order)
+    public function fulfillOrder($order)
     {
         $data = [
             'source' =>  $order->marketplace,
@@ -552,7 +571,51 @@ class HubsterLib
 
         $this->api->setStoreId($order->merchant_id);
 
-        return $this->api->fullfillOrder($data);
+        return $this->api->fulfillOrder($data);
+    }
+
+    /**
+     * updateDeliveryStatus order to api.
+     * @return object
+     */
+    public function updateDeliveryStatus($order)
+    {
+        $ride = $order->ride;
+        $provider = $order->actual_provider;
+        $data = [
+            'deliveryStatus' =>  $order->deliveryStatus,
+            'estimatedDeliveryTime' => $order->order_id,
+            'estimatedPickupTime' => $order->order_id,
+            'courier' => [
+                'name' => $provider->getFullName(),
+                'phone' => $provider->getPhone(),
+                'phoneCode' => $provider->phone,
+                'email' => $provider->getEmail(),
+                'personalIdentifiers' => [
+                    'taxIdentificationNumber' => $provider->getDocument(),
+                ],
+            ],
+            'location' => [
+                'latitude' => $provider->latitude,
+                'longitude' => $provider->latitude
+            ],
+            'createdAt' => Carbon::now()->toAtomString(),
+            'vehicleInformation' => [
+                'vehicleType' => 'MOTORCYCLE',
+                'licensePlate' => $provider->car_number,
+                'makeModel' => $provider->car_model,
+            ],
+            'currencyCode' => 'BRL',
+            'cost' => [
+                'baseCost' => $ride->estimate_price,
+                'extraCost' => 0
+            ],
+            'providerDeliveryId' => $provider->id
+        ];
+
+        $this->api->setStoreId($order->merchant_id);
+
+        return $this->api->updateDeliveryStatus($order->marketplace_order_id, $data);
     }
 
     /**
