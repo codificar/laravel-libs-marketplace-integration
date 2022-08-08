@@ -2,6 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -170,5 +171,32 @@ class OrderDetails extends Model
         }
 
         return 'REQUESTED';
+    }
+
+    /**
+     * get estimatedDeliveryTime.
+     * @return Carbon estimatedDeliveryTime
+     */
+    public function getEstimatedDeliveryTimeAttribute()
+    {
+        $carbon = Carbon::parse($this->created_at_marketplace);
+        $estimateTime = 15;
+        if ($this->ride) {
+            $estimateTime = $this->ride->estimate_time;
+        }
+
+        return $carbon->addMinutes($estimateTime);
+    }
+
+    /**
+     * get estimatedPickupTime.
+     * @return Carbon estimatedPickupTime
+     */
+    public function getEstimatedPickupTimeAttribute()
+    {
+        $carbon = Carbon::parse($this->created_at_marketplace);
+        $estimateTime = 5;
+
+        return $carbon->addMinutes($estimateTime);
     }
 }

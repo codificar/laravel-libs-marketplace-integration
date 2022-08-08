@@ -584,8 +584,8 @@ class HubsterLib
         $provider = $order->actual_provider;
         $data = [
             'deliveryStatus' =>  $order->deliveryStatus,
-            'estimatedDeliveryTime' => $order->order_id,
-            'estimatedPickupTime' => $order->order_id,
+            'estimatedDeliveryTime' => $order->estimatedDeliveryTime->toAtomString(),
+            'estimatedPickupTime' => $order->estimatedPickupTime->toAtomString(),
             'courier' => [
                 'name' => $provider->getFullName(),
                 'phone' => $provider->getPhone(),
@@ -599,7 +599,7 @@ class HubsterLib
                 'latitude' => $provider->latitude,
                 'longitude' => $provider->latitude
             ],
-            'createdAt' => Carbon::now()->toAtomString(),
+            'createdAt' => Carbon::parse($order->created_at_marketplace)->toAtomString(),
             'vehicleInformation' => [
                 'vehicleType' => 'MOTORCYCLE',
                 'licensePlate' => $provider->car_number,
