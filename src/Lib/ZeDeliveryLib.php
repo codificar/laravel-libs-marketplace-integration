@@ -52,7 +52,7 @@ class ZeDeliveryLib
 
                 \Log::debug('order' . $order);
 
-                //$acknowledgment = $this->api->acknowledgment($value);
+                $acknowledgment = $this->api->acknowledgment($value);
 
                 $this->orderDetails($value->orderId);
             }
