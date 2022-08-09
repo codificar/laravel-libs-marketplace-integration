@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-class IFoodApi
+class ZeDeliveryApi
 {
     protected $clientId;
     protected $clientSecret;
@@ -20,13 +20,20 @@ class IFoodApi
      */
     public function __construct()
     {
-        $this->baseUrl = 'https://merchant-api.ifood.com.br/';
+        $environment = \Settings::updateOrCreateByKey('zedelivery_environment', 'sandbox');
+
+        if ($environment == 'production') {
+            $this->baseUrl = 'https://seller-public-api.ze.delivery';
+        } else {
+            $this->baseUrl = 'https://seller-public-api.release.ze.delivery';
+        }
+
         $this->client = new Client([
             'base_uri'  => $this->baseUrl
         ]);
 
         //get the marketplace toe=ken
-        $key = \Settings::getMarketPlaceToken('ifood_auth_token');
+        $key = \Settings::findByKey('zedelivery_auth_token');
 
         //initialize a common variable
         $this->accessToken = $key;
@@ -42,22 +49,32 @@ class IFoodApi
      */
     public function send($requestType, $route, $headers, $body = null, $retry = 0)
     {
-        \Log::debug('headers: ' . print_r($headers, 1));
-        \Log::debug('route: ' . print_r($route, 1));
+        $response = null;
 
         try {
-            $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
-        } catch (Exception $ex) {
-            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+            $options['headers'] = $headers;
 
-            // reautenticacao caso a chave tenha dado 401 e um novo retry
-            if ($ex->getCode() == 401 && $retry < 3) {
-                $clientId = \Settings::findByKey('ifood_client_id');
-                $clientSecret = \Settings::findByKey('ifood_client_secret');
+            if (strtolower($requestType) == 'get') {
+                $options['query'] = $body;
+            } else {
+                $options['form_params'] = $body;
+            }
+
+            $response = $this->client->request($requestType, $route, $options);
+
+            \Log::info('Code: ' . $response->getStatusCode());
+        } catch (\Exception $ex) {
+
+            //reautenticacao caso a chave tenha dado 401 e um novo retry
+            if (in_array($ex->getCode(), [401]) && $retry < 3) {
+                $clientId = \Settings::findByKey('zedelivery_client_id', '5c2sl86tvtn9hbk2a81pdhp9di');
+                $clientSecret = \Settings::findByKey('zedelivery_client_secret', 'qite7frts0jf8936rks7nuc5lsi4hv8s0oqtfpovu24lsvflvbg');
                 $this->auth($clientId, $clientSecret);
 
                 return $this->send($requestType, $route, $headers, $body, ++$retry);
             }
+
+            Log::info('erro send: ' . $ex->getMessage());
         }
 
         return json_decode($response->getBody()->getContents());
@@ -71,23 +88,43 @@ class IFoodApi
         try {
             $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
             $body = [
-                'grantType'     => 'client_credentials',
-                'clientId'      => $clientId,
-                'clientSecret'  => $clientSecret,
+                'client_id'      => $clientId,
+                'client_secret'  => $clientSecret,
             ];
-            $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
 
-            $this->accessToken = $res->accessToken;
-            $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_auth_token ' . print_r($test, 1));
+            $options['headers'] = $headers;
+            $options['form_params'] = $body;
 
-            $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_expiry_token ' . print_r($test, 1));
+            $response = $this->client->request('POST', 'auth?grant_type=client_credentials&scope=orders/read', $options);
 
-            return $res;
+            $this->accessToken = $response->access_token;
+            $test = \Settings::updateOrCreateByKey('zedelivery_auth_token', $this->accessToken);
+            \Log::debug('Ifood API updateOrCreateByKey: zedelivery_auth_token ' . print_r($test, 1));
+
+            $test = \Settings::updateOrCreateByKey('zedelivery_expiry_token', Carbon::now()->addHours(3));
+            \Log::debug('Ifood API updateOrCreateByKey: zedelivery_expiry_token ' . print_r($test, 1));
+
+            return $response;
         } catch (\Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
         }
+    }
+
+    /**
+     * Set Authorization header.
+     */
+    private function setAuthorization($token)
+    {
+        $this->headers['Authorization'] = 'Bearer ' . $token;
+    }
+
+    /**
+     * Set x-polling-merchants header.
+     * @param $merchantIds string id csv values
+     */
+    public function setPollingMerchants($merchantIds)
+    {
+        $this->headers['x-polling-merchants'] = $merchantIds;
     }
 
     /**
@@ -97,13 +134,12 @@ class IFoodApi
      */
     public function newOrders()
     {
-        \Log::debug('newOrders > accessToken ' . print_r($this->accessToken, 1));
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $this->accessToken
         ];
 
-        return $this->send('GET', 'order/v1.0/events:polling', $headers);
+        return $this->send('GET', 'events:polling', $headers);
     }
 
     /**
@@ -129,7 +165,7 @@ class IFoodApi
               ]
         ];
 
-        $res = $this->client->request('POST', 'order/v1.0/events/acknowledgment', [
+        $res = $this->client->request('POST', 'events/acknowledgment', [
             'headers'   => $headers,
             'body'      => json_encode($object)
         ]);
@@ -153,7 +189,7 @@ class IFoodApi
             'Authorization' => 'Bearer ' . $this->accessToken
         ];
 
-        return $this->send('GET', 'order/v1.0/orders/' . $id, $headers);
+        return $this->send('GET', 'orders/' . $id, $headers);
     }
 
     /**
@@ -169,7 +205,7 @@ class IFoodApi
             ]
         ];
         try {
-            return $this->send('POST', 'order/v1.0/orders/' . $id . '/confirm', $headers);
+            return $this->send('POST', 'orders/' . $id . '/confirm', $headers);
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -195,7 +231,7 @@ class IFoodApi
             'cancellationCode'              => '506'
         ];
         try {
-            return $this->send('POST', 'order/v1.0/orders/' . $id . '/requestCancellation', $headers, json_encode($object));
+            return $this->send('POST', 'orders/' . $id . '/requestCancellation', $headers, json_encode($object));
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -214,7 +250,7 @@ class IFoodApi
             $headers = $this->headers;
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-            return $this->send('POST', 'order/v1.0/orders/' . $id . '/dispatch', $headers, ['id' => $id]);
+            return $this->send('POST', 'orders/' . $id . '/dispatch', $headers, ['id' => $id]);
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 

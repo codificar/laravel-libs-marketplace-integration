@@ -4,7 +4,6 @@ namespace Codificar\MarketplaceIntegration\Lib;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -111,12 +110,8 @@ class HubsterApi
             \Log::debug('updateOrCreateByKey: hubster_expiry_token ' . print_r($test, 1));
 
             return $response;
-        } catch (\Exception $e) {
-            echo Psr7\Message::toString($e->getRequest());
-            echo Psr7\Message::toString($e->getResponse());
-            \Log::debug($e->getMessage());
-
-            return $e;
+        } catch (\Exception $ex) {
+            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
         }
     }
 

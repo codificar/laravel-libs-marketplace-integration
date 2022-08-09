@@ -7,7 +7,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 
-class IFoodLib
+class ZeDeliveryLib
 {
     private $api;
 
@@ -17,12 +17,12 @@ class IFoodLib
     public function __construct()
     {
         //TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId = \Settings::findByKey('ifood_client_id');
-        $clientSecret = \Settings::findByKey('ifood_client_secret');
+        $clientId = \Settings::findByKey('zedelivery_client_id');
+        $clientSecret = \Settings::findByKey('zedelivery_client_secret');
 
         $this->api = new IFoodApi;
 
-        $expiryToken = \Settings::findByKey('ifood_expiry_token');
+        $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
         if ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now()) {
             $this->api->auth($clientId, $clientSecret);
         }
@@ -113,7 +113,14 @@ class IFoodLib
             if (isset($response->delivery)) {
                 $calculatedDistance = 0;
 
-                $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($response->delivery->deliveryAddress->coordinates->latitude, $response->delivery->deliveryAddress->coordinates->longitude)) : 0);
+                if ($marketConfig) {
+                    //TODO mudar calculo de distancia para lib PHP ao inves de consultar banco
+                    $diffDistance = \DB::select(\DB::raw(
+                        "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(" . $marketConfig->longitude . ' ' . $marketConfig->latitude . ")'), ST_GeomFromText('POINT(" . $response->delivery->deliveryAddress->coordinates->longitude . ' ' . $response->delivery->deliveryAddress->coordinates->latitude . ")')) AS diffDistance"
+                    ));
+                    \Log::debug('DISTANCE: ' . print_r($diffDistance, 1));
+                    $calculatedDistance = $diffDistance[0]->diffDistance;
+                }
 
                 $complement = property_exists($response->delivery->deliveryAddress, 'complement') ? $response->delivery->deliveryAddress->complement : '';
                 if (! $complement && property_exists($response->delivery->deliveryAddress, 'reference')) {
