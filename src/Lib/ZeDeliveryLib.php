@@ -6,6 +6,7 @@ use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Repositories\ZeDeliveryRepository;
+use Location\Coordinate;
 
 class ZeDeliveryLib
 {
@@ -65,7 +66,7 @@ class ZeDeliveryLib
     public function orderDetails($orderId)
     {
         $response = $this->api->orderDetails($orderId);
-        dd($response);
+
         if ($response) {
             $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->where('market', MarketplaceFactory::ZEDELIVERY)->first();
 
@@ -115,7 +116,7 @@ class ZeDeliveryLib
                 }
 
                 $address = DeliveryAddress::updateOrCreate([
-                    'order_id'                      => $response->id
+                    'order_id'                      => $response->displayId
                 ], [
                     'customer_id'                   => $response->customer->documentNumber,
                     'street_name'                    => $response->delivery->deliveryAddress->streetName,

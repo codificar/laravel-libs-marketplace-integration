@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Location\Coordinate;
 
 class IFoodLib
 {
