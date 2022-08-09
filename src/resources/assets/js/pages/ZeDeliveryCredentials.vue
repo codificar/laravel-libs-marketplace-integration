@@ -12,7 +12,7 @@
                             v-model="settings.zedelivery_environment_enabled"
                             :sync="true"
                             :value="settings.zedelivery_environment_enabled"
-                            @change="onChangeHubsterEnvironment"
+                            @change="onChangeZeDeliveryEnvironment"
                             :labels="{
                                 checked: 'production',
                                 unchecked: 'sandbox',

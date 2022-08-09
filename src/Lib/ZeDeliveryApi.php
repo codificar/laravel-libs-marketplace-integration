@@ -61,7 +61,7 @@ class ZeDeliveryApi
             }
 
             $response = $this->client->request($requestType, $route, $options);
-
+            var_dump($response);
             \Log::info('Code: ' . $response->getStatusCode());
         } catch (\Exception $ex) {
 
@@ -74,7 +74,7 @@ class ZeDeliveryApi
                 return $this->send($requestType, $route, $headers, $body, ++$retry);
             }
 
-            Log::info('erro send: ' . $ex->getMessage());
+            \Log::info('erro send: ' . $ex->getMessage());
         }
 
         return json_decode($response->getBody()->getContents());

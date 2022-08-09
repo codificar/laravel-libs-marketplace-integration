@@ -10,10 +10,6 @@ export default {
                 dispatch_max_delivery: 3,
                 ifood_client_id: null,
                 ifood_client_secret: null,
-                hubster_environment_enabled: true,
-                hubster_environment: 'production',
-                hubster_client_id: null,
-                hubster_client_secret: null,
             },
         };
     },

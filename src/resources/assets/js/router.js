@@ -6,6 +6,7 @@ import ListMode from './pages/ListMode';
 import MapMode from './pages/MapMode';
 import Credentials from './pages/Credentials';
 import ZeDeliveryCredentials from './pages/ZeDeliveryCredentials';
+import HubsterCredentials from './pages/HubsterCredentials';
 import ZeDeliveryImport from './pages/ZeDeliveryImport';
 import Settings from './pages/Settings';
 
@@ -38,6 +39,11 @@ const router = new VueRouter({
             path: '/admin/marketplace-integration/credentials/zedelivery',
             name: 'credentials_zedelivery',
             component: ZeDeliveryCredentials,
+        },
+        {
+            path: '/admin/marketplace-integration/credentials/hubster',
+            name: 'credentials_hubster',
+            component: HubsterCredentials,
         },
         {
             path: '/admin/marketplace-integration/zedelivery/import',
