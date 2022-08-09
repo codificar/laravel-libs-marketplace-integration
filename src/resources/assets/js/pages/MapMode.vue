@@ -98,6 +98,7 @@
                                                     $store.state.shops.length >
                                                         0
                                             "
+                                            @on-finish-count="getOrders"
                                         />
                                     </div>
                                 </div>
@@ -170,6 +171,7 @@
                     :icon="{
                         url: marker ? marker.url : null,
                         size: marker ? marker.size : null,
+                        anchor: marker ? marker.anchor : null,
                     }"
                     :coordinates="marker.coordinates"
                 >
@@ -436,6 +438,7 @@ export default {
                     platform: order.marketplace,
                     url: iconUrl,
                     size: icon.size,
+                    anchor: [0, 0],
                 };
 
                 //console.log('marker >', marker);
