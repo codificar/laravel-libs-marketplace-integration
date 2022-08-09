@@ -20,7 +20,7 @@ class ZeDeliveryLib
         $clientId = \Settings::findByKey('zedelivery_client_id');
         $clientSecret = \Settings::findByKey('zedelivery_client_secret');
 
-        $this->api = new IFoodApi;
+        $this->api = new ZeDeliveryApi;
 
         $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
         if ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now()) {
@@ -53,7 +53,7 @@ class ZeDeliveryLib
                         'merchant_id'               => $value->merchantId,
                         'marketplace_order_id'      => $value->id,
                         'created_at_marketplace'    => $createdAt,
-                        'marketplace'               => MarketplaceFactory::IFOOD
+                        'marketplace'               => MarketplaceFactory::ZEDELIVERY
                     ]
                 );
 
@@ -93,7 +93,7 @@ class ZeDeliveryLib
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_marketplace'        => $createdAt,
-                    'marketplace'                   => MarketplaceFactory::IFOOD,
+                    'marketplace'                   => MarketplaceFactory::ZEDELIVERY,
                     'order_type'                    => $response->orderType,
                     'display_id'                    => $response->displayId,
                     'preparation_start_date_time'   => $preparationStartDateTime,
