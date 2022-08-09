@@ -40,8 +40,8 @@ class Polling extends Command
     {
         // just polling if has the proper configurations
         $this->polling();
-        // sleep(30);
-        // $this->polling();
+        sleep(30);
+        $this->polling();
     }
 
     /**
