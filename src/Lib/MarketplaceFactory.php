@@ -21,7 +21,7 @@ class MarketplaceFactory
             case self::HUBSTER:
                 return new HubsterLib();
             case self::ZEDELIVERY:
-                return new HubsterLib();
+                return new ZeDeliveryLib();
             default:
                 //TODO trow exception no marketplace type valid
                 return new IFoodLib();

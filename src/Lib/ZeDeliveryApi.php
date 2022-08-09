@@ -32,15 +32,22 @@ class ZeDeliveryApi
             'base_uri'  => $this->baseUrl
         ]);
 
-        //get the marketplace toe=ken
-        $key = \Settings::findByKey('zedelivery_auth_token');
+        //get the marketplace token
+        $this->accessToken = \Settings::findByKey('zedelivery_auth_token');
 
-        //initialize a common variable
-        $this->accessToken = $key;
+        //TODO ter settings proprias ao inves de usar a do projeto pai
+        $clientId = \Settings::findByKey('zedelivery_client_id');
+        $clientSecret = \Settings::findByKey('zedelivery_client_secret');
+
+        $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
+        if ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now() || ! $this->accessToken) {
+            $this->auth($clientId, $clientSecret);
+        }
+
         //initialize a common variable
         $this->headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $key
+            'Authorization' => 'Bearer ' . $this->accessToken
         ];
     }
 
@@ -61,7 +68,7 @@ class ZeDeliveryApi
             }
 
             $response = $this->client->request($requestType, $route, $options);
-            var_dump($response);
+
             \Log::info('Code: ' . $response->getStatusCode());
         } catch (\Exception $ex) {
 
@@ -75,6 +82,7 @@ class ZeDeliveryApi
             }
 
             \Log::info('erro send: ' . $ex->getMessage());
+            throw($ex);
         }
 
         return json_decode($response->getBody()->getContents());
@@ -95,9 +103,11 @@ class ZeDeliveryApi
             $options['headers'] = $headers;
             $options['form_params'] = $body;
 
-            $response = $this->client->request('POST', 'auth?grant_type=client_credentials&scope=orders/read', $options);
+            $response = $this->client->request('POST', '/auth?grant_type=client_credentials&scope=orders/read', $options);
+            $response = json_decode($response->getBody()->getContents());
 
             $this->accessToken = $response->access_token;
+            $this->setAuthorization($this->accessToken);
             $test = \Settings::updateOrCreateByKey('zedelivery_auth_token', $this->accessToken);
             \Log::debug('Ifood API updateOrCreateByKey: zedelivery_auth_token ' . print_r($test, 1));
 
@@ -115,6 +125,7 @@ class ZeDeliveryApi
      */
     private function setAuthorization($token)
     {
+        $this->accessToken = $token;
         $this->headers['Authorization'] = 'Bearer ' . $token;
     }
 
@@ -124,6 +135,9 @@ class ZeDeliveryApi
      */
     public function setPollingMerchants($merchantIds)
     {
+        if (! $merchantIds) {
+            throw(new Exception('Polling merchants must not be null'));
+        }
         $this->headers['x-polling-merchants'] = $merchantIds;
     }
 
@@ -134,12 +148,9 @@ class ZeDeliveryApi
      */
     public function newOrders()
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $this->accessToken
-        ];
+        $headers = $this->headers;
 
-        return $this->send('GET', 'events:polling', $headers);
+        return $this->send('GET', '/events:polling', $headers);
     }
 
     /**
@@ -149,19 +160,14 @@ class ZeDeliveryApi
      */
     public function acknowledgment($data)
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $this->accessToken
-        ];
+        $headers = $this->headers;
 
         $object = [
             (object)
               [
-                  'id'                => $data->id,
-                  'code'              => $data->code,
-                  'full_code'         => $data->fullCode,
-                  'order_id'          => $data->orderId,
-                  'created_at_marketplace'  => $data->createdAt
+                  'id'                => $data->eventId,
+                  'orderId'           => $data->orderId,
+                  'eventType'         => $data->eventType
               ]
         ];
 
@@ -189,7 +195,7 @@ class ZeDeliveryApi
             'Authorization' => 'Bearer ' . $this->accessToken
         ];
 
-        return $this->send('GET', 'orders/' . $id, $headers);
+        return $this->send('GET', '/orders/' . $id, $headers);
     }
 
     /**
@@ -205,7 +211,7 @@ class ZeDeliveryApi
             ]
         ];
         try {
-            return $this->send('POST', 'orders/' . $id . '/confirm', $headers);
+            return $this->send('POST', '/orders/' . $id . '/confirm', $headers);
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -231,7 +237,7 @@ class ZeDeliveryApi
             'cancellationCode'              => '506'
         ];
         try {
-            return $this->send('POST', 'orders/' . $id . '/requestCancellation', $headers, json_encode($object));
+            return $this->send('POST', '/orders/' . $id . '/requestCancellation', $headers, json_encode($object));
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -250,7 +256,7 @@ class ZeDeliveryApi
             $headers = $this->headers;
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-            return $this->send('POST', 'orders/' . $id . '/dispatch', $headers, ['id' => $id]);
+            return $this->send('POST', '/orders/' . $id . '/dispatch', $headers, ['id' => $id]);
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -270,7 +276,7 @@ class ZeDeliveryApi
         ];
 
         try {
-            $data = $this->send('GET', 'merchant/v1.0/merchants/' . $merchantId, $headers);
+            $data = $this->send('GET', '/merchants/' . $merchantId, $headers);
             if (is_object($data)) {
                 return [
                     'code' => 200,

@@ -4,9 +4,6 @@ namespace Codificar\MarketplaceIntegration\Console\Commands;
 
 use Codificar\MarketplaceIntegration\Lib\MarketplaceFactory;
 use Illuminate\Console\Command;
-use Log;
-use Carbon\Carbon;
-
 
 class Polling extends Command
 {
@@ -15,7 +12,7 @@ class Polling extends Command
      *
      * @var string
      */
-    protected $signature = 'marketplace:polling';
+    protected $signature = 'marketplace:polling {marketplaces?}';
 
     /**
      * The console command description.
@@ -43,8 +40,8 @@ class Polling extends Command
     {
         // just polling if has the proper configurations
         $this->polling();
-        sleep(30);
-        $this->polling();
+        // sleep(30);
+        // $this->polling();
     }
 
     /**
@@ -53,10 +50,15 @@ class Polling extends Command
      * @return mixed
      */
     public function polling()
-    {   
-        foreach (MarketplaceFactory::$pollingMarketplaces as $market) {
+    {
+        $marketplaces = MarketplaceFactory::$pollingMarketplaces;
+        if ($this->argument('marketplaces')) {
+            $marketplaces = explode(',', $this->argument('marketplaces'));
+        }
+
+        foreach ($marketplaces as $market) {
             $factory = MarketplaceFactory::create($market);
-            $factory->newOrders();                   
+            $factory->newOrders();
         }
     }
 }

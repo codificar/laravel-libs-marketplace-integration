@@ -20,7 +20,7 @@ class ZeDeliveryPollingTest extends TestCase
         $clientSecret = \Settings::findByKey('zedelivery_client_secret');
 
         $this->api = new ZeDeliveryApi;
-        $this->lib = new ZeDeliveryLib();
+        $this->lib = new ZeDeliveryLib;
 
         $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
         if (($clientId && $clientSecret) && ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now())) {

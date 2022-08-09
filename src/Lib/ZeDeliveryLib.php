@@ -2,10 +2,10 @@
 
 namespace Codificar\MarketplaceIntegration\Lib;
 
-use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Codificar\MarketplaceIntegration\Repositories\ZeDeliveryRepository;
 
 class ZeDeliveryLib
 {
@@ -16,16 +16,7 @@ class ZeDeliveryLib
      */
     public function __construct()
     {
-        //TODO ter settings proprias ao inves de usar a do projeto pai
-        $clientId = \Settings::findByKey('zedelivery_client_id');
-        $clientSecret = \Settings::findByKey('zedelivery_client_secret');
-
-        $this->api = new ZeDeliveryApi;
-
-        $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
-        if ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now()) {
-            $this->api->auth($clientId, $clientSecret);
-        }
+        $this->api = new ZeDeliveryApi();
     }
 
     /**
@@ -33,6 +24,7 @@ class ZeDeliveryLib
      */
     public function newOrders()
     {
+        $this->api->setPollingMerchants(ZeDeliveryRepository::getMerchantIds());
         $response = $this->api->newOrders();
 
         \Log::debug('newOrders > response' . print_r($response, 1));
@@ -48,10 +40,10 @@ class ZeDeliveryLib
                     ],
                     [
                         'order_id'                  => $value->orderId,
-                        'code'                      => $value->code,
-                        'full_code'                 => $value->fullCode,
+                        'code'                      => ZeDeliveryRepository::mapCode($value->eventType),
+                        'full_code'                 => ZeDeliveryRepository::mapFullCodeFromEvent($value->eventType),
                         'merchant_id'               => $value->merchantId,
-                        'marketplace_order_id'      => $value->id,
+                        'marketplace_order_id'      => $value->orderId,
                         'created_at_marketplace'    => $createdAt,
                         'marketplace'               => MarketplaceFactory::ZEDELIVERY
                     ]
@@ -59,7 +51,7 @@ class ZeDeliveryLib
 
                 \Log::debug('order' . $order);
 
-                $acknowledgment = $this->api->acknowledgment($value);
+                //$acknowledgment = $this->api->acknowledgment($value);
 
                 $this->orderDetails($value->orderId);
             }
@@ -73,39 +65,39 @@ class ZeDeliveryLib
     public function orderDetails($orderId)
     {
         $response = $this->api->orderDetails($orderId);
-
+        dd($response);
         if ($response) {
-            $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->first();
+            $marketConfig = MarketConfig::where('merchant_id', $response->merchant->id)->where('market', MarketplaceFactory::ZEDELIVERY)->first();
 
             $timestamp = strtotime($response->createdAt);
             $createdAt = date('Y-m-d H:i:s', $timestamp);
 
-            $timestamp = strtotime($response->preparationStartDateTime);
+            $timestamp = strtotime($response->createdAt);
             $preparationStartDateTime = date('Y-m-d H:i:s', $timestamp);
 
             $order = OrderDetails::updateOrCreate(
                 [
-                    'order_id'                      => $response->id
+                    'order_id'                      => $response->displayId
                 ],
                 [
                     'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                    'order_id'                      => $response->id,
+                    'order_id'                      => $response->displayId,
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_marketplace'        => $createdAt,
                     'marketplace'                   => MarketplaceFactory::ZEDELIVERY,
-                    'order_type'                    => $response->orderType,
+                    'order_type'                    => $response->type,
                     'display_id'                    => $response->displayId,
                     'preparation_start_date_time'   => $preparationStartDateTime,
-                    'customer_id'                   => $response->customer->id,
-                    'sub_total'                     => $response->total->subTotal,
-                    'delivery_fee'                  => $response->total->deliveryFee,
-                    'benefits'                      => $response->total->benefits,
-                    'order_amount'                  => $response->total->orderAmount,
+                    'customer_id'                   => $response->customer->documentNumber,
+                    'sub_total'                     => $response->total->orderAmount->value,
+                    'delivery_fee'                  => $response->total->otherFees->value,
+                    'benefits'                      => $response->total->discount->value,
+                    'order_amount'                  => $response->total->orderAmount->value,
                     'method_payment'                => $response->payments->methods[0]->method,
-                    'prepaid'                       => $response->payments->methods[0]->prepaid,
-                    'change_for'                    => $response->payments->methods[0]->method == 'CASH' ? $response->payments->methods[0]->cash->changeFor : '',
-                    'card_brand'                     => $response->payments->methods[0]->method == 'CREDIT' ? $response->payments->methods[0]->card->brand : null,
+                    'prepaid'                       => $response->payments->methods[0]->type == 'PENDING' ? false : true,
+                    'change_for'                    => $response->total->change->value,
+                    'card_brand'                    => null,
                     'extra_info'                    => isset($response->extraInfo) ? $response->extraInfo : ''
                 ]
             );
@@ -113,14 +105,7 @@ class ZeDeliveryLib
             if (isset($response->delivery)) {
                 $calculatedDistance = 0;
 
-                if ($marketConfig) {
-                    //TODO mudar calculo de distancia para lib PHP ao inves de consultar banco
-                    $diffDistance = \DB::select(\DB::raw(
-                        "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(" . $marketConfig->longitude . ' ' . $marketConfig->latitude . ")'), ST_GeomFromText('POINT(" . $response->delivery->deliveryAddress->coordinates->longitude . ' ' . $response->delivery->deliveryAddress->coordinates->latitude . ")')) AS diffDistance"
-                    ));
-                    \Log::debug('DISTANCE: ' . print_r($diffDistance, 1));
-                    $calculatedDistance = $diffDistance[0]->diffDistance;
-                }
+                $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($response->delivery->deliveryAddress->coordinates->latitude, $response->delivery->deliveryAddress->coordinates->longitude)) : 0);
 
                 $complement = property_exists($response->delivery->deliveryAddress, 'complement') ? $response->delivery->deliveryAddress->complement : '';
                 if (! $complement && property_exists($response->delivery->deliveryAddress, 'reference')) {
@@ -132,7 +117,7 @@ class ZeDeliveryLib
                 $address = DeliveryAddress::updateOrCreate([
                     'order_id'                      => $response->id
                 ], [
-                    'customer_id'                   => $response->customer->id,
+                    'customer_id'                   => $response->customer->documentNumber,
                     'street_name'                    => $response->delivery->deliveryAddress->streetName,
                     'street_number'                 => $response->delivery->deliveryAddress->streetNumber,
                     'formatted_address'             => $response->delivery->deliveryAddress->formattedAddress,
