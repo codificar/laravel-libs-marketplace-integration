@@ -26,18 +26,18 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         foreach ($rows as $row) {
             // after group lets get just one
             $providerKey = $row[0]['deliveryman_email'];
-            $providerKey = 'raphael@codificar.com.br';
+            //$providerKey = 'raphael@codificar.com.br';
             $provider = MarketplaceRepository::getProviderByKey($providerKey);
 
             if (! $provider) {
-                \Log::error(sprintf('Por favor cadastre um entregador com a chave %s', $providerKey));
+                \Log::warning(sprintf('Por favor cadastre um entregador com a chave %s', $providerKey));
                 continue;
             }
 
             $ordersArray = [];
             foreach ($row as $groupedRow) {
-                $storeId = $groupedRow['poc_id'];
-                $orderId = $groupedRow['order_number'];
+                $storeId = intval(str_ireplace(',', '', $groupedRow['poc_id']));
+                $orderId = intval(str_ireplace(',', '', $groupedRow['order_number']));
                 $createdAt = $groupedRow['order_datetime'];
                 $providerKey = $groupedRow['deliveryman_email'];
                 $customerId = $orderId;
@@ -111,7 +111,9 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
             }
 
             // create a ride from orders array
-            self::createRide($ordersArray, $provider);
+            if (count($ordersArray)) {
+                self::createRide($ordersArray, $provider);
+            }
         }
     }
 
@@ -142,8 +144,6 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         // locationId
         $locationId = null;
 
-        //\Log::debug(print_r($shopOrderArray[0],1));
-
         //estimativa
         $ride->type_id = DispatchRepository::getProviderType($shop->institution_id);
         $estimate = EstimateService::estimateProcessPriceTable(count($shopOrderArray) * 4, count($shopOrderArray) * 2.5, count($shopOrderArray), $ride->type_id, null, $locationId, $shop->institution_id, null, false, null, null, null, null, null, null);
@@ -160,6 +160,8 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
         $ride->time_zone = env('TIMEZONE', 'UTC');
         $ride->src_address = $shop->full_address;
         $ride->dest_address = $shop->full_address;
+        $ride->created_at = $shopOrderArray[0]->created_at_marketplace;
+        $ride->updated_at = $shopOrderArray[0]->created_at_marketplace;
         $ride->request_start_time = $shopOrderArray[0]->created_at_marketplace;
         $ride->provider_acceptance_time = $shopOrderArray[0]->created_at_marketplace;
         $ride->provider_started_time = $shopOrderArray[0]->created_at_marketplace;
