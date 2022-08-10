@@ -45,6 +45,11 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
 
                 $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::ZEDELIVERY)->first();
 
+                if (! $marketConfig) {
+                    \Log::warning(sprintf('Loja com id: %s não encontrada na importação do Zé Delivery', $storeId));
+                    continue;
+                }
+
                 $order = OrderDetails::updateOrCreate(
                     [
                         'order_id'                          => $orderId,
