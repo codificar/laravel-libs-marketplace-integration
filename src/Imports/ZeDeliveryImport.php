@@ -127,7 +127,7 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
      */
     public function chunkSize(): int
     {
-        return 250;
+        return 100;
     }
 
     /**
