@@ -19,6 +19,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, WithHeadingRow
 {
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 300;
+
     public function collection(Collection $rows)
     {
         $rows = $rows->groupBy('route_id');
