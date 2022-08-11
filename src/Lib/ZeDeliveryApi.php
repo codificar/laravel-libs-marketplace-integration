@@ -20,7 +20,7 @@ class ZeDeliveryApi
      */
     public function __construct()
     {
-        $environment = \Settings::updateOrCreateByKey('zedelivery_environment', 'sandbox');
+        $environment = \Settings::findOrCreateByKey('zedelivery_environment', 'sandbox');
 
         if ($environment == 'production') {
             $this->baseUrl = 'https://seller-public-api.ze.delivery';
@@ -108,11 +108,11 @@ class ZeDeliveryApi
 
             $this->accessToken = $response->access_token;
             $this->setAuthorization($this->accessToken);
-            $test = \Settings::updateOrCreateByKey('zedelivery_auth_token', $this->accessToken);
-            \Log::debug('Ifood API updateOrCreateByKey: zedelivery_auth_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('zedelivery_auth_token', $this->accessToken);
+            \Log::debug('Ifood API findOrCreateByKey: zedelivery_auth_token ' . print_r($test, 1));
 
-            $test = \Settings::updateOrCreateByKey('zedelivery_expiry_token', Carbon::now()->addHours(3));
-            \Log::debug('Ifood API updateOrCreateByKey: zedelivery_expiry_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('zedelivery_expiry_token', Carbon::now()->addHours(3));
+            \Log::debug('Ifood API findOrCreateByKey: zedelivery_expiry_token ' . print_r($test, 1));
 
             return $response;
         } catch (\Exception $ex) {

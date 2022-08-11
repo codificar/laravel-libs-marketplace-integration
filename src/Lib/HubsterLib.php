@@ -3,6 +3,7 @@
 namespace Codificar\MarketplaceIntegration\Lib;
 
 use App\Models\RequestPoint;
+use App\Services\EstimateService;
 use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
@@ -91,7 +92,7 @@ class HubsterLib
 
                 $rideApiReturn = DispatchRepository::createRide([$order]);
 
-                $this->deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn);
+                $this->deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn->resolve());
 
                 break;
 
@@ -173,6 +174,7 @@ class HubsterLib
             $locations = $this->getLocationsRequestPoints($arrPoints);
             $institutionId = $marketConfig->shop->institution_id;
             $providerType = DispatchRepository::getProviderType($institutionId);
+
             $estimate = EstimateService::estimatePriceTable($locations, $providerType, null, null, $institutionId, null, false, null, null);
 
             $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance());
@@ -239,11 +241,11 @@ class HubsterLib
     private function getNotifyPayload($estimate, $balance)
     {
         $jsonPayload = [
-            'minPickupDuration' => $estimate['duration'] - 5,
-            'maxPickupDuration' => $estimate['duration'] + 5,
+            'minPickupDuration' => intval($estimate['duration'] - 5),
+            'maxPickupDuration' => intval($estimate['duration'] + 5),
             'deliveryDistance' => [
                 'unit' => 'KILOMETERS',
-                'value' => $estimate['estimated_distance']
+                'value' => $estimate['distance']
             ],
             'currencyCode' => 'BRL',
             'cost' => [
@@ -290,29 +292,29 @@ class HubsterLib
      */
     public function orderAcceptFromPayload($storeId, $payload)
     {
-        $external = $payload['externalIdentifiers'];
         $customer = $payload['customer'];
         $dropoffAddress = $payload['dropoffAddress'];
         $orderSubTotal = $payload['orderSubTotal'];
-        $totalV2 = $payload['orderTotalV2'];
         $orderId = $payload['pickupOrderId'];
         $deliveryReferenceId = $payload['deliveryReferenceId'];
         $displayId = $payload['ofoDisplayId'];
         $marketplace = $payload['ofoSlug'];
 
-        if ($totalV2) {
-            $prePaid = boolval($totalV2['customerPayment']['customerPrepayment']);
-        } else {
-            $prePaid = 0;
-        }
-
         if ($payload['customerPayments']) {
             $payment = $payload['customerPayments'][0];
             $paymentMethod = $payment['paymentMethod'];
             $paymentChange = $payment['value'] - $orderSubTotal;
+            $processingStatus = $payment['processingStatus'];
         } else {
             $paymentMethod = 'CASH';
             $paymentChange = 0;
+            $processingStatus = 'PROCESSED';
+        }
+
+        if ($processingStatus == 'PROCESSED') {
+            $prePaid = 1;
+        } else {
+            $prePaid = 0;
         }
 
         $customerId = null;
@@ -330,7 +332,8 @@ class HubsterLib
 
         $order = OrderDetails::updateOrCreate(
             [
-                'order_id'                          => $orderId
+                'order_id'                          => $orderId,
+                'aggregator'                        => MarketplaceFactory::HUBSTER
             ],
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
@@ -338,7 +341,7 @@ class HubsterLib
                 'marketplace_order_id'          => $deliveryReferenceId,
                 'code'                          => HubsterRepository::CONFIRMED,
                 'full_code'                     => HubsterRepository::mapFullCode(HubsterRepository::CONFIRMED),
-                'created_at_marketplace'        => Carbon::parse($payload['orderedAt']),
+                'created_at_marketplace'        => Carbon::parse($payload['preferredPickupTime']),
                 'point_id'                      => null,
                 'request_id'                    => null,
                 'client_name'                   => $customerName,
@@ -363,7 +366,7 @@ class HubsterLib
 
         // somente salva o endereço se for de delivery, que é o que interessa para a plataforma
         if ($dropoffAddress) {
-            $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($dropoffAddress['location']['latitude'], $delivery['destination']['location']['longitude'])) : 0);
+            $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($dropoffAddress['location']['latitude'], $dropoffAddress['location']['longitude'])) : 0);
 
             if ($dropoffAddress['addressLines']) {
                 $address['street_name'] = $dropoffAddress['addressLines'][0];
@@ -376,14 +379,14 @@ class HubsterLib
             $address = DeliveryAddress::parseAddress($dropoffAddress['fullAddress']);
 
             $address = DeliveryAddress::updateOrCreate([
-                'order_id'                      => $external['id']
+                'order_id'                      => $orderId
             ], [
                 'customer_id'                   => $customerId,
                 'street_name'                   => $address['street_name'],
                 'street_number'                 => $address['street_number'],
                 'formatted_address'             => $dropoffAddress['fullAddress'],
                 'neighborhood'                  => $address['neighborhood'],
-                'complement'                    => $delivery['note'],
+                'complement'                    => $payload['pickUpInstructions'],
                 'postal_code'                   => $dropoffAddress['postalCode'],
                 'city'                          => $dropoffAddress['city'],
                 'state'                         => $dropoffAddress['state'],
@@ -439,7 +442,8 @@ class HubsterLib
 
         $order = OrderDetails::updateOrCreate(
             [
-                'order_id'                          => $external['id']
+                'order_id'                          => $external['id'],
+                'aggregator'                        => MarketplaceFactory::HUBSTER
             ],
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),

@@ -78,11 +78,11 @@ class IFoodApi
             $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
 
             $this->accessToken = $res->accessToken;
-            $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_auth_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('ifood_auth_token', $this->accessToken);
+            \Log::debug('Ifood API findOrCreateByKey: ifood_auth_token ' . print_r($test, 1));
 
-            $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_expiry_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
+            \Log::debug('Ifood API findOrCreateByKey: ifood_expiry_token ' . print_r($test, 1));
 
             return $res;
         } catch (\Exception $ex) {

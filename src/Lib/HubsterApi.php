@@ -5,7 +5,6 @@ namespace Codificar\MarketplaceIntegration\Lib;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class HubsterApi
 {
@@ -21,7 +20,7 @@ class HubsterApi
      */
     public function __construct()
     {
-        $environment = \Settings::updateOrCreateByKey('hubster_environment', 'production');
+        $environment = \Settings::findOrCreateByKey('hubster_environment', 'sandbox');
 
         if ($environment == 'production') {
             $this->baseUrl = 'https://partners.tryhubster.com/';
@@ -34,7 +33,7 @@ class HubsterApi
         ]);
 
         //TODO remove reset
-        $clientSecret = \Settings::updateOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
+        $clientSecret = \Settings::findOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 
         //get the marketplace token
         $key = \Settings::findByKey('hubster_auth_token');
@@ -103,11 +102,11 @@ class HubsterApi
             $this->setAuthorization($response->access_token);
 
             $this->accessToken = $response->access_token;
-            $test = \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
-            \Log::debug('updateOrCreateByKey: hubster_auth_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('hubster_auth_token', $this->accessToken);
+            \Log::debug('findOrCreateByKey: hubster_auth_token ' . print_r($test, 1));
 
-            $test = \Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
-            \Log::debug('updateOrCreateByKey: hubster_expiry_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
+            \Log::debug('findOrCreateByKey: hubster_expiry_token ' . print_r($test, 1));
 
             return $response;
         } catch (\Exception $ex) {
@@ -148,8 +147,11 @@ class HubsterApi
 
             $response = $this->client->request($requestType, $route, $options);
 
-            \Log::info('Code: ' . $response->getStatusCode());
+            return json_decode($response->getBody()->getContents());
+
+            \Log::debug('Send > response: ' . print_r($response->getBody(), 1));
         } catch (\Exception $ex) {
+            \Log::error('Send > Exception: ' . $ex->getMessage() . $ex->getTraceAsString());
 
             //reautenticacao caso a chave tenha dado 401 e um novo retry
             if (in_array($ex->getCode(), [401]) && $retry < 3) {
@@ -159,11 +161,9 @@ class HubsterApi
 
                 return $this->send($requestType, $route, $headers, $body, ++$retry);
             }
-
-            Log::info('erro send: ' . $ex->getMessage());
         }
 
-        return json_decode($response->getBody()->getContents());
+        return null;
     }
 
     /**

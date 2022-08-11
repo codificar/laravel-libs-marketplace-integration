@@ -152,12 +152,31 @@ class OrderDetails extends Model
     }
 
     /**
+     * Get the market name string.
+     * @return string market name
+     */
+    public function getFormattedAddressAttribute()
+    {
+        if ($this->deliveryAddress) {
+            return $this->deliveryAddress->formatted_address;
+        }
+
+        return null;
+    }
+
+    private $deliveryAddress;
+
+    /**
      * Get the address associated with the order.
      * @return DeliveryAddress
      */
-    public function deliveryAddress()
+    public function getDeliveryAddressAttribute()
     {
-        return DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->last();
+        if (! $this->deliveryAddress) {
+            $this->deliveryAddress = DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->orderBy('id', 'DESC')->first();
+        }
+
+        return $this->deliveryAddress;
     }
 
     /**
