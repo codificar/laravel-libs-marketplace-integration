@@ -25,8 +25,13 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
 
         foreach ($rows as $row) {
             // after group lets get just one
-            $providerKey = $row[0]['deliveryman_email'];
-            //$providerKey = 'raphael@codificar.com.br';
+            $providerKey = trim($row[0]['deliveryman_email']);
+
+            // linha vazia
+            if ($providerKey == '') {
+                continue;
+            }
+
             $provider = MarketplaceRepository::getProviderByKey($providerKey);
 
             if (! $provider) {

@@ -16,6 +16,7 @@ class ZeDeliveryRepository extends MarketplaceRepository
     public static function getArrayMerchantIds()
     {
         $merchantIds = MarketConfig::where('market', '=', MarketplaceFactory::ZEDELIVERY)
+                                ->where('polling', '=', true)
                                 ->groupby('merchant_id')
                                 ->get()
                                 ->pluck('merchant_id')

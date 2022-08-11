@@ -19,6 +19,7 @@ class MarketConfig extends Model
         'longitude',
         'address',
         'token',
+        'polling',
         'expiry_token'
     ];
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
