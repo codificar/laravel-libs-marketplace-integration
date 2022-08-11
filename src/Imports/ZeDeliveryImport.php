@@ -119,7 +119,9 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
                     'distance'                      => $calculatedDistance,
                 ]);
 
-                $ordersArray[] = $order;
+                if (! $order->request_id) {
+                    $ordersArray[] = $order;
+                }
             }
 
             // create a ride from orders array
