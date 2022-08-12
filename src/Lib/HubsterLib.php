@@ -79,7 +79,7 @@ class HubsterLib
                 $eventId = $json['eventId'];
                 $arrPoints = $this->pointsFromPayload($payload);
 
-                return $this->deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId);
+                return $this->deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider);
 
                 break;
 
