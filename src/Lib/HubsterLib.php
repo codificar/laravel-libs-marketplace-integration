@@ -15,7 +15,7 @@ use Location\Coordinate;
 
 class HubsterLib
 {
-    private $api;
+    public $api;
 
     public function __construct()
     {
@@ -30,6 +30,20 @@ class HubsterLib
         if (($clientId && $clientSecret) && ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now())) {
             $this->api->auth($clientId, $clientSecret);
         }
+    }
+
+    private static $instance;
+
+    /**
+     * Single instance pattern.
+     */
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
     }
 
     public function newOrders()
@@ -182,17 +196,17 @@ class HubsterLib
         }
 
         if (is_array($arrPoints) && $marketConfig) {
-            $locations = $this->getLocationsRequestPoints($arrPoints);
+            $locations = self::getLocationsRequestPoints($arrPoints);
             $institutionId = $marketConfig->shop->institution_id;
             $providerType = DispatchRepository::getProviderType($institutionId);
 
             $estimate = EstimateService::estimatePriceTable($locations, $providerType, null, null, $institutionId, null, false, null, null);
 
-            $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance(), $provider);
+            $notifyData = self::getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance(), $provider);
 
-            $this->api->setStoreId($storeId);
+            self::getInstance()->api->setStoreId($storeId);
 
-            return $this->api->notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData);
+            return self::getInstance()->api->notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData);
         }
 
         return null;
@@ -284,7 +298,7 @@ class HubsterLib
      * Get location array from request points.
      * @return array
      */
-    private function getLocationsRequestPoints($requestPoints)
+    private static function getLocationsRequestPoints($requestPoints)
     {
         $locations = [];
 
