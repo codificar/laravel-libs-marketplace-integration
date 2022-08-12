@@ -10,6 +10,7 @@ use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
 use Codificar\MarketplaceIntegration\Repositories\DispatchRepository;
 use Codificar\MarketplaceIntegration\Repositories\HubsterRepository;
+use Exception;
 use Location\Coordinate;
 
 class HubsterLib
@@ -61,8 +62,6 @@ class HubsterLib
     {
         $json = $request->json()->all();
 
-        \Log::debug('jsons');
-        \Log::debug($json);
         $storeId = $json['metadata']['storeId'];
         $payload = $json['metadata']['payload'];
 
@@ -79,7 +78,7 @@ class HubsterLib
                 $eventId = $json['eventId'];
                 $arrPoints = $this->pointsFromPayload($payload);
 
-                $this->deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId);
+                return $this->deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId);
 
                 break;
 
@@ -170,6 +169,10 @@ class HubsterLib
     {
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
+        if (! $marketConfig) {
+            throw(new Exception('Loja não encontrada com o id:' . $storeId));
+        }
+
         if (is_array($arrPoints) && $marketConfig) {
             $locations = $this->getLocationsRequestPoints($arrPoints);
             $institutionId = $marketConfig->shop->institution_id;
@@ -228,6 +231,9 @@ class HubsterLib
         $requestPoint->latitude = $address['location']['latitude'];
         $requestPoint->longitude = $address['location']['longitude'];
         $requestPoint->address = $address['fullAddress'];
+        if (! $requestPoint->address && isset($address['addressLines'])) {
+            $requestPoint->address = $address['addressLines'][0];
+        }
         $requestPoint->start_time = Carbon::now();
         $requestPoint->arrival_time = Carbon::now();
         $requestPoint->finish_time = Carbon::now();

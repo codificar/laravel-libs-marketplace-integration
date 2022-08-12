@@ -244,7 +244,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
     }
 
     /**
@@ -257,7 +257,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData);
     }
 
     /**
@@ -270,7 +270,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData);
     }
 
     /**
@@ -283,6 +283,6 @@ class HubsterApi
     {
         $headers = $this->headers;
 
-        $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data);
     }
 }

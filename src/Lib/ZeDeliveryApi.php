@@ -3,6 +3,7 @@
 namespace Codificar\MarketplaceIntegration\Lib;
 
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
