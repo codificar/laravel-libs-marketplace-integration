@@ -87,7 +87,7 @@ class HubsterApi
         try {
             $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
             $body = [
-                'grant_type'     	=> 'client_credentials',
+                'grant_type'     	=> '    ',
                 'client_id'     	=> $clientId,
                 'client_secret'  	=> $clientSecret,
                 'scope'				=> 'ping delivery.provider'
