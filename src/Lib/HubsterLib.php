@@ -277,7 +277,7 @@ class HubsterLib
             ],
             'currencyCode' => 'BRL',
             'cost' => [
-                'baseCost'=> $estimate['estimated_price'],
+                'baseCost'=> $estimate['total_gross'],
                 'extraCost'=> 0
             ],
             'provider'=> $provider,
