@@ -142,12 +142,12 @@ class HubsterLib
             'canceledAt' => Carbon::now()->addMinutes()->toAtomString(),
         ];
 
-        $this->api->setStoreId($storeId);
+        self::getInstance()->api->setStoreId($storeId);
 
         // cancel at database and ride
         HubsterRepository::cancelDeliveryOrder($deliveryReferenceId);
 
-        return $this->api->notifyCancelDelivery($eventId, $deliveryReferenceId, $notifyData);
+        return self::getInstance()->api->notifyCancelDelivery($eventId, $deliveryReferenceId, $notifyData);
     }
 
     /**
@@ -179,9 +179,9 @@ class HubsterLib
             'providerDeliveryId' => $rideApiReturn['request_id']
         ];
 
-        $this->api->setStoreId($storeId);
+        self::getInstance()->api->setStoreId($storeId);
 
-        return $this->api->notifyAcceptDelivery($eventId, $deliveryReferenceId, $notifyData);
+        return self::getInstance()->api->notifyAcceptDelivery($eventId, $deliveryReferenceId, $notifyData);
     }
 
     /**
