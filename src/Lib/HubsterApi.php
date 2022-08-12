@@ -158,7 +158,7 @@ class HubsterApi
             \Log::error('Send > Exception: ' . $ex->getCode() . ' - ' . $ex->getMessage() . $ex->getTraceAsString());
 
             //reautenticacao caso a chave tenha dado 401 e um novo retry
-            if (in_array($ex->getCode(), [401]) && $retry < 3) {
+            if ($ex->getCode() == 401 && $retry < 3) {
                 $clientId = \Settings::findByKey('hubster_client_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
                 $clientSecret = \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
                 $this->auth($clientId, $clientSecret);
