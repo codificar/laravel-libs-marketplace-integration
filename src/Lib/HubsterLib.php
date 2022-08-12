@@ -75,6 +75,7 @@ class HubsterLib
             case 'delivery.request_quote' :
 
                 $deliveryReferenceId = $payload['deliveryReferenceId'];
+                $provider = $payload['provider'];
                 $eventId = $json['eventId'];
                 $arrPoints = $this->pointsFromPayload($payload);
 
@@ -165,7 +166,7 @@ class HubsterLib
     /**
      * Function to treat delivery.request_quote event.
      */
-    private function deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId)
+    private function deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider)
     {
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
@@ -180,7 +181,7 @@ class HubsterLib
 
             $estimate = EstimateService::estimatePriceTable($locations, $providerType, null, null, $institutionId, null, false, null, null);
 
-            $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance());
+            $notifyData = $this->getNotifyPayload($estimate, $marketConfig->shop->institution->getLedger()->getBalance(), $provider);
 
             $this->api->setStoreId($storeId);
 
@@ -244,7 +245,7 @@ class HubsterLib
     /**
      * get notify json object to send through api.
      */
-    private function getNotifyPayload($estimate, $balance)
+    private function getNotifyPayload($estimate, $balance, $provider)
     {
         $jsonPayload = [
             'minPickupDuration' => intval($estimate['duration'] - 5),
@@ -258,10 +259,10 @@ class HubsterLib
                 'baseCost'=> $estimate['estimated_price'],
                 'extraCost'=> 0
             ],
-            'provider'=> 'heyentregas',
+            'provider'=> $provider,
             'fulfillmentPath' => [
                 [
-                    'name' => 'heyentregas',
+                    'name' => $provider,
                     'type'=> 'INTERMEDIARY'
                 ]
             ],
