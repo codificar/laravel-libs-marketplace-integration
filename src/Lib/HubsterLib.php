@@ -266,7 +266,7 @@ class HubsterLib
     /**
      * get notify json object to send through api.
      */
-    private function getNotifyPayload($estimate, $balance, $provider)
+    private static function getNotifyPayload($estimate, $balance, $provider)
     {
         $jsonPayload = [
             'minPickupDuration' => intval($estimate['duration'] - 5),
