@@ -2,6 +2,7 @@
 
 namespace Codificar\MarketplaceIntegration\Models;
 
+use App\Models\RequestPoint;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -96,7 +97,7 @@ class OrderDetails extends Model
      */
     public function point()
     {
-        return $this->hasOne('RequestPoint', 'id', 'point_id');
+        return $this->hasOne(RequestPoint::class, 'id', 'point_id');
     }
 
     /**
