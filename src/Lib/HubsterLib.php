@@ -80,7 +80,9 @@ class HubsterLib
                 $eventId = $json['eventId'];
                 $arrPoints = $this->pointsFromPayload($payload);
 
-                return $this->deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider);
+                dispatch(function () use ($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider) {
+                    self::deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider);
+                });
 
                 break;
 
@@ -91,9 +93,11 @@ class HubsterLib
 
                 $order = $this->orderAcceptFromPayload($storeId, $payload);
 
-                $rideApiReturn = DispatchRepository::createRide([$order]);
+                $rideApiReturn = DispatchRepository::createRide([$order])->resolve();
 
-                $this->deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn->resolve());
+                dispatch(function () use ($storeId, $eventId, $deliveryReferenceId, $rideApiReturn) {
+                    self::deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn);
+                });
 
                 break;
 
@@ -102,7 +106,9 @@ class HubsterLib
                 $eventId = $json['eventId'];
                 $deliveryReferenceId = $payload['deliveryReferenceId'];
 
-                $this->deliveryCancel($storeId, $eventId, $deliveryReferenceId);
+                dispatch(function () use ($storeId, $eventId, $deliveryReferenceId) {
+                    self::deliveryCancel($storeId, $eventId, $deliveryReferenceId);
+                });
 
                 break;
             default:
@@ -116,7 +122,7 @@ class HubsterLib
      * Function to treat delivery.cancel event.
      * It will create a ride and dispatch for the delivery boys.
      */
-    private function deliveryCancel($storeId, $eventId, $deliveryReferenceId)
+    private static function deliveryCancel($storeId, $eventId, $deliveryReferenceId)
     {
         $notifyData = [
             'canceledAt' => Carbon::now()->addMinutes()->toAtomString(),
@@ -134,7 +140,7 @@ class HubsterLib
      * Function to treat delivery.accept event.
      * It will create a ride and dispatch for the delivery boys.
      */
-    private function deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn)
+    private static function deliveryAccept($storeId, $eventId, $deliveryReferenceId, $rideApiReturn)
     {
         $notifyData = [
             'deliveryDistance' => [
@@ -167,7 +173,7 @@ class HubsterLib
     /**
      * Function to treat delivery.request_quote event.
      */
-    private function deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider)
+    private static function deliveryQuote($storeId, $arrPoints, $eventId, $deliveryReferenceId, $provider)
     {
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
@@ -236,9 +242,9 @@ class HubsterLib
         if (! $requestPoint->address && isset($address['addressLines'])) {
             $requestPoint->address = $address['addressLines'][0];
         }
-        $requestPoint->start_time = Carbon::now();
-        $requestPoint->arrival_time = Carbon::now();
-        $requestPoint->finish_time = Carbon::now();
+        $requestPoint->start_time = date('Y-m-d H:i:s');
+        $requestPoint->arrival_time = date('Y-m-d H:i:s');
+        $requestPoint->finish_time = date('Y-m-d H:i:s');
 
         return $requestPoint;
     }
