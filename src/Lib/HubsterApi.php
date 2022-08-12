@@ -110,7 +110,7 @@ class HubsterApi
 
             return $response;
         } catch (\Exception $ex) {
-            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+            \Log::error('auth > error: ' . $ex->getMessage() . $ex->getTraceAsString());
         }
     }
 
@@ -155,7 +155,7 @@ class HubsterApi
 
             \Log::debug('Send > response: ' . print_r($response->getBody(), 1));
         } catch (\Exception $ex) {
-            \Log::error('Send > Exception: ' . $ex->getMessage() . $ex->getTraceAsString());
+            \Log::error('Send > Exception: ' . $ex->getCode() . ' - ' . $ex->getMessage() . $ex->getTraceAsString());
 
             //reautenticacao caso a chave tenha dado 401 e um novo retry
             if (in_array($ex->getCode(), [401]) && $retry < 3) {
