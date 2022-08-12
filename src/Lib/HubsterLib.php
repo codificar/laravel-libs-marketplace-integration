@@ -26,6 +26,7 @@ class HubsterLib
         $this->api = new HubsterApi;
 
         $expiryToken = \Settings::findByKey('hubster_expiry_token');
+
         if (($clientId && $clientSecret) && ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now())) {
             $this->api->auth($clientId, $clientSecret);
         }

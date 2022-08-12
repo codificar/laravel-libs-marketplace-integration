@@ -90,7 +90,7 @@ class HubsterApi
                 'grant_type'     	=> 'client_credentials',
                 'client_id'     	=> $clientId,
                 'client_secret'  	=> $clientSecret,
-                'scope'				=> 'ping'
+                'scope'				=> 'ping delivery.provider'
             ];
 
             $options['headers'] = $headers;
@@ -132,7 +132,7 @@ class HubsterApi
     /**
      * Api Client send data and get json return.
      */
-    public function send($requestType, $route, $headers, $body = null, $retry = 0)
+    public function send($requestType, $route, $headers, $body = null, $isBody = false, $retry = 3)
     {
         $response = null;
 
@@ -142,7 +142,11 @@ class HubsterApi
             if (strtolower($requestType) == 'get') {
                 $options['query'] = $body;
             } else {
-                $options['form_params'] = $body;
+                if ($isBody) {
+                    $options['body'] = json_encode($body);
+                } else {
+                    $options['form_params'] = $body;
+                }
             }
 
             $response = $this->client->request($requestType, $route, $options);
@@ -159,7 +163,7 @@ class HubsterApi
                 $clientSecret = \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
                 $this->auth($clientId, $clientSecret);
 
-                return $this->send($requestType, $route, $headers, $body, ++$retry);
+                return $this->send($requestType, $route, $headers, $body, $isBody, ++$retry);
             }
         }
 
@@ -244,7 +248,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        return $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData, true);
     }
 
     /**
@@ -257,7 +261,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        return $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData, true);
     }
 
     /**
@@ -270,7 +274,7 @@ class HubsterApi
         $headers = $this->headers;
         $headers['X-Event-Id'] = $eventId;
 
-        return $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData, true);
     }
 
     /**
@@ -283,6 +287,6 @@ class HubsterApi
     {
         $headers = $this->headers;
 
-        return $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data);
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data, true);
     }
 }
