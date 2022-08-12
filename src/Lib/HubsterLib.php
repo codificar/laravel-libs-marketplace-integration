@@ -269,7 +269,7 @@ class HubsterLib
     private static function getNotifyPayload($estimate, $balance, $provider)
     {
         $jsonPayload = [
-            'minPickupDuration' => intval($estimate['duration'] - 5),
+            'minPickupDuration' => intval($estimate['duration']),
             'maxPickupDuration' => intval($estimate['duration'] + 5),
             'deliveryDistance' => [
                 'unit' => 'KILOMETERS',
