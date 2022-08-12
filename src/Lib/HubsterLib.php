@@ -580,14 +580,15 @@ class HubsterLib
      */
     public function cancelOrder($order)
     {
-        $data = [
-            'source' =>  $order->marketplace,
-            'orderId' => $order->order_id
-        ];
+        // only for manager.orders
+        // $data = [
+        //     'source' =>  $order->marketplace,
+        //     'orderId' => $order->order_id
+        // ];
 
-        $this->api->setStoreId($order->merchant_id);
+        // $this->api->setStoreId($order->merchant_id);
 
-        return $this->api->cancelOrder($data);
+        // return $this->api->cancelOrder($data);
     }
 
     /**
