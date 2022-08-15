@@ -5940,9 +5940,9 @@ vue-loader@^15.9.8:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-"vue-maps@git+https://libs:ofImhksJ@git.codificar.com.br/vuejs-components/vue-maps.git#f800cd77":
+"vue-maps@git+https://libs:ofImhksJ@git.codificar.com.br/vuejs-components/vue-maps.git#eeeadb1c":
   version "1.0.0"
-  resolved "git+https://libs:ofImhksJ@git.codificar.com.br/vuejs-components/vue-maps.git#f800cd77ed92df99471e430aebb971eb999c2a1a"
+  resolved "git+https://libs:ofImhksJ@git.codificar.com.br/vuejs-components/vue-maps.git#eeeadb1ca81571e6fd7e84e63ade10ac72a52be4"
   dependencies:
     axios "^0.15.3"
     bootstrap "^4.0.0"
@@ -6017,10 +6017,10 @@ vue@^2.0.1, vue@^2.5.22, vue@^2.6.14:
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
 
-vuetify@^2.4.9:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.1.tgz#5cdd26c51980618b0b92625a2829cd4956813eaa"
-  integrity sha512-WtqarqEIJlhiwl1TShtkq58xtfbHpn4BjkuQtsL7mAs2eHCo7QjA3tUm7Dx/NmDc4wa2ghUUth36jTdG+CCWRg==
+vuetify@^2.6.8:
+  version "2.6.8"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.8.tgz#3f4cfa56b7eff4bad1818cd1812b47f6754e140a"
+  integrity sha512-CbJsIGfye++an5/I5ypmYgf74vxt5j0NJ/7UUIDXRYXZsM9YuEpnqo97Ob4LD6QEli1gJa6WXWS8pXLWk0ArPQ==
 
 vuex@^3.6.2:
   version "3.6.2"

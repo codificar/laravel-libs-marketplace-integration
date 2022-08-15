@@ -4,9 +4,7 @@ namespace Codificar\MarketplaceIntegration\Lib;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class HubsterApi
 {
@@ -22,7 +20,7 @@ class HubsterApi
      */
     public function __construct()
     {
-        $environment = \Settings::updateOrCreateByKey('hubster_environment', 'production');
+        $environment = \Settings::findOrCreateByKey('hubster_environment', 'sandbox');
 
         if ($environment == 'production') {
             $this->baseUrl = 'https://partners.tryhubster.com/';
@@ -35,7 +33,7 @@ class HubsterApi
         ]);
 
         //TODO remove reset
-        $clientSecret = \Settings::updateOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
+        $clientSecret = \Settings::findOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
 
         //get the marketplace token
         $key = \Settings::findByKey('hubster_auth_token');
@@ -92,7 +90,7 @@ class HubsterApi
                 'grant_type'     	=> 'client_credentials',
                 'client_id'     	=> $clientId,
                 'client_secret'  	=> $clientSecret,
-                'scope'				=> 'ping'
+                'scope'				=> 'ping delivery.provider'
             ];
 
             $options['headers'] = $headers;
@@ -104,19 +102,15 @@ class HubsterApi
             $this->setAuthorization($response->access_token);
 
             $this->accessToken = $response->access_token;
-            $test = \Settings::updateOrCreateByKey('hubster_auth_token', $this->accessToken);
-            \Log::debug('updateOrCreateByKey: hubster_auth_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('hubster_auth_token', $this->accessToken);
+            \Log::debug('findOrCreateByKey: hubster_auth_token ' . print_r($test, 1));
 
-            $test = \Settings::updateOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
-            \Log::debug('updateOrCreateByKey: hubster_expiry_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('hubster_expiry_token', Carbon::now()->addHours(1));
+            \Log::debug('findOrCreateByKey: hubster_expiry_token ' . print_r($test, 1));
 
             return $response;
-        } catch (\Exception $e) {
-            echo Psr7\Message::toString($e->getRequest());
-            echo Psr7\Message::toString($e->getResponse());
-            \Log::debug($e->getMessage());
-
-            return $e;
+        } catch (\Exception $ex) {
+            \Log::error('auth > error: ' . $ex->getMessage() . $ex->getTraceAsString());
         }
     }
 
@@ -138,7 +132,7 @@ class HubsterApi
     /**
      * Api Client send data and get json return.
      */
-    public function send($requestType, $route, $headers, $body = null, $retry = 0)
+    public function send($requestType, $route, $headers, $body = null, $isBody = false, $retry = 3)
     {
         $response = null;
 
@@ -148,27 +142,32 @@ class HubsterApi
             if (strtolower($requestType) == 'get') {
                 $options['query'] = $body;
             } else {
-                $options['form_params'] = $body;
+                if ($isBody) {
+                    $options['body'] = json_encode($body);
+                } else {
+                    $options['form_params'] = $body;
+                }
             }
 
             $response = $this->client->request($requestType, $route, $options);
 
-            \Log::info('Code: ' . $response->getStatusCode());
+            return json_decode($response->getBody()->getContents());
+
+            \Log::debug('Send > response: ' . print_r($response->getBody(), 1));
         } catch (\Exception $ex) {
+            \Log::error('Send > Exception: ' . $ex->getCode() . ' - ' . $ex->getMessage() . $ex->getTraceAsString());
 
             //reautenticacao caso a chave tenha dado 401 e um novo retry
-            if (in_array($ex->getCode(), [401]) && $retry < 3) {
+            if ($ex->getCode() == 401 && $retry < 3) {
                 $clientId = \Settings::findByKey('hubster_client_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
                 $clientSecret = \Settings::findByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
                 $this->auth($clientId, $clientSecret);
 
-                return $this->send($requestType, $route, $headers, $body, ++$retry);
+                return $this->send($requestType, $route, $headers, $body, $isBody, ++$retry);
             }
-
-            Log::info('erro send: ' . $ex->getMessage());
         }
 
-        return json_decode($response->getBody()->getContents());
+        return null;
     }
 
     /**
@@ -226,7 +225,7 @@ class HubsterApi
      *
      * @param id
      */
-    public function fullfillOrder($data)
+    public function fulfillOrder($data)
     {
         $headers = $this->headers;
 
@@ -237,5 +236,57 @@ class HubsterApi
 
             return false;
         }
+    }
+
+    /**
+     * notify estimate to hubser.
+     *
+     * @param $notifyData
+     */
+    public function notifyDeliveryQuote($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/quotes", $headers, $notifyData, true);
+    }
+
+    /**
+     * notify delivery accept.
+     *
+     * @param $notifyData
+     */
+    public function notifyAcceptDelivery($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/accept", $headers, $notifyData, true);
+    }
+
+    /**
+     * notify delivery cancel.
+     *
+     * @param $notifyData
+     */
+    public function notifyCancelDelivery($eventId, $deliveryReferenceId, $notifyData)
+    {
+        $headers = $this->headers;
+        $headers['X-Event-Id'] = $eventId;
+
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/cancel", $headers, $notifyData, true);
+    }
+
+    /**
+     * update delivery status.
+     *
+     * @param $deliveryReferenceId
+     * @param $data
+     */
+    public function updateDeliveryStatus($deliveryReferenceId, $data)
+    {
+        $headers = $this->headers;
+
+        return $this->send('POST', "v1/delivery/$deliveryReferenceId/status", $headers, $data, true);
     }
 }

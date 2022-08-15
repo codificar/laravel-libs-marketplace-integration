@@ -1,11 +1,13 @@
 import Vue from 'vue';
-import VueRouter from "vue-router";
+import VueRouter from 'vue-router';
 
-import Home from "./pages/Home";
-import ListMode from "./pages/ListMode";
-import MapMode from "./pages/MapMode";
-import Credentials from "./pages/Credentials";
-import ZeDeliveryImport from "./pages/ZeDeliveryImport";
+import Home from './pages/Home';
+import ListMode from './pages/ListMode';
+import MapMode from './pages/MapMode';
+import Credentials from './pages/Credentials';
+import ZeDeliveryCredentials from './pages/ZeDeliveryCredentials';
+import HubsterCredentials from './pages/HubsterCredentials';
+import ZeDeliveryImport from './pages/ZeDeliveryImport';
 import Settings from './pages/Settings';
 
 Vue.use(VueRouter);
@@ -16,29 +18,39 @@ const router = new VueRouter({
         {
             path: '/corp/marketplace/integration/list',
             name: 'list',
-            component: ListMode
+            component: ListMode,
         },
         {
             path: '/corp/marketplace/integration/map',
             name: 'map',
-            component: MapMode
+            component: MapMode,
         },
         {
             path: '/corp/marketplace/settings',
             name: 'settings',
-            component: Settings
+            component: Settings,
         },
         {
             path: '/admin/marketplace-integration/credentials',
             name: 'credentials',
-            component: Credentials
+            component: Credentials,
+        },
+        {
+            path: '/admin/marketplace-integration/credentials/zedelivery',
+            name: 'credentials_zedelivery',
+            component: ZeDeliveryCredentials,
+        },
+        {
+            path: '/admin/marketplace-integration/credentials/hubster',
+            name: 'credentials_hubster',
+            component: HubsterCredentials,
         },
         {
             path: '/admin/marketplace-integration/zedelivery/import',
             name: 'zedeliveryimport',
-            component: ZeDeliveryImport
-        }
-    ]
+            component: ZeDeliveryImport,
+        },
+    ],
 });
 
 export default router;

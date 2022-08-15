@@ -6,11 +6,15 @@ use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\DeliveryAddress;
 use Codificar\MarketplaceIntegration\Models\MarketConfig;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Location\Coordinate;
 
 class IFoodLib
 {
     private $api;
 
+    /**
+     * Construct function.
+     */
     public function __construct()
     {
         //TODO ter settings proprias ao inves de usar a do projeto pai
@@ -25,6 +29,9 @@ class IFoodLib
         }
     }
 
+    /**
+     * Get new orders and save at order details database.
+     */
     public function newOrders()
     {
         $response = $this->api->newOrders();
@@ -107,14 +114,7 @@ class IFoodLib
             if (isset($response->delivery)) {
                 $calculatedDistance = 0;
 
-                if ($marketConfig) {
-                    //TODO mudar calculo de distancia para lib PHP ao inves de consultar banco
-                    $diffDistance = \DB::select(\DB::raw(
-                        "SELECT ST_Distance_Sphere(ST_GeomFromText('POINT(" . $marketConfig->longitude . ' ' . $marketConfig->latitude . ")'), ST_GeomFromText('POINT(" . $response->delivery->deliveryAddress->coordinates->longitude . ' ' . $response->delivery->deliveryAddress->coordinates->latitude . ")')) AS diffDistance"
-                    ));
-                    \Log::debug('DISTANCE: ' . print_r($diffDistance, 1));
-                    $calculatedDistance = $diffDistance[0]->diffDistance;
-                }
+                $calculatedDistance = ($marketConfig ? $marketConfig->calculateDistance(new Coordinate($response->delivery->deliveryAddress->coordinates->latitude, $response->delivery->deliveryAddress->coordinates->longitude)) : 0);
 
                 $complement = property_exists($response->delivery->deliveryAddress, 'complement') ? $response->delivery->deliveryAddress->complement : '';
                 if (! $complement && property_exists($response->delivery->deliveryAddress, 'reference')) {
@@ -187,11 +187,23 @@ class IFoodLib
     }
 
     /**
-     * fullfillOrder order to api.
+     * fulfillOrder order to api.
      * @return object
      */
-    public function fullfillOrder($order)
+    public function fulfillOrder($order)
     {
-        //return $this->api->fullfillOrder($cancelData);
+        //return $this->api->fulfillOrder($cancelData);
+    }
+
+    /**
+     * Retur if lib can polling.
+     * @return bool
+     */
+    public function canPolling()
+    {
+        $clientId = \Settings::findByKey('ifood_client_id');
+        $clientSecret = \Settings::findByKey('ifood_client_secret');
+
+        return $clientId && $clientSecret && $clientId != '' && $clientSecret != '';
     }
 }

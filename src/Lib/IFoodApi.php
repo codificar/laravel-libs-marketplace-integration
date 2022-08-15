@@ -42,11 +42,10 @@ class IFoodApi
      */
     public function send($requestType, $route, $headers, $body = null, $retry = 0)
     {
-        \Log::debug('headers: ' . print_r($headers, 1));
-        \Log::debug('route: ' . print_r($route, 1));
-
         try {
             $response = $this->client->request($requestType, $route, ['headers'       => $headers, 'form_params'   => $body]);
+
+            return json_decode($response->getBody()->getContents());
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
@@ -59,8 +58,6 @@ class IFoodApi
                 return $this->send($requestType, $route, $headers, $body, ++$retry);
             }
         }
-
-        return json_decode($response->getBody()->getContents());
     }
 
     /**
@@ -75,14 +72,13 @@ class IFoodApi
                 'clientId'      => $clientId,
                 'clientSecret'  => $clientSecret,
             ];
+
             $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
 
             $this->accessToken = $res->accessToken;
-            $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_auth_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('ifood_auth_token', $this->accessToken);
 
-            $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
-            \Log::debug('Ifood API updateOrCreateByKey: ifood_expiry_token ' . print_r($test, 1));
+            $test = \Settings::findOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
 
             return $res;
         } catch (\Exception $ex) {
@@ -141,6 +137,11 @@ class IFoodApi
         return $response;
     }
 
+    /**
+     * Ger the order detail json.
+     *
+     * @param id
+     */
     public function orderDetails($id)
     {
         $headers = [
