@@ -186,4 +186,17 @@ class ZeDeliveryLib
     {
         //return $this->api->fulfillOrder($cancelData);
     }
+
+    /**
+     * Retur if lib can polling.
+     * @return bool
+     */
+    public function canPolling()
+    {
+        $clientId = \Settings::findByKey('zedelivery_client_id');
+        $clientSecret = \Settings::findByKey('zedelivery_client_secret');
+        $merchantIds = ZeDeliveryRepository::getMerchantIds();
+
+        return $clientId && $clientSecret && $merchantIds && $clientId != '' && $merchantIds != '';
+    }
 }

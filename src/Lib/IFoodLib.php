@@ -194,4 +194,16 @@ class IFoodLib
     {
         //return $this->api->fulfillOrder($cancelData);
     }
+
+    /**
+     * Retur if lib can polling.
+     * @return bool
+     */
+    public function canPolling()
+    {
+        $clientId = \Settings::findByKey('ifood_client_id');
+        $clientSecret = \Settings::findByKey('ifood_client_secret');
+
+        return $clientId && $clientSecret && $clientId != '' && $clientSecret != '';
+    }
 }

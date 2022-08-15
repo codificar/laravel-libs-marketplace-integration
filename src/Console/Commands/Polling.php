@@ -58,7 +58,10 @@ class Polling extends Command
 
         foreach ($marketplaces as $market) {
             $factory = MarketplaceFactory::create($market);
-            $factory->newOrders();
+
+            if ($factory->canPolling()) {
+                $factory->newOrders();
+            }
         }
     }
 }
