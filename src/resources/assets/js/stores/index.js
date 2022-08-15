@@ -69,6 +69,7 @@ const store = new Vuex.Store({
             range: [null, null],
             searchQuery: null,
             marketId: null,
+            shopId: null,
         },
     },
     mutations: {
@@ -171,6 +172,7 @@ const store = new Vuex.Store({
             let response = createPoints(data, this.state.shops, 'makeRequest');
 
             request.points = response.points;
+            request.return_to_start = response.returnToStart;
 
             console.log('makeRequest > points ', request);
             //call creat corp request
@@ -257,16 +259,7 @@ const store = new Vuex.Store({
             console.log('setRide: ', data);
             axios
                 .post('/libs/marketplace-integration/order/set-ride', data)
-                .then((res) => {
-                    Vue.swal.fire({
-                        title: 'Sucesso!',
-                        text: 'Atualizado com sucesso!',
-                        icon: 'success',
-                        showConfirmButton: true,
-                    });
-
-                    dispatch('getOrders');
-                })
+                .then((res) => {})
                 .catch((err) => {
                     if (
                         err.response &&
@@ -828,20 +821,25 @@ function post(path, params, method = 'post') {
     form.method = method;
     form.action = path;
     form.target = '_blank';
-    console.log('points', params.points);
-    const hiddenField = document.createElement('input');
-    hiddenField.type = 'hidden';
-    hiddenField.name = 'points';
-    hiddenField.value = JSON.stringify(params.points);
 
-    console.log('returnToStart', params.returnToStart);
-    const hiddenField1 = document.createElement('input');
-    hiddenField1.type = 'hidden';
-    hiddenField1.name = 'returnToStart';
-    hiddenField1.value = JSON.stringify(params.returnToStart);
+    const points = document.createElement('input');
+    points.type = 'hidden';
+    points.name = 'points';
+    points.value = JSON.stringify(params.points);
 
-    form.appendChild(hiddenField);
-    form.appendChild(hiddenField1);
+    const providerType = document.createElement('input');
+    providerType.type = 'hidden';
+    providerType.name = 'providerType';
+    providerType.value = window.marketplaceSettings.providerType;
+
+    const returnToStart = document.createElement('input');
+    returnToStart.type = 'hidden';
+    returnToStart.name = 'returnToStart';
+    returnToStart.value = JSON.stringify(params.returnToStart);
+
+    form.appendChild(points);
+    form.appendChild(returnToStart);
+    form.appendChild(providerType);
     document.body.appendChild(form);
     form.submit();
 }

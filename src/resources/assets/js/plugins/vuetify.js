@@ -1,8 +1,8 @@
-import Vue from "vue";
-import 'vuetify/dist/vuetify.min.css'
-import Vuetify, { 
+import Vue from 'vue';
+import 'vuetify/dist/vuetify.min.css';
+import Vuetify, {
     VApp,
-    VAppBar, 
+    VAppBar,
     VNavigationDrawer,
     VToolbar,
     VContainer,
@@ -17,6 +17,7 @@ import Vuetify, {
     VListItemIcon,
     VDivider,
     VList,
+    VVirtualScroll,
     VSelect,
     VIcon,
     VCard,
@@ -41,62 +42,62 @@ import Vuetify, {
     VExpansionPanel,
     VExpansionPanelHeader,
     VExpansionPanelContent,
-    VBtnToggle, 
-    VDialog
- } from "vuetify/lib";
+    VBtnToggle,
+    VDialog,
+} from 'vuetify/lib';
 
- Vue.use(Vuetify, {
+Vue.use(Vuetify, {
     components: {
-      VApp,
-      VAppBar,
-      VNavigationDrawer,
-      VToolbar,
-      VContainer,
-      VMain,
-      VAppBarNavIcon,
-      VToolbarTitle,
-      VFooter,
-      VListItem,
-      VListItemContent,
-      VListItemTitle,
-      VListItemSubtitle,
-      VListItemIcon,
-      VDivider,
-      VList,
-      VIcon,
-      VSelect,
-      VCard,
-      VSwitch,
-      VRow,
-      VCol,
-      VBtn,
-      VCardTitle,
-      VAvatar,
-      VCardText,
-      VForm,
-      VTextField,
-      VCheckbox,
-      VImg,
-      VSheet,
-      VSkeletonLoader,
-      VBottomSheet,
-      VFabTransition,
-      VSpeedDial,
-      VListItemGroup,
-      VExpansionPanels,
-      VExpansionPanel,
-      VExpansionPanelHeader,
-      VExpansionPanelContent,
-      VBtnToggle,
-      VDialog
+        VApp,
+        VAppBar,
+        VNavigationDrawer,
+        VToolbar,
+        VContainer,
+        VMain,
+        VAppBarNavIcon,
+        VToolbarTitle,
+        VFooter,
+        VListItem,
+        VListItemContent,
+        VListItemTitle,
+        VListItemSubtitle,
+        VListItemIcon,
+        VDivider,
+        VList,
+        VVirtualScroll,
+        VIcon,
+        VSelect,
+        VCard,
+        VSwitch,
+        VRow,
+        VCol,
+        VBtn,
+        VCardTitle,
+        VAvatar,
+        VCardText,
+        VForm,
+        VTextField,
+        VCheckbox,
+        VImg,
+        VSheet,
+        VSkeletonLoader,
+        VBottomSheet,
+        VFabTransition,
+        VSpeedDial,
+        VListItemGroup,
+        VExpansionPanels,
+        VExpansionPanel,
+        VExpansionPanelHeader,
+        VExpansionPanelContent,
+        VBtnToggle,
+        VDialog,
     },
- })
+});
 
 const opts = {
-  theme:{
-    dark: false
-  },
-  
-}
+    theme: {
+        dark: false,
+    },
+};
 
- export default new Vuetify(opts)
+export default new Vuetify(opts);

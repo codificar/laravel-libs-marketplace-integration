@@ -2,21 +2,15 @@
 
 namespace Codificar\MarketplaceIntegration\Models;
 
+use App\Models\RequestPoint;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Codificar\MarketplaceIntegration\Models\MarketConfig ;
-use Codificar\MarketplaceIntegration\Models\DeliveryAddress ;
-use Codificar\MarketplaceIntegration\Models\Shops ;
-
-use Location\Coordinate;
-use Location\Distance\Vincenty;
-
 class OrderDetails extends Model
 {
-    
     use SoftDeletes;
-    
+
     protected $table = 'order_detail';
     protected $fillable = [
         'request_id',
@@ -53,8 +47,7 @@ class OrderDetails extends Model
      *
      * @var array
      */
-    protected $appends = ['shop_name', 'market_name', 'factory'];
-
+    protected $appends = ['shop_name', 'market_name', 'factory',  'formatted_address'];
 
     protected $dates = [
         'created_at',
@@ -70,7 +63,7 @@ class OrderDetails extends Model
     {
         return $this->hasOne(DeliveryAddress::class, 'order_id', 'order_id');
     }
-     
+
     /**
      * Get the market_config that owns the merchant_id.
      * @return MarketConfig
@@ -79,7 +72,6 @@ class OrderDetails extends Model
     {
         return $this->belongsTo(MarketConfig::class, 'merchant_id', 'merchant_id');
     }
-
 
     /**
      * Get the market_config that owns the merchant_id.
@@ -90,59 +82,145 @@ class OrderDetails extends Model
         return $this->hasOne(Shops::class, 'id', 'shop_id');
     }
 
+    /**
+     * Get the ride that owns the reques_id.
+     * @return Requests
+     */
+    public function ride()
+    {
+        return $this->hasOne('Requests', 'id', 'request_id');
+    }
 
     /**
-     * Get the address associated with the market_config 
+     * Get the request point that owns the point_id.
+     * @return RequestPoint
+     */
+    public function point()
+    {
+        return $this->hasOne(RequestPoint::class, 'id', 'point_id');
+    }
+
+    /**
+     * Get the address associated with the market_config.
      * @return string market_address
      */
-    public function getMarketFormattedAddressAttribute(){
-        if($this->market && $this->market->marketplace_address){
+    public function getMarketFormattedAddressAttribute()
+    {
+        if ($this->market && $this->market->marketplace_address) {
             $decoded = this->market->marketplace_address;
 
             return sprintf('%s - %s', $decoded->street, $decoded->district);
         }
     }
 
-
     /**
-     * Get the factory string
+     * Get the factory string.
      * @return string marketplace factiro
      */
-    public function getFactoryAttribute(){
-        if($this->aggregator) return $this->aggregator;
+    public function getFactoryAttribute()
+    {
+        if ($this->aggregator) {
+            return $this->aggregator;
+        }
 
         return $this->marketplace;
     }
 
     /**
-     * Get the shop name string
+     * Get the shop name string.
      * @return string shop name
      */
-    public function getShopNameAttribute(){
-        if($this->shop) return $this->shop->name;
+    public function getShopNameAttribute()
+    {
+        if ($this->shop) {
+            return $this->shop->name;
+        }
 
         return null;
     }
 
     /**
-     * Get the market name string
+     * Get the market name string.
      * @return string market name
      */
-    public function getMarketNameAttribute(){
-        if($this->market && isset($this->market->name)) return $this->market->name;
+    public function getMarketNameAttribute()
+    {
+        if ($this->market && isset($this->market->name)) {
+            return $this->market->name;
+        }
 
         return null;
     }
 
+    /**
+     * Get the market name string.
+     * @return string market name
+     */
+    public function getFormattedAddressAttribute()
+    {
+        if ($this->full_address) {
+            return $this->full_address;
+        }
+
+        if ($this->deliveryAddress) {
+            return $this->deliveryAddress->formatted_address;
+        }
+
+        return null;
+    }
+
+    private $deliveryAddress;
 
     /**
      * Get the address associated with the order.
      * @return DeliveryAddress
      */
-    public function deliveryAddress()
+    public function getDeliveryAddressAttribute()
     {
-        return DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->last();
+        if (! $this->deliveryAddress) {
+            $this->deliveryAddress = DeliveryAddress::where('order_id', $this->order_id)->where('customer_id', $this->customer_id)->orderBy('id', 'DESC')->first();
+        }
+
+        return $this->deliveryAddress;
     }
 
+    /**
+     * Get the delivery status for hubster marketplaces.
+     * @return string delivery status "REQUESTED" "ALLOCATED" "PICKED_UP" "COMPLETED" "CANCELED" "ARRIVED_AT_PICKUP"
+     */
+    public function getDeliveryStatusAttribute()
+    {
+        if ($this->point_id && isset($this->point)) {
+            return $this->point->delivery_status;
+        }
 
+        return 'REQUESTED';
+    }
+
+    /**
+     * get estimatedDeliveryTime.
+     * @return Carbon estimatedDeliveryTime
+     */
+    public function getEstimatedDeliveryTimeAttribute()
+    {
+        $carbon = Carbon::parse($this->created_at_marketplace);
+        $estimateTime = 15;
+        if ($this->ride) {
+            $estimateTime = $this->ride->estimate_time;
+        }
+
+        return $carbon->addMinutes($estimateTime);
+    }
+
+    /**
+     * get estimatedPickupTime.
+     * @return Carbon estimatedPickupTime
+     */
+    public function getEstimatedPickupTimeAttribute()
+    {
+        $carbon = Carbon::parse($this->created_at_marketplace);
+        $estimateTime = 5;
+
+        return $carbon->addMinutes($estimateTime);
+    }
 }
