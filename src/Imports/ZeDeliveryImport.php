@@ -48,8 +48,8 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
 
             $ordersArray = [];
             foreach ($row as $groupedRow) {
-                $storeId = intval(str_ireplace(',', '', $groupedRow['poc_id']));
-                $orderId = intval(str_ireplace(',', '', $groupedRow['order_number']));
+                $storeId = intval(str_ireplace([',', '.'], '', $groupedRow['poc_id']));
+                $orderId = intval(str_ireplace([',', '.'], '', $groupedRow['order_number']));
                 $createdAt = $groupedRow['order_datetime'];
                 $providerKey = $groupedRow['deliveryman_email'];
                 $customerId = $orderId;

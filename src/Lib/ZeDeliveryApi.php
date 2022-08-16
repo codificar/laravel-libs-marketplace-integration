@@ -41,7 +41,7 @@ class ZeDeliveryApi
         $clientSecret = \Settings::findByKey('zedelivery_client_secret');
 
         $expiryToken = \Settings::findByKey('zedelivery_expiry_token');
-        if ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now() || ! $this->accessToken) {
+        if (($clientId && $clientSecret) && ($expiryToken == null || Carbon::parse($expiryToken) < Carbon::now() || ! $this->accessToken)) {
             $this->auth($clientId, $clientSecret);
         }
 
