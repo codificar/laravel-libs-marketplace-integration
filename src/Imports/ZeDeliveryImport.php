@@ -55,6 +55,11 @@ class ZeDeliveryImport implements ToCollection, WithChunkReading, ShouldQueue, W
                 $customerId = $orderId;
                 $customerName = $orderId;
 
+                // pular se nao for para pagar
+                if (trim($groupedRow['recebe_pgto']) != 'PAGAR') {
+                    continue;
+                }
+
                 $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::ZEDELIVERY)->first();
 
                 if (! $marketConfig) {
