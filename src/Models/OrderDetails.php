@@ -158,12 +158,12 @@ class OrderDetails extends Model
      */
     public function getFormattedAddressAttribute()
     {
-        if ($this->full_address) {
-            return $this->full_address;
+        if ($this->delivery_address) {
+            return $this->delivery_address->formatted_address;
         }
 
-        if ($this->deliveryAddress) {
-            return $this->deliveryAddress->formatted_address;
+        if ($this->full_address) {
+            return $this->full_address;
         }
 
         return null;
