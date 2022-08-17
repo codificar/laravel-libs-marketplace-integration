@@ -109,15 +109,13 @@ class ZeDeliveryApi
 
             $this->accessToken = $response->access_token;
             $this->setAuthorization($this->accessToken);
-            $test = \Settings::findOrCreateByKey('zedelivery_auth_token', $this->accessToken);
-            \Log::debug('Ifood API findOrCreateByKey: zedelivery_auth_token ' . print_r($test, 1));
 
-            $test = \Settings::findOrCreateByKey('zedelivery_expiry_token', Carbon::now()->addHours(3));
-            \Log::debug('Ifood API findOrCreateByKey: zedelivery_expiry_token ' . print_r($test, 1));
+            $zedelivery_auth_token = \Settings::findOrCreateByKey('zedelivery_auth_token', $this->accessToken);
+            $zedelivery_expiry_token = \Settings::findOrCreateByKey('zedelivery_expiry_token', Carbon::now()->addHours(3));
 
             return $response;
         } catch (\Exception $ex) {
-            \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
+            \Log::error('AUTH > ERROR: ' . $clientId . ' - ' . $clientSecret . $ex->getMessage() . $ex->getTraceAsString());
         }
     }
 
