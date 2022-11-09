@@ -250,12 +250,19 @@ class HubsterLib
     {
         $requestPoint = new RequestPoint;
 
-        $requestPoint->latitude = $address['location']['latitude'];
-        $requestPoint->longitude = $address['location']['longitude'];
-        $requestPoint->address = $address['fullAddress'];
+        if(isset($address['location'])) {
+            $requestPoint->latitude = $address['location']['latitude'];
+            $requestPoint->longitude = $address['location']['longitude'];
+        }
+        
+        if(isset($address['fullAddress'])){
+            $requestPoint->address = $address['fullAddress'];
+        }
+
         if (! $requestPoint->address && isset($address['addressLines'])) {
             $requestPoint->address = $address['addressLines'][0];
         }
+        
         $requestPoint->start_time = date('Y-m-d H:i:s');
         $requestPoint->arrival_time = date('Y-m-d H:i:s');
         $requestPoint->finish_time = date('Y-m-d H:i:s');
