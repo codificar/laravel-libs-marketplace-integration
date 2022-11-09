@@ -192,7 +192,8 @@ class HubsterLib
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
         if (! $marketConfig) {
-            throw(new Exception('Loja não encontrada com o id:' . $storeId));
+            \Log::warning(new Exception('Loja não encontrada com o id:' . $storeId));
+            return ;
         }
 
         if (is_array($arrPoints) && $marketConfig) {
