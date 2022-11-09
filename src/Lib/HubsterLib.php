@@ -471,7 +471,7 @@ class HubsterLib
         $order = OrderDetails::updateOrCreate(
             [
                 'order_id'                          => $external['id'],
-                'aggregator'                        => MarketplaceFactory::HUBSTER
+                'marketplace'                        => $this->treatMarketplace($external['source'])
             ],
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
