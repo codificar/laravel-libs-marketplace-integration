@@ -8,6 +8,7 @@ use App\Models\RequestPoint;
 use Carbon\Carbon;
 use Codificar\MarketplaceIntegration\Models\AutomaticDispatch;
 use Codificar\MarketplaceIntegration\Models\OrderDetails;
+use Codificar\MarketplaceIntegration\Repositories\MarketplaceRepository;
 
 /**
  * Class DispatchRepository.
@@ -27,7 +28,7 @@ class DispatchRepository
         $query = OrderDetails::query();
 
         // set code to all orders available to delivery
-        $query->whereIn('code', [OrderDetails::CONFIRMED, OrderDetails::REQUEST_DRIVER_AVAILABILITY])
+        $query->whereIn('code', [MarketplaceRepository::CONFIRMED, MarketplaceRepository::REQUEST_DRIVER_AVAILABILITY])
             ->join('delivery_address', 'order_detail.order_id', '=', 'delivery_address.order_id')
             ->join('shops', 'order_detail.shop_id', '=', 'shops.id')
             ->join('institution', 'institution.id', '=', 'shops.institution_id')

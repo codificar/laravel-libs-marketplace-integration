@@ -76,9 +76,9 @@ class IFoodApi
             $res = $this->send('POST', 'authentication/v1.0/oauth/token', $headers, $body);
 
             $this->accessToken = $res->accessToken;
-            $test = \Settings::findOrCreateByKey('ifood_auth_token', $this->accessToken);
+            $test = \Settings::updateOrCreateByKey('ifood_auth_token', $this->accessToken);
 
-            $test = \Settings::findOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
+            $test = \Settings::updateOrCreateByKey('ifood_expiry_token', Carbon::now()->addHours(1));
 
             return $res;
         } catch (\Exception $ex) {
@@ -160,9 +160,7 @@ class IFoodApi
     public function confirmOrder($id)
     {
         $headers = [
-            'headers'   => [
-                'Authorization' => 'Bearer ' . $this->accessToken
-            ]
+            'Authorization' => 'Bearer ' . $this->accessToken
         ];
         try {
             return $this->send('POST', 'order/v1.0/orders/' . $id . '/confirm', $headers);
@@ -181,10 +179,8 @@ class IFoodApi
     public function cancelOrder($id)
     {
         $headers = [
-            'headers'   => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->accessToken
-            ]
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $this->accessToken
         ];
         $object = [
             'reason'                        => 'PEDIDO FORA DA ÁREA DE ENTREGA',
@@ -207,7 +203,9 @@ class IFoodApi
     public function dispatchOrder($id)
     {
         try {
-            $headers = $this->headers;
+            $headers = [
+                'Authorization' => 'Bearer ' . $this->accessToken
+            ];
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
             return $this->send('POST', 'order/v1.0/orders/' . $id . '/dispatch', $headers, ['id' => $id]);
