@@ -192,7 +192,7 @@ class HubsterLib
         $marketConfig = MarketConfig::where('merchant_id', $storeId)->where('market', MarketplaceFactory::HUBSTER)->first();
 
         if (! $marketConfig) {
-            \Log::warning(new Exception('Loja não encontrada com o id:' . $storeId));
+            \Log::warning('Loja não encontrada com o id:' . $storeId);
             return ;
         }
 
@@ -373,7 +373,6 @@ class HubsterLib
             ],
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                'order_id'                      => $orderId,
                 'marketplace_order_id'          => $deliveryReferenceId,
                 'code'                          => HubsterRepository::CONFIRMED,
                 'full_code'                     => HubsterRepository::mapFullCode(HubsterRepository::CONFIRMED),
@@ -483,7 +482,6 @@ class HubsterLib
             ],
             [
                 'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                'order_id'                      => $external['id'],
                 'marketplace_order_id'          => $external['id'],
                 'code'                          => HubsterRepository::CONFIRMED,
                 'full_code'                     => HubsterRepository::mapFullCode(HubsterRepository::CONFIRMED),

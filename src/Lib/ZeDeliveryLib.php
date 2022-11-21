@@ -40,7 +40,6 @@ class ZeDeliveryLib
                         'order_id'       => $value->orderId,
                     ],
                     [
-                        'order_id'                  => $value->orderId,
                         'code'                      => ZeDeliveryRepository::mapCode($value->eventType),
                         'full_code'                 => ZeDeliveryRepository::mapFullCodeFromEvent($value->eventType),
                         'merchant_id'               => $value->merchantId,
@@ -82,7 +81,6 @@ class ZeDeliveryLib
                 ],
                 [
                     'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                    'order_id'                      => $response->displayId,
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_marketplace'        => $createdAt,

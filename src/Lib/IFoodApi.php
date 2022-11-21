@@ -187,7 +187,7 @@ class IFoodApi
             'cancellationCode'              => '506'
         ];
         try {
-            return $this->send('POST', 'order/v1.0/orders/' . $id . '/requestCancellation', $headers, json_encode($object));
+            return $this->send('POST', 'order/v1.0/orders/' . $id . '/requestCancellation', $headers, $object);
         } catch (Exception $ex) {
             \Log::error('error: ' . $ex->getMessage() . $ex->getTraceAsString());
 
