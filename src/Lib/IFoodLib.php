@@ -48,7 +48,6 @@ class IFoodLib
                         'order_id'       => $value->orderId,
                     ],
                     [
-                        'order_id'                  => $value->orderId,
                         'code'                      => $value->code,
                         'full_code'                 => $value->fullCode,
                         'merchant_id'               => $value->merchantId,
@@ -90,7 +89,6 @@ class IFoodLib
                 ],
                 [
                     'shop_id'                       => ($marketConfig ? $marketConfig->shop_id : null),
-                    'order_id'                      => $response->id,
                     'client_name'                   => $response->customer->name,
                     'merchant_id'                   => $response->merchant->id,
                     'created_at_marketplace'        => $createdAt,
