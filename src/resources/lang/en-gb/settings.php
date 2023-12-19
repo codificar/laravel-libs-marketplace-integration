@@ -24,4 +24,36 @@ return [
     'zedelivery_client_id'         => 'Zé Delivery API Client Id',
     'zedelivery_client_secret'     => 'Zé Delivery API Client Secret',
 
+    'requests'                      => 'Requests',
+    'no_have_requests'              => 'No requests available for delivery!',
+    'mount_race'                    => 'Manually Mount Race',
+    'request_provider'              => 'Request Provider',
+
+    'store'                         => 'Store',
+    'request'                       => 'Request',
+    'status'                        => 'Status',
+    'payment'                       => 'Payment',
+    'details'                       => 'Details',
+    'selection'                     => 'Selection',
+
+    'client'                        => 'Client',
+    'neighborhood'                  => 'Neighborhood',
+    'address'                       => 'Address',
+    'complement'                    => 'Complement',
+    'distance'                      => 'Distance',
+    'value'                         => 'Value',
+
+    'payment_money'                 => 'Payment: CASH',
+    'payment_machine'               => 'Payment: MACHINE',
+    'payment_online'                => 'Payment: ONLINE',
+
+    'details'                       => 'Details',
+    'add_delivery'                  => 'Add to Delivery',
+    'to_accompany'                  => 'Track',
+
+    'period'                => 'By Period',
+    'placeholder_search'    => 'Search by Request, Client Name, or Neighborhood',
+
+
+
 ];

@@ -3,7 +3,9 @@
         <div class="card-header">
             <div class="row justify-space-between">
                 <div class="ma-5 align-center justify-start">
-                    <h4 class="m-b-0 text-white">Pedidos</h4>
+                    <h4 class="m-b-0 text-white">
+                        {{ trans('settings.requests') }}
+                    </h4>
                 </div>
                 <div class="ma-5 col-lg-4 col-md-4 align-center justify-center">
                     <refresh-screen
@@ -11,7 +13,7 @@
                         @on-finish-count="getOrders"
                     />
                 </div>
-                <div class="ma-5 align-center ">
+                <div class="ma-5 align-center">
                     <div class="row col-md-12 justify-end">
                         <v-btn
                             class="ma-lg-2 justify-end"
@@ -23,10 +25,10 @@
                             small
                         >
                             <i class="mdi mdi-google-maps"></i>
-                            Montar Corrida Manualmente
+                            {{ trans('settings.mount_race') }}
                         </v-btn>
                         <v-btn
-                            class=" ma-lg-2 justify-end"
+                            class="ma-lg-2 justify-end"
                             v-if="selectedIds.length > 0"
                             :loading="$store.state.requestStatus"
                             :disabled="$store.state.requestStatus"
@@ -35,7 +37,7 @@
                             small
                         >
                             <i class="mdi mdi-motorbike"></i>
-                            Solicitar Prestador
+                            {{ trans('settings.request_provider') }}
                         </v-btn>
                     </div>
                 </div>
@@ -47,29 +49,29 @@
             <v-card-text
                 v-if="
                     $store.state.orders &&
-                        $store.state.orders.data &&
-                        $store.state.orders.data.length == 0
+                    $store.state.orders.data &&
+                    $store.state.orders.data.length == 0
                 "
             >
                 <div class="card-body">
-                    Não há pedidos disponíveis para entrega!
+                    {{ trans('settings.no_have_requests') }}
                 </div>
             </v-card-text>
             <div
                 v-if="
                     $store.state.orders &&
-                        $store.state.orders.data &&
-                        $store.state.orders.data.length > 0
+                    $store.state.orders.data &&
+                    $store.state.orders.data.length > 0
                 "
                 class="card-body"
             >
                 <table class="table">
-                    <th>Loja</th>
-                    <th>Pedido</th>
-                    <th>Status</th>
-                    <th>Pagamento</th>
-                    <th>Detalhes</th>
-                    <th>Seleção</th>
+                    <th>{{ trans('settings.store') }}</th>
+                    <th>{{ trans('settings.request') }}</th>
+                    <th>{{ trans('settings.status') }}</th>
+                    <th>{{ trans('settings.payment') }}</th>
+                    <th>{{ trans('settings.details') }}</th>
+                    <th>{{ trans('settings.selection') }}</th>
                     <tbody>
                         <tr
                             v-for="order in getResultQuery()"
@@ -82,8 +84,8 @@
                                         <v-img
                                             :src="
                                                 '/vendor/codificar/marketplace-integration/img/' +
-                                                    order.factory +
-                                                    '.jpg'
+                                                order.factory +
+                                                '.jpg'
                                             "
                                             alt="iFood"
                                         />
@@ -95,22 +97,27 @@
                             </td>
                             <td class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Pedido: {{ order.display_id }}
+                                    {{ trans('settings.request') }}:
+                                    {{ order.display_id }}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Cliente: {{ order.client_name }}
+                                    {{ trans('settings.client') }}:
+                                    {{ order.client_name }}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Bairro: {{ order.neighborhood }}
+                                    {{ trans('settings.neighborhood') }}:
+                                    {{ order.neighborhood }}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Endereço: {{ order.formatted_address }}
+                                    {{ trans('settings.address') }}:
+                                    {{ order.formatted_address }}
                                 </div>
                                 <div
                                     class="font-weight-medium"
                                     v-if="order.complement != ''"
                                 >
-                                    Complemento: {{ order.complement }}
+                                    {{ trans('settings.complement') }}:
+                                    {{ order.complement }}
                                 </div>
                             </td>
                             <td class="font-weight-black">
@@ -124,17 +131,17 @@
                                     }}
                                 </div>
                                 <div class="font-weight-medium">
-                                    Distancia:
+                                    {{ trans('settings.distance') }}:
                                     {{
                                         parseFloat(order.distance).toFixed() /
-                                            1000
+                                        1000
                                     }}
                                     KM
                                 </div>
                             </td>
                             <td class="font-weight-black">
                                 <div class="font-weight-medium">
-                                    Valor:
+                                    {{ trans('settings.value') }}:
                                     {{
                                         order.order_amount
                                             ? formatCurrency(order.order_amount)
@@ -145,16 +152,16 @@
                                     class="font-weight-medium"
                                     v-if="
                                         !order.prepaid &&
-                                            order.method_payment === 'CASH'
+                                        order.method_payment === 'CASH'
                                     "
                                 >
-                                    Pagamento: DINHEIRO
+                                    {{ trans('settings.payment_money') }}
                                 </div>
                                 <div
                                     class="font-weight-medium"
                                     v-if="
                                         !order.prepaid &&
-                                            order.method_payment === 'CASH'
+                                        order.method_payment === 'CASH'
                                     "
                                 >
                                     Troco para:
@@ -164,16 +171,16 @@
                                     class="font-weight-medium"
                                     v-if="
                                         !order.prepaid &&
-                                            order.method_payment === 'CREDIT'
+                                        order.method_payment === 'CREDIT'
                                     "
                                 >
-                                    Pagamento: MÁQUINA
+                                    {{ trans('settings.payment_machine') }}
                                 </div>
                                 <div
                                     class="font-weight-medium"
                                     v-if="
                                         !order.prepaid &&
-                                            order.method_payment == 'CREDIT'
+                                        order.method_payment == 'CREDIT'
                                     "
                                 >
                                     Bandeira: {{ order.card_brand }}
@@ -182,7 +189,7 @@
                                     class="font-weight-medium"
                                     v-if="order.prepaid"
                                 >
-                                    Pagamento: ONLINE
+                                    {{ trans('settings.payment_online') }}
                                 </div>
                             </td>
                             <td class="font-weight-black">
@@ -193,7 +200,7 @@
                                         depressed
                                         color="primary"
                                         @click="showDetails(order)"
-                                        style="width:150px;"
+                                        style="width: 150px"
                                     >
                                         <v-icon color="white" left
                                             >mdi-clipboard-text</v-icon
@@ -201,8 +208,8 @@
                                         <span
                                             class="font-weight-white white--text"
                                         >
-                                            Detalhes</span
-                                        >
+                                            {{ trans('settings.details') }}
+                                        </span>
                                     </v-btn>
                                 </div>
                             </td>
@@ -213,10 +220,12 @@
                                             v-model="selectedIds"
                                             v-if="
                                                 order.request_id == null &&
-                                                    (order.code == 'CFM' ||
-                                                        order.code == 'RDA')
+                                                (order.code == 'CFM' ||
+                                                    order.code == 'RDA')
                                             "
-                                            label="Adicionar a entrega"
+                                            :label="
+                                                trans('settings.add_delivery')
+                                            "
                                             class="ma-2 mt-1"
                                             :value="order.order_id"
                                             :id="order.order_id"
@@ -228,17 +237,17 @@
                                         depressed
                                         v-if="order.request_id"
                                         color="primary"
-                                        style="width:150px;"
+                                        style="width: 150px"
                                         v-bind="attrs"
                                         :href="
                                             '/corp/request/tracking/' +
-                                                order.tracking_route
+                                            order.tracking_route
                                         "
                                     >
                                         <v-icon color="white" left
                                             >mdi-map</v-icon
                                         >
-                                        ACOMPANHAR
+                                        {{ trans('settings.to_accompany') }}
                                     </v-btn>
                                 </div>
                             </td>
@@ -342,13 +351,13 @@ export default {
     },
     watch: {
         selectedIds: {
-            handler: function(newVal, oldVal) {
+            handler: function (newVal, oldVal) {
                 this.selectedOrders = [];
                 var context = this;
 
-                newVal.forEach(function(orderId) {
+                newVal.forEach(function (orderId) {
                     console.log(orderId);
-                    context.$store.state.orders.data.forEach(function(order) {
+                    context.$store.state.orders.data.forEach(function (order) {
                         if (order.order_id == orderId)
                             context.selectedOrders.push(order);
                     });

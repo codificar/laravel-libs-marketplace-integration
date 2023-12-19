@@ -14,7 +14,7 @@
                     lang="pt-br"
                     format="YYYY-MM-DD"
                     formatted="YYYY-MM-DD"
-                    placeholder="Por período"
+                    :placeholder="trans('settings.period')"
                     range
                     class="box"
                 />
@@ -29,7 +29,7 @@
                         class="form-control"
                         type="text"
                         v-model="$store.state.filterOrders.searchQuery"
-                        placeholder="Buscar por Pedido, Nome do Cliente ou Bairro"
+                        :placeholder="trans('settings.placeholder_search')"
                     />
                 </div>
             </v-col>
