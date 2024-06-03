@@ -14,9 +14,15 @@ class AlterShops extends Migration
     public function up()
     {
         Schema::table('shops', function (Blueprint $table) {
-            $table->string('full_address')->nullable();
-            $table->float('latitude', 15, 8);
-            $table->float('longitude', 15, 8);
+            if (!Schema::hasColumn('shops', 'full_address')) {
+                $table->string('full_address')->nullable();
+            }
+            if (!Schema::hasColumn('shops', 'latitude')) {
+                $table->float('latitude', 15, 8);
+            }
+            if (!Schema::hasColumn('shops', 'longitude')) {
+                $table->float('longitude', 15, 8);
+            }
         });
     }
 
