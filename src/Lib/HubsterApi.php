@@ -33,12 +33,12 @@ class HubsterApi
         ]);
 
         //TODO remove reset
-        $clientSecret = \Settings::findOrCreateByKey('hubster_client_secret', 'CGX3I3RXL5IUDLP2ZHKA');
+        $clientSecret = \Settings::findOrCreateByKey('hubster_client_secret');
 
         //get the marketplace token
         $key = \Settings::findByKey('hubster_auth_token');
 
-        $applicationId = \Settings::findByKey('hubster_application_id', 'c8f9a164-ac52-486f-bb85-74c3c7cc0518');
+        $applicationId = \Settings::findByKey('hubster_application_id';
 
         $this->accessToken = $key;
 
