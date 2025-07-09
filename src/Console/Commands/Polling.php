@@ -38,6 +38,11 @@ class Polling extends Command
      */
     public function handle()
     {
+         if(! \Settings::findByKey('automatic_dispatch_enabled')) {
+            $this->info("Automatic dispatch is disabled");
+            return ;
+        }
+        
         // just polling if has the proper configurations
         $this->polling();
         sleep(30);
